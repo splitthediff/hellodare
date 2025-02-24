@@ -1,0 +1,73 @@
+@font-face {
+  font-family: 'PPMori';
+  src: url(fonts/PPMori-SemiBold.ttf) format('trueType');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'PPMori';
+  src: url(fonts/PPMori-Bold.ttf) format('trueType');
+  font-weight: bold;
+}
+
+body{
+  background-color: #FFFAF7;
+  margin: 0;
+  padding: 0;
+  height: 100vh; /* Full height of the viewport */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centers the container horizontally */
+  align-items: flex-start; /* Centers the container vertically */
+}
+
+.flexbox-container{
+  display: flex;
+  flex-direction: column;
+  height: 50px;
+  margin-left: 10%;
+  width: 900px; /* Optional: You can adjust the width as needed */
+}
+
+.flexbox-item{
+  flex-wrap: wrap;
+  align-self: flex-start;
+  font-family: 'PPMori', Helvetica, Arial, sans-serif;
+  font-size: 1.1em;  
+  font-weight: 400;
+  margin-bottom: 1em;
+}
+
+.title-button{
+  background-color: #FFFAF7;
+  display: inline;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+ /* Initially hide the elements with the class 'text-info-hidden-1' */
+ .text-info-hidden-1 {
+  opacity: 0; /* Initially hidden */
+  visibility: hidden; /* Make it invisible */
+  filter: blur(2px); /* Initially apply blur */
+  transition: opacity 2.5s ease, visibility 0.25s 0.5s, filter 3s ease; /* Smooth transition */
+}
+
+/* When the element is visible */
+.text-info-hidden-1.visible {
+  opacity: 1; /* Show the text */
+  visibility: visible; /* Make it visible */
+  filter: blur(0); /* Remove the blur */
+  transition: opacity 2.5s ease, visibility 0.25s 0.5s, filter 3s ease; /* Smooth transition */
+}
+
+a:hover{
+  color:grey;
+}
+
+.email-link{
+  color:black;
+  text-decoration: none;
+}
+
