@@ -1,17 +1,37 @@
+/*
 @font-face {
   font-family: 'PPMori';
-  src: url(fonts/PPMori-SemiBold.ttf) format('trueType');
+  src: url(assets/fonts/PPMori-SemiBold.ttf) format('trueType');
   font-weight: 400;
 }
 
 @font-face {
   font-family: 'PPMori';
-  src: url(fonts/PPMori-Bold.ttf) format('trueType');
+  src: url(assets/fonts/PPMori-Bold.ttf) format('trueType');
   font-weight: bold;
+}*/
+
+:root {
+  --background-color: FFFAF7;
+  --primary-text-color: 231F20;
+  --primary-font-family: "neue-haas-unica", helvetica, sans-serif
+}
+
+/*  DARK MODE
+@media (prefers-color-scheme: dark) {
+  :root {
+  --background-color: FFFAF7;
+  --primary-text-color: 231F20;
+  }
+}*/
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 body{
-  background-color: #FFFAF7;
+  background-color: var(--background-color);
   margin: 0;
   padding: 0;
   height: 100vh; /* Full height of the viewport */
@@ -32,14 +52,14 @@ body{
 .flexbox-item{
   flex-wrap: wrap;
   align-self: flex-start;
-  font-family: 'PPMori', Helvetica, Arial, sans-serif;
+  font-family: var(--primary-font-family);
   font-size: 1.1em;  
   font-weight: 400;
   margin-bottom: 1em;
 }
 
 .title-button{
-  background-color: #FFFAF7;
+  background-color: var(--background-color);
   display: inline;
   border: none;
   margin: 0;
@@ -51,7 +71,7 @@ body{
   opacity: 0; /* Initially hidden */
   visibility: hidden; /* Make it invisible */
   filter: blur(2px); /* Initially apply blur */
-  transition: opacity 2.5s ease, visibility 0.25s 0.5s, filter 3s ease; /* Smooth transition */
+  transition: opacity 2.5s ease, visibility 0s 0.5s, filter 3s ease; /* Smooth transition */
 }
 
 /* When the element is visible */
@@ -59,7 +79,7 @@ body{
   opacity: 1; /* Show the text */
   visibility: visible; /* Make it visible */
   filter: blur(0); /* Remove the blur */
-  transition: opacity 2.5s ease, visibility 0.25s 0.5s, filter 3s ease; /* Smooth transition */
+  transition: opacity 2.5s ease, visibility 0s 0.5s, filter 3s ease; /* Smooth transition */
 }
 
 a:hover{
