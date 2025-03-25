@@ -11,12 +11,32 @@
   font-weight: bold;
 }*/
 
-:root {
+/* Universal reset for all elements */
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;  /* Ensures consistent box-sizing */
+}
+
+/* Explicit reset for HTML and body */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;  /* Ensure the body spans the entire width */
+  box-sizing: border-box; /* Ensures padding/border are included in width/height calculation */
+}
+
+:root {
   --background-color: FFBF5E9;
   --primary-text-color: 231F20;
-  --primary-font-family: "neue-haas-unica", helvetica, sans-serif
+  --primary-font-family: "neue-haas-unica", helvetica, sans-serif;
+
+  /*Vimeo size settings*/
+  --vimeo-max-width: 1920px; /* Optional: Control max-width to limit size on large screens */
+  --vimeo-size-percentage: 80%;
 }
 
 /*  DARK MODE
@@ -34,8 +54,6 @@ body {
 
 body{
   background-color: var(--background-color);
-  margin: 0;
-  padding: 0;
   height: 100vh; /* Full height of the viewport */
   display: flex;
   flex-direction: column;
@@ -83,6 +101,43 @@ body{
   filter: blur(0); /* Remove the blur */
   transition: opacity 2.5s ease, visibility 0s 0.5s, filter 3s ease; /* Smooth transition */
 }
+
+/* VIMEO SETTINGS */
+.video-portfolio {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;  /* Ensures no padding or margin applied by flexbox */
+}
+
+.video-item {
+  position: relative;
+  width: var(--vimeo-size-percentage); /* Make the video container flexible */
+  height: var(--vimeo-size-percentage);
+  max-width: var(--vimeo-max-width); 
+  /*background-color: #ff0000; /* layout testing */
+  box-sizing: border-box; /* Include padding in the width/height calculation */
+  overflow: hidden; /* Prevent overflow of iframe content */
+  padding: 0;
+  margin: 0;
+}
+
+.video-item iframe {
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+ /*
+.video-item:hover {
+  transform: scale(1.05);
+}*/
 
 a:hover{
   color:grey;
