@@ -12,7 +12,9 @@
 }*/
 
 :root {
-  --background-color: FFFAF7;
+  margin: 0;
+  padding: 0;
+  --background-color: FFBF5E9;
   --primary-text-color: 231F20;
   --primary-font-family: "neue-haas-unica", helvetica, sans-serif
 }
@@ -54,12 +56,12 @@ body{
   align-self: flex-start;
   font-family: var(--primary-font-family);
   font-size: 1.1em;  
-  font-weight: 400;
+  font-weight: 700;
   margin-bottom: 1em;
 }
 
 .title-button{
-  background-color: var(--background-color);
+  background-color: transparent;
   display: inline;
   border: none;
   margin: 0;
