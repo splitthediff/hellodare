@@ -35,6 +35,7 @@ html, body {
   /* Vimeo size settings */
   --vimeo-max-width: 1920px;
   --vimeo-size-percentage: 80%;
+  --vimeo-size-width: 1280px;
   --vimeo-aspect-ratio: 16/9;
 }
 
@@ -72,22 +73,30 @@ html, body {
 }
 
 /* VIDEO PORTFOLIO */
+/*
 .video-portfolio {
   display: flex;
-  justify-content: center;
-  align-content: center;
-  flex-wrap: wrap;
-  width: 100%;
-  height: 100%;
+  flex-wrap: nowrap; 
+  align-items: center;
+  width: 100vw; 
+  height: 100vh; 
+  overflow: hidden; 
+  position: relative;
+}
+
+.video-track {
+  display: flex;
+  gap: 50px; 
+  transition: transform 0.2s ease-out; 
 }
 
 .video-item {
   position: relative;
-  width: var(--vimeo-size-percentage);
+  width: var(--vimeo-size-width); 
   max-width: var(--vimeo-max-width); 
-  height: var(--vimeo-size-percentage);
+  aspect-ratio: var(--vimeo-aspect-ratio);
+  flex: 0 0 auto; 
   overflow: hidden;
-  margin: 0px;
 }
 
 .video-item iframe {
@@ -95,8 +104,54 @@ html, body {
   top: 0;
   left: 0;
   width: 100%;
-  aspect-ratio: var(--vimeo-aspect-ratio);
+  height: 100%;
   border: none;
+  pointer-events: none;
+}*/
+
+.video-portfolio {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: relative;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  justify-content: start;
+}
+
+.video-portfolio::-webkit-scrollbar {
+  display: none;
+}
+
+.video-track {
+  display: flex;
+  gap: 50px;
+  transition: transform 0.2s ease-out;
+  width: max-content;
+}
+
+.video-item {
+  position: relative;
+  width: var(--vimeo-size-width);
+  max-width: var(--vimeo-max-width);
+  aspect-ratio: var(--vimeo-aspect-ratio);
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+.video-item iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  pointer-events: none;
 }
 
 /* Link hover */
