@@ -1,27 +1,40 @@
-let textShow = true;
+// Get the intro title element
+const introTitle = document.querySelector('.intro-title');
 
-function showText(){
-        // Select all elements with the class 'text-info-hidden-1'
-        const elements = document.getElementsByClassName('text-info-hidden-1');
-        
-        // Loop through each element and toggle display
-        /* for (let i = 0; i < elements.length; i++) {
-          if (textShow) {
-            elements[i].style.display = 'none'; // Hide the elements
-          } else {
-            elements[i].style.display = 'inline'; // Show the elements
-          }
-        }*/
+// Get the video item element (iframe)
+const videoItem = document.querySelector('.video-item iframe');
 
-        // Loop through each element and toggle visibility and blur
-        for (let i = 0; i < elements.length; i++) {
-        if (textShow) {
-            elements[i].classList.remove('visible'); // Hide the text
-        } else {
-            elements[i].classList.add('visible'); // Show the text
-        }
-        }
-        
-        // Toggle the textShow flag for the next click
-        textShow = !textShow;
-}   
+// Function to handle the scroll and resize events
+const checkTitlePosition = () => {
+  // Get the position of the video item relative to the viewport
+  const videoPosition = videoItem.getBoundingClientRect();
+
+  // Get the height of the intro title
+  const titleHeight = introTitle.offsetHeight;
+
+  // Debugging - log the values to ensure the calculations are correct
+  console.log('Video position top:', videoPosition.top); // Debugging line
+  console.log('Video position bottom:', videoPosition.bottom); // Debugging line
+  console.log('Title height:', titleHeight); // Debugging line
+
+  // Check if the top of the video has crossed under the title
+  if (videoPosition.top <= titleHeight && videoPosition.bottom > titleHeight) {
+    introTitle.classList.add('overlapped');  // Change color when the video is under the title
+  } else {
+    introTitle.classList.remove('overlapped');  // Revert color when the video is not under the title
+  }
+};
+
+// Ensure the initial check is performed once content is loaded
+window.addEventListener('load', () => {
+  checkTitlePosition(); // Run the function on page load
+
+  // Add scroll event listener to check the position as the user scrolls
+  window.addEventListener('scroll', checkTitlePosition);
+
+  // Add resize event listener to handle window resizing
+  window.addEventListener('resize', checkTitlePosition);
+});
+
+// Ensure the check is performed when the page is resized as well
+window.addEventListener('resize', checkTitlePosition);
