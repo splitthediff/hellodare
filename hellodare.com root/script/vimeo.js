@@ -60,6 +60,8 @@ export function createVideoItems(videos) {
     }
     */
 
+    /*
+
     export function createVideoItems(videos) {
         const videoTrack = document.querySelector('.video-track');
     
@@ -96,4 +98,45 @@ export function createVideoItems(videos) {
             // Append the video item to the video track
             videoTrack.appendChild(videoItem);
         });
+    }
+
+    */
+
+    export function createVideoItems(videos) {
+        const videoTrack = document.querySelector('.video-track');
+        const html = '';
+
+        videos.forEach(video => {
+
+            html= `<div class="video-item">
+                 <iframe src="https://player.vimeo.com/video/535355395?autoplay=1&muted=1&background=1" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+            </div>`
+
+            const videoItem = document.createElement('div');
+            videoItem.classList.add('video-item');
+    
+            // Create iframe for each video
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://player.vimeo.com/video/${video.id}?autoplay=1&muted=1`;
+            iframe.frameBorder = '0';
+            iframe.allow = 'autoplay; fullscreen';
+            iframe.allowFullscreen = true;
+    
+            // Append the iframe to the video item
+            videoItem.appendChild(iframe);
+    
+            // Dynamically calculate the aspect ratio using the Vimeo Player API
+            const player = new Vimeo.Player(iframe);
+            
+            player.on('loaded', () => {
+                player.getVideoWidth().then(width => {
+                    player.getVideoHeight().then(height => {
+                        const aspectRatio = width / height; // Calculate aspect ratio dynamically
+    
+                        // Set the width based on the calculated aspect ratio
+                        const videoHeight = 1000; // Example constant height for all videos
+                        videoItem.style.width = `${videoHeight * aspectRatio}px`; // Adjust width based on height and aspect ratio
+                    });
+                });
+            });
     }
