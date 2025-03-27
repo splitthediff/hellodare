@@ -1,24 +1,25 @@
 export async function renderPlaylist() {
     let playlistHTML = '';
 
-    // Wait for all videos to fetch their data
-    const videos = await Promise.all(playlist.map(async (videoData) => {
-        const video = new Video(videoData); // Instantiate Video
-        const vimeoData = await video.fetchVimeoData(video.id); // Wait for data fetch
-        const aspectRatio = video.getAspectRatio(vimeoData.width, vimeoData.height); // Calculate aspect ratio
+    const videos = await Promise.all(
+        playlist.map(async (videoData) => {
+            const video = new Video(videoData);  
+            await video.initialize(); 
+            return video;
+        })
+    );
 
-        return {
-            id: video.id,
-            aspectRatio: aspectRatio,  // You can use the aspectRatio dynamically for sizing
-            iframeSrc: `https://player.vimeo.com/video/${video.id}?autoplay=1&muted=1&background=1`
-        };
-    }));
-
-    // Build the HTML string using the fetched data
     videos.forEach((video) => {
         playlistHTML += `
-            <div class="video-item">
-                <iframe src="${video.iframeSrc}" loading="lazy" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+            <div class="video-item" style="width: ${video.aspectRatio * 800}px; height: 800px;">
+                <iframe src="${video.iframeSrc}" 
+                        style="width: 100%; height: 100%;" 
+                        loading="lazy" 
+                        frameborder="0" 
+                        allow="autoplay; fullscreen" 
+                        allowfullscreen
+                        poster="${video.thumbnailUrl}">
+                </iframe>
             </div>
         `;
     });
@@ -27,34 +28,41 @@ export async function renderPlaylist() {
 }
 
 class Video {
-    id; 
-    title;
-    year;
-    client;
-    vimeoData;
-    aspectRatio;
-  
-    constructor(videoDetails) {
-        this.id = videoDetails.vimeoid;
-        this.title = videoDetails.title;
-        this.year = videoDetails.year;
-        this.client = videoDetails.client;
-        this.vimeoData = null;
-        this.aspectRatio = 16 / 9; 
+    constructor(videoData) {
+        this.id = videoData.vimeoid; 
+        this.title = videoData.title;
+        this.year = videoData.year;
+        this.client = videoData.client;
+        this.thumbnailURL = '';
+        this.iframeSrc = ''; 
+        this.aspectRatio = 16/9; //default aspect ratio
+    }
+
+    async initialize() {
+        try {
+            const data = await this.fetchVimeoData(this.id);
+            if (data) {
+                this.vimeoData = data;
+                this.aspectRatio = this.getAspectRatio(data.width, data.height);
+                this.thumbnailUrl = data.thumbnail_large;
+                this.iframeSrc = `https://player.vimeo.com/video/${this.id}?autoplay=1&muted=1&background=1`;
+            }
+        } catch (error) {
+            console.error("Error fetching Vimeo data:", error);
+        }
     }
 
     async fetchVimeoData(id) {
         try {
             const response = await fetch(`https://vimeo.com/api/v2/video/${id}.json`);
             const data = await response.json();
-            this.vimeoData = data[0]; // Store the vimeo data
-            return this.vimeoData; // Return it for further use
+            return data[0];
         } catch (error) {
             console.error("Error fetching Vimeo data:", error);
-            return null;
+            return null; 
         }
     }
-  
+
     getAspectRatio(videoWidth, videoHeight) {
         if (!videoWidth || !videoHeight) return 0;
         return videoWidth / videoHeight;
