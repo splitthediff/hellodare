@@ -41,7 +41,7 @@ html, body {
 
 
 /* TITLE */
-.intro-title {
+.header-section {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -66,68 +66,12 @@ html, body {
   padding: 0;
 }
 
-/* Add a color change when the title is scrolled under */
 .intro-title.overlapped {
-  color: var(--primary-font-color-overlap); /* Change this to whatever color you'd like */
+  color: var(--primary-font-color-overlap);
   opacity: 65%;
 }
 
 /* VIDEO PORTFOLIO */
-/*
-.video-portfolio {
-  display: flex;
-  flex-wrap: nowrap; 
-  align-items: center;
-  width: 100vw; 
-  height: 100vh; 
-  overflow: hidden; 
-  position: relative;
-}
-
-.video-track {
-  display: flex;
-  gap: 50px; 
-  transition: transform 0.2s ease-out; 
-}
-
-.video-item {
-  position: relative;
-  width: var(--vimeo-size-width); 
-  max-width: var(--vimeo-max-width); 
-  aspect-ratio: var(--vimeo-aspect-ratio);
-  flex: 0 0 auto; 
-  overflow: hidden;
-}
-
-.video-item iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-  pointer-events: none;
-}*/
-
-.video-portfolio {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  width: 100vw;
-  height: 100vh;
-  overflow-x: auto;
-  overflow-y: hidden;
-  position: relative;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  justify-content: start;
-}
-
-.video-portfolio::-webkit-scrollbar {
-  display: none;
-}
-
 .video-track {
   display: flex;
   gap: 50px;
