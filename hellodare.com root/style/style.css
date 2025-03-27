@@ -131,17 +131,55 @@ html, body {
 .video-track {
   display: flex;
   gap: 50px;
-  transition: transform 0.2s ease-out;
+  transition: transform 0.3s ease-out;
   width: max-content;
 }
+/*
 
 .video-item {
   position: relative;
   width: var(--vimeo-size-width);
   max-width: var(--vimeo-max-width);
   aspect-ratio: var(--vimeo-aspect-ratio);
+
   flex: 0 0 auto;
   overflow: hidden;
+  transition: filter 0.3s ease-in-out;
+}
+
+.video-item iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  pointer-events: none;
+}*/
+
+.video-portfolio {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.video-track {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  width: 100%;
+  height: 100vh;  /* This keeps the container height fixed */
+}
+
+.video-item {
+  position: relative;
+  flex: 0 0 auto;
+  height: 500px;  /* Fixed height for all videos */
 }
 
 .video-item iframe {
@@ -153,13 +191,3 @@ html, body {
   border: none;
   pointer-events: none;
 }
-
-/* Link hover */
-a:hover {
-  color: grey;
-}
-
-.email-link {
-  color: black;
-  text-decoration: none;
-} 
