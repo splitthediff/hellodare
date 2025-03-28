@@ -29,7 +29,7 @@ html, body {
   --primary-font-color: #231F20;
   --primary-font-color-overlap: var(--background-color);
   --primary-font-family: "neue-haas-unica", helvetica, sans-serif;
-  --primary-font-size: 1.1em;
+  --primary-font-size: 1.3em;
   --primary-font-weight: 700;
 
   /* Vimeo size settings */
@@ -41,22 +41,22 @@ html, body {
 
 
 /* TITLE */
-.header-section {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: fixed;        
-  top: 5%;     
-  left: 50%;             
-  transform: translateX(-50%); 
-  z-index: 1000;  
+.title-container {
+  position: fixed;
+  top: 10vh; /* Adjust this for spacing */
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  width: 100%;
 }
 
-.title-item, .title-button {
+.title, .title-button {
   font-family: var(--primary-font-family);
   font-size: var(--primary-font-size);
   font-weight: var(--primary-font-weight);
   margin-bottom: 1em;
+  opacity: 0; /* Initially hidden */
+  transform: translateY(50px); /* Start below */
 }
 
 .title-button {

@@ -1,4 +1,5 @@
-export async function renderPlaylist() {
+/*export async function renderPlaylist() {
+    const setHeight = 600; // set the fixed height in px
     let playlistHTML = '';
 
     const videos = await Promise.all(
@@ -11,7 +12,7 @@ export async function renderPlaylist() {
 
     videos.forEach((video) => {
         playlistHTML += `
-            <div class="video-item" style="width: ${video.aspectRatio * 800}px; height: 800px;">
+            <div class="video-item" style="width: ${video.aspectRatio * setHeight}px; height: ${setHeight}px;">
                 <iframe src="${video.iframeSrc}" 
                         style="width: 100%; height: 100%;" 
                         loading="lazy" 
@@ -25,6 +26,53 @@ export async function renderPlaylist() {
     });
 
     document.querySelector('.js-video-track').innerHTML = playlistHTML;
+}*/
+
+export async function renderPlaylist() {
+    function getDynamicHeight() {
+        return window.innerHeight * 0.5; 
+    }
+
+    let playlistHTML = '';
+    const setHeight = getDynamicHeight(); 
+
+    console.log(setHeight);
+
+    const videos = await Promise.all(
+        playlist.map(async (videoData) => {
+            const video = new Video(videoData);  
+            await video.initialize(); 
+            return video;
+        })
+    );
+
+    videos.forEach((video) => {
+        const videoWidth = video.aspectRatio * setHeight; // Maintain aspect ratio
+
+        playlistHTML += `
+            <div class="video-item" style="width: ${videoWidth}px; height: ${setHeight}px;">
+                <iframe src="${video.iframeSrc}" 
+                        style="width: 100%; height: 100%;" 
+                        loading="lazy" 
+                        frameborder="0" 
+                        allow="autoplay; fullscreen" 
+                        allowfullscreen
+                        poster="${video.thumbnailUrl}">
+                </iframe>
+            </div>
+        `;
+    });
+
+    document.querySelector('.js-video-track').innerHTML = playlistHTML;
+
+    // Resize listener to adjust video size dynamically
+    window.addEventListener('resize', () => {
+        const newHeight = getDynamicHeight();
+        document.querySelectorAll('.video-item').forEach((container, index) => {
+            container.style.height = `${newHeight}px`;
+            container.style.width = `${videos[index].aspectRatio * newHeight}px`;
+        });
+    });
 }
 
 class Video {
