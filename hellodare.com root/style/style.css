@@ -1,18 +1,16 @@
-
 /* Universal reset for all elements */
 *,
 *::before,
 *::after {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;  /* Ensures consistent box-sizing */
+  box-sizing: border-box;
 }
 
 /* Body and html reset */
 html, body {
   height: 100%;
-  width: 100%; /* Ensures full width */
-  box-sizing: border-box; /* Includes padding/border in width/height calculation */
+  width: 100%;
   background-color: var(--background-color);
   color: var(--primary-font-color);
   display: flex;
@@ -34,18 +32,15 @@ html, body {
   --secondary-font-size: 1em;
   --secondary-font-weight: 400;
 
-  /* Vimeo size settings */
-  --vimeo-max-width: 1920px;
-  --vimeo-size-percentage: 80%;
-  --vimeo-size-width: 1280px;
-  --vimeo-aspect-ratio: 16/9;
+  /* Video Settings */
+  --video-border-radius: .1em;
 }
 
 
 /* TITLE */
 .title-container {
   position: fixed;
-  top: 5vh; /* Adjust this for spacing */
+  top: 5vh;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -101,41 +96,6 @@ html, body {
 }
 
 /* VIDEO PORTFOLIO */
-/*
-.video-track {
-  display: flex;
-  padding-left: 50px;
-  gap: 1em;
-  transition: transform 0.5s ease-out;
-  width: max-content;
-}
-
-.video-item {
-  position: relative;
-  flex: 0 0 auto;
-  flex-grow: 1;
-  overflow: hidden;
-  transition: filter 0.3s ease-in-out;
-  margin-bottom: 20px;
-}
-
-.video-item iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  border: none;
-  pointer-events: none;
-  background-color: aqua;
-}
-
-.video-container {
-  display: grid;
-  grid-template-columns: 1;
-  overflow: hidden;
-  transition: filter 0.3s ease-in-out;
-  gap: 1em;
-}*/
-
 .video-track {
   display: flex; /* Arrange video containers in a row */
   flex-direction: row; 
@@ -145,38 +105,41 @@ html, body {
   padding: 20px; /* Add some spacing */
 }
 
-/* Video container - Stacks video, controls, and title vertically */
+/* Video container */
 .video-container {
   position: relative;
   display: flex;
-  flex-direction: column; /* Stacks video, controls, and title */
-  align-items: center; /* Centers everything */
-  gap: 1em; /* Spacing between elements */
+  flex-direction: column;
+  align-items: center;
+  gap: 1em;
 }
 
-/* Ensure iframe fills its container */
 .video-item iframe {
   width: 100%;
   height: 100%;
-  border-radius: 10px; /* Rounded corners */
+  border-radius: var(--video-border-radius); /* Rounded corners */
 }
 
-/* Video Controls - Position them on top of the video */
+/* Video Controls */
 .video-controls {
-  position: absolute; /* Position controls over the video */
-  top: 50%; /* Center vertically */
-  left: 50%; /* Center horizontally */
-  transform: translate(-50%, -50%); /* Adjust position to be exactly centered */
-  display: flex; /* To arrange buttons horizontally */
-  gap: 10px; /* Space between buttons */
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: space-between;
+  padding: .5em;
+  bottom: 0em;
   z-index: 10; /* Ensure controls appear on top of the video */
+  mix-blend-mode: difference;
+  opacity: 90%;
 }
 
 /* Control Buttons */
 .controls-button {
   padding: 10px 15px;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  background-color: rgba(0, 0, 0, 0.0); /* Semi-transparent background */
   color: white;
+  mix-blend-mode: difference;
   border: none;
   cursor: pointer;
   border-radius: 5px;
@@ -196,13 +159,13 @@ html, body {
 }
 
 .controls-button:hover {
-  background-color: rgba(0, 0, 0, 0.8); /* Darken on hover */
+  color: white
 }
 
 
 /* Sound On/Off Button */
 .sound-button {
-  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
 }
 
 .sound-button.active {
