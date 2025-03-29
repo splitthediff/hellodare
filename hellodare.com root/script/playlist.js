@@ -36,8 +36,6 @@ export async function renderPlaylist() {
     let playlistHTML = '';
     const setHeight = getDynamicHeight(); 
 
-    console.log(setHeight);
-
     const videos = await Promise.all(
         playlist.map(async (videoData) => {
             const video = new Video(videoData);  
@@ -50,9 +48,10 @@ export async function renderPlaylist() {
         const videoWidth = video.aspectRatio * setHeight; // Maintain aspect ratio
 
         playlistHTML += `
+        <div class="video-container">
             <div class="video-item" style="width: ${videoWidth}px; height: ${setHeight}px;">
                 <iframe src="${video.iframeSrc}" 
-                        style="width: 100%; height: 100%;" 
+                        style="width: 100%; height: 100%; border-radius: 10px;"
                         loading="lazy" 
                         frameborder="0" 
                         allow="autoplay; fullscreen" 
@@ -60,6 +59,13 @@ export async function renderPlaylist() {
                         poster="${video.thumbnailUrl}">
                 </iframe>
             </div>
+
+            <div class="video-controls">
+                <button class="controls-button play-pause-button" id="playPauseButton-${video.id}">Play</button>
+                <button class="controls-button sound-button" id="soundButton-${video.id}">Sound Off</button>
+            </div>
+           
+        </div>
         `;
     });
 
@@ -71,6 +77,19 @@ export async function renderPlaylist() {
         document.querySelectorAll('.video-item').forEach((container, index) => {
             container.style.height = `${newHeight}px`;
             container.style.width = `${videos[index].aspectRatio * newHeight}px`;
+        });
+    });
+
+    videos.forEach((video, index) => {
+        const playPauseButton = document.getElementById(`playPauseButton-${video.id}`);
+        const soundButton = document.getElementById(`soundButton-${video.id}`);
+
+        playPauseButton.addEventListener('click', () => {
+            video.togglePlayPause(playPauseButton);
+        });
+
+        soundButton.addEventListener('click', () => {
+            video.toggleSound(soundButton);
         });
     });
 }
@@ -114,6 +133,30 @@ class Video {
     getAspectRatio(videoWidth, videoHeight) {
         if (!videoWidth || !videoHeight) return 0;
         return videoWidth / videoHeight;
+    }
+
+    togglePlayPause(playPauseButton) {
+        this.player.getPaused().then((paused) => {
+            if (paused) {
+                this.player.play();
+                playPauseButton.innerText = 'Pause';
+            } else {
+                this.player.pause();
+                playPauseButton.innerText = 'Play';
+            }
+        });
+    }
+
+    toggleSound(soundButton) {
+        this.player.getVolume().then((volume) => {
+            if (volume === 0) {
+                this.player.setVolume(1); // Set volume to max
+                soundButton.innerText = 'Sound On';
+            } else {
+                this.player.setVolume(0); // Mute the sound
+                soundButton.innerText = 'Sound Off';
+            }
+        });
     }
 }
 

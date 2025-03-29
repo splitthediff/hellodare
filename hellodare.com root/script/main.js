@@ -2,6 +2,8 @@ import { initializeScrollControl } from './scroll.js';
 import { initializeTitleCheck } from './interface.js';
 import { renderPlaylist } from './playlist.js';
 
+gsap.registerPlugin(ScrollTrigger);
+
 document.addEventListener("DOMContentLoaded", () => {
   gsap.fromTo(".title", 
       { opacity: 0, y: 50 }, // Start hidden & slightly below
