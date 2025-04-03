@@ -1,17 +1,22 @@
+// Refactored Resize Handler and Update Function
+
+// Keep track of initialized videos globally or pass them appropriately
 let currentVideos = []; 
 
 export async function renderPlaylist() {
-    currentVideos = await initializeVideos();
-    renderVideos(currentVideos);
+    currentVideos = await initializeVideos(); // Store the videos
+    renderVideos(currentVideos); // Initial render
 
+    // Call initializePlayer *after* the initial render
     currentVideos.forEach(video => video.initializePlayer()); 
 
+    // Debounce resize events for performance
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
-            updateDOMVideoSizes(currentVideos);
-        }, 150);
+            updateDOMVideoSizes(currentVideos); // Just update sizes in DOM
+        }, 150); // Adjust debounce delay as needed (e.g., 150ms)
     });
 }
 
@@ -24,22 +29,31 @@ async function initializeVideos() {
         })
     );
 
+    // Calculate initial sizes (doesn't need to render here)
     updateVideoObjectSizes(videos); 
 
     return videos;
 }
 
+// Renamed: Calculates and stores sizes in video objects
 function updateVideoObjectSizes(videos) {
     const setWidth = getDynamicWidth();
+    // setHeight isn't used in updateVideoSizes, so calculation is optional here
+    // const setHeight = getDynamicHeight(); 
 
     videos.forEach((video) => {
-        video.updateVideoSizes(setWidth); 
+        video.updateVideoSizes(setWidth /*, setHeight */); 
+        // console.log for debugging is fine here
+        // console.log(video.videoWidth, video.videoHeight, video.aspectRatio);
     });
 }
 
+// New function: Updates the DOM elements' styles directly
 function updateDOMVideoSizes(videos) {
+    // Recalculate sizes based on current width
     updateVideoObjectSizes(videos); 
 
+    // Update existing DOM elements
     videos.forEach((video) => {
         const videoItem = document.querySelector(`#iframe-${video.id}`)?.closest('.video-item'); 
         const controls = document.querySelector(`#playPauseButton-${video.id}`)?.closest('.video-controls');
@@ -54,6 +68,8 @@ function updateDOMVideoSizes(videos) {
     });
 }
 
+// renderVideos remains mostly the same for the initial render
+// but no longer needs to be called on resize.
 function renderVideos(videos) {
     let playlistHTML = '';
 
@@ -63,6 +79,7 @@ function renderVideos(videos) {
     }
 
     videos.forEach((video) => {
+        // Use calculated sizes for the initial render
         playlistHTML += `
         <div class="video-container">
             <div class="video-item" style="width: ${video.videoWidth}px; height: ${video.videoHeight}px;">
@@ -82,6 +99,7 @@ function renderVideos(videos) {
             </div>
         </div>
         `;
+        // console.log(video.videoWidth, video.videoHeight, video.aspectRatio);
     });
 
     const trackElement = document.querySelector('.js-video-track');
@@ -89,13 +107,13 @@ function renderVideos(videos) {
         trackElement.innerHTML = playlistHTML;
     } else {
          console.error("'.js-video-track' element not found for rendering.");
-         return;
+         return; // Stop if container not found
     }
 
     // Attach event listeners (needs player initialized)
     videos.forEach((video) => {
         // Crucially, initialize the player instance HERE after the iframe exists
-        // video.initializePlayer();
+        // video.initializePlayer(); // Moved this call to after renderPlaylist calls renderVideos
 
         const playPauseButton = document.getElementById(`playPauseButton-${video.id}`);
         const soundButton = document.getElementById(`soundButton-${video.id}`);
@@ -118,32 +136,9 @@ function renderVideos(videos) {
     });
 }
 
+// Add initializePlayer method call in the Video class
 class Video {
-    constructor(videoData) {
-        this.id = videoData.vimeoid; 
-        this.title = videoData.title;
-        this.year = videoData.year;
-        this.client = videoData.client;
-        this.thumbnailUrl = '';
-        this.iframeSrc = ''; 
-        this.aspectRatio = 16 / 9; // Default aspect ratio
-        this.player = null;
-        this.videoHeight = 0; 
-        this.videoWidth = 0; 
-    }
-
-    async initialize() {
-        try {
-            const data = await this.fetchVimeoData(this.id);
-            if (data) {
-                this.aspectRatio = this.getAspectRatio(data.width, data.height);
-                this.thumbnailUrl = data.thumbnail_large;
-                this.iframeSrc = `https://player.vimeo.com/video/${this.id}?autoplay=0&muted=1&controls=0&quality=1080p`;
-            }
-        } catch (error) {
-            console.error("Error fetching Vimeo data:", error);
-        }
-    }
+    // ... (constructor, initialize, other methods) ...
 
     initializePlayer() {
         // Only initialize if not already done
@@ -155,9 +150,10 @@ class Video {
                 this.player = new Vimeo.Player(iframe);
                 console.log(`Vimeo Player initialized for ${this.id}`);
 
-                this.player.on('play', () => { console.log(`Video ${this.id} played`); });
-                this.player.on('pause', () => { console.log(`Video ${this.id} paused`); });
-                this.player.on('ended', () => { console.log(`Video ${this.id} ended`); });
+                // Optional: Add listeners for player events if needed
+                // this.player.on('play', () => { console.log(`Video ${this.id} played`); });
+                // this.player.on('pause', () => { console.log(`Video ${this.id} paused`); });
+                // this.player.on('ended', () => { console.log(`Video ${this.id} ended`); });
                 
             } catch (error) {
                  console.error(`Error initializing Vimeo Player for ${this.id}:`, error);
@@ -169,86 +165,14 @@ class Video {
         }
     }
 
-    // This method dynamically calculates video size based on viewport size
-    updateVideoSizes(setWidth, setHeight) {
-        const videoHeight = setWidth / this.aspectRatio;
-        this.videoHeight = videoHeight;
-        this.videoWidth = setWidth;
-    }
-
-    togglePlayPause(playPauseButton) {
-        if (!this.player) return;
-
-        this.player.getPaused().then((paused) => {
-            if (paused) {
-                this.player.play();
-                playPauseButton.innerText = 'Pause';
-            } else {
-                this.player.pause();
-                playPauseButton.innerText = 'Play';
-            }
-        });
-    }
-
-    toggleSound(soundButton) {
-        if (!this.player) return;
-
-        this.player.getVolume().then((volume) => {
-            if (volume === 0) {
-                this.player.setVolume(0.5); // Turn sound on
-                soundButton.innerText = 'Sound On';
-            } else {
-                this.player.setVolume(0); // Mute
-                soundButton.innerText = 'Sound Off';
-            }
-        });
-    }
-
-    async fetchVimeoData(id) {
-        try {
-            const response = await fetch(`https://vimeo.com/api/v2/video/${id}.json`);
-            const data = await response.json();
-            return data[0];
-        } catch (error) {
-            console.error("Error fetching Vimeo data:", error);
-            return null; 
-        }
-    }
-
-    getAspectRatio(videoWidth, videoHeight) {
-        return videoWidth && videoHeight ? videoWidth / videoHeight : 16 / 9;
-    }
+    // ... (rest of the Video class) ...
 }
 
-function getDynamicWidth() {
-    const trackElement = document.querySelector('.js-video-track'); // get size of video-track width
-    return trackElement ? trackElement.clientWidth : window.innerWidth; 
-}
+// Make sure the playlist variable is defined somewhere globally or imported
+// Example: const playlist = [ { vimeoid: '12345', title: '...', ... }, ... ];
 
-const playlist = [{
-    vimeoid: "834195660",
-    title: `White Men Can't Jump / Main on End`,
-    client: 'Hulu',
-    year: '2023'
-}, {
-    vimeoid: "367537828",
-    title: `Inside Bill's Brain / Main Title Sequence`,
-    client: 'Netflix',
-    year: '2019',
-},  {
-    vimeoid: "535355395",
-    title: `Icarus / Main on End`,
-    client: 'Netflix',
-    year: '2018'
-}, {
-    vimeoid: "535413159",
-    title: `Icarus / Main on End`,
-    client: 'Netflix',
-    year: '2018'
-}, {
-    vimeoid: "432305926",
-    title: `Icarus / Main on End`,
-    client: 'Netflix',
-    year: '2018'
-}];
+// Make sure Vimeo Player API script is included in your HTML:
+// <script src="https://player.vimeo.com/api/player.js"></script>
 
+// Initial call to start everything
+// renderPlaylist();

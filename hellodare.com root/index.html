@@ -33,22 +33,37 @@
 
   </head>
   <body>
-     <!--TITLE-->
-    <div class="title-container">
-      <div class="title">
-        Studio Dare
+
+    <div class="page-container">
+      <!-- Left Column: Logo/Title -->
+      <div class="left-column">
+        <!--TITLE-->
+          <div class="title">
+            Studio Dare
+        </div>
+      </div>
+    
+      <!-- Middle Column: Videos -->
+      <div class="middle-column">
+        <!--PLAYLIST-->
+        <div class="video-track js-video-track">
+        </div>
+      </div>
+    
+      <!-- Right Column: Info Button -->
+      <div class="right-column">
+        <button class="info-button" onclick="showInfoOverlay()">Info</button>
       </div>
     </div>
 
-    <!--PLAYLIST-->
-    <div class="video-track js-video-track"></div>
-
-    <!--INFO-->
-    <div class="menu-container">
-      <div class="menu">
-        info
+    <!-- Info Overlay -->
+    <div class="info-overlay" id="infoOverlay">
+      <div class="info-content">
+        <button class="close-button" onclick="hideInfoOverlay()">Close</button>
+        <p>Here is some information about the videos...</p>
       </div>
     </div>
+
     
     <!--SCRIPTS-->
     <script src="https://player.vimeo.com/api/player.js"></script>
