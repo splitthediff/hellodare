@@ -1,6 +1,6 @@
 export async function renderPlaylist() {
     function getDynamicHeight() {
-        return window.innerHeight * 0.5; 
+        return window.innerHeight * 0.7; 
     }
 
     let playlistHTML = '';
@@ -79,7 +79,7 @@ class Video {
             if (data) {
                 this.aspectRatio = this.getAspectRatio(data.width, data.height);
                 this.thumbnailUrl = data.thumbnail_large;
-                this.iframeSrc = `https://player.vimeo.com/video/${this.id}?autoplay=0&muted=1&controls=0`;
+                this.iframeSrc = `https://player.vimeo.com/video/${this.id}?autoplay=0&muted=1&controls=0&quality=1080p`;
             }
         } catch (error) {
             console.error("Error fetching Vimeo data:", error);
@@ -114,7 +114,7 @@ class Video {
 
         this.player.getVolume().then((volume) => {
             if (volume === 0) {
-                this.player.setVolume(1); // Turn sound on
+                this.player.setVolume(0.5); // Turn sound on
                 soundButton.innerText = 'Sound On';
             } else {
                 this.player.setVolume(0); // Mute

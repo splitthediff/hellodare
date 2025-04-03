@@ -1,5 +1,5 @@
 export function initializeScrollControl() {
-    const videoTrack = document.querySelector(".js-video-track");
+    const videoTrack = document.querySelector(".video-track");
     let scrollPosition = 0;
   
     window.addEventListener("wheel", (event) => {
@@ -22,3 +22,4 @@ export function initializeScrollControl() {
       });
     });
 }
+  
