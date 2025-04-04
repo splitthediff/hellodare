@@ -74,10 +74,11 @@ html, body {
   }  
 
   .video-aspect-wrapper {
-    position: relative; /* <<< CRUCIAL: New context for iframe and controls */
-    width: 100%; /* <<< Takes full width available in .video-item */
-    max-width: 100%; /* Ensure it doesn't exceed parent */
-    /* Choose the correct aspect ratio for your videos */
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+   
+    /*
     aspect-ratio: 16 / 9; /* <<< Standard HD video. Adjust if needed (e.g., 4 / 3) */
   
     /* Prevent wrapper from exceeding parent's height if aspect ratio makes it too tall */
@@ -99,7 +100,7 @@ html, body {
     max-height: 100%; /* Redundant due to absolute pos, but safe */
     display: block;
     border: none;
-    pointer-events: auto;
+    pointer-events: none;
   }
   
   
@@ -117,8 +118,7 @@ html, body {
     display: flex;
     gap: 10px;
     align-items: center;
-    /* Ensure clicks go through if needed, or handle on controls */
-    /* pointer-events: auto; */ /* Usually default for controls */
+    pointer-events: none;
   }
   
   /* --- Other styles (Title, Info Overlay, Buttons etc.) --- */

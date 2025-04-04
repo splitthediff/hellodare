@@ -1,3 +1,4 @@
+import { initializeGsapScroll } from './scroll.js';
 let currentVideos = []; 
 
 export async function renderPlaylist() {
@@ -62,6 +63,7 @@ function updateDOMVideoSizes(videos) {
     console.log("Internal video sizes updated on resize. DOM untouched.");
 }
 
+/*
 function renderVideos(videos) {
     let playlistHTML = '';
 
@@ -70,20 +72,7 @@ function renderVideos(videos) {
         return;
     }
 
-  /* <div class="video-item" style="width: ${video.videoWidth}px; height: ${video.videoHeight}px;">
-  <iframe src="${video.iframeSrc}" 
-                        id="iframe-${video.id}"
-                        style="width: 100%; height: 100%; border-radius: 10px;"
-                        loading="lazy" 
-                        frameborder="0" 
-                        allow="autoplay; fullscreen" 
-                        allowfullscreen>
-                </iframe>
-                <div class="video-controls" style="width: ${video.videoWidth}px;">
-                    <button class="controls-button play-pause-button" id="playPauseButton-${video.id}">Play</button>
-                    <button class="controls-button sound-button" id="soundButton-${video.id}">Sound Off</button>
-                </div>
-            </div>*/
+    
     videos.forEach((video) => {
         // Ensure iframeSrc is set, even if initialization failed partially
         const src = video.iframeSrc || `https://player.vimeo.com/video/${video.id}?autoplay=0&muted=1&controls=0&quality=1080p&background=1`;
@@ -158,6 +147,118 @@ function renderVideos(videos) {
             });
         }
     });
+}*/
+
+function renderVideos(videos) {
+    console.log("--- Running renderVideos ---");
+    let playlistHTML = '';
+
+    if (!videos || videos.length === 0) {
+        console.error("renderVideos: No videos array provided or array is empty.");
+        return;
+    }
+
+    /* ----------------------------------------
+    // --- PREVIOUS HTML, when height and width are set dynamically ---
+        <div class="video-item" style="width: ${video.videoWidth}px; height: ${video.videoHeight}px;">
+            <iframe src="${video.iframeSrc}" 
+                id="iframe-${video.id}"
+                style="width: 100%; height: 100%; border-radius: 10px;"
+                loading="lazy" 
+                frameborder="0" 
+                allow="autoplay; fullscreen" 
+                allowfullscreen>
+            </iframe>
+            <div class="video-controls" style="width: ${video.videoWidth}px;">
+                <button class="controls-button play-pause-button" id="playPauseButton-${video.id}">Play</button>
+                <button class="controls-button sound-button" id="soundButton-${video.id}">Sound Off</button>
+            </div>
+        </div>
+   ---------------------------------------- */ 
+
+    // 1. Build the HTML String
+    videos.forEach((video) => {
+        const src = video.iframeSrc || `https://player.vimeo.com/video/${video.id}?autoplay=0&muted=1&controls=0`; // Basic fallback src
+        playlistHTML += `
+            <div class="video-item" data-video-id="${video.id}">
+                <div class="video-aspect-wrapper">
+                    <iframe src="${src}" id="iframe-${video.id}" loading="lazy" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                    <div class="video-controls">
+                        <button class="controls-button play-pause-button" id="playPauseButton-${video.id}">Play</button>
+                        <button class="controls-button sound-button" id="soundButton-${video.id}">Sound Off</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    // 2. Render HTML to the DOM
+    const trackElement = document.querySelector('.js-video-track');
+    if (!trackElement) {
+        console.error("renderVideos: '.js-video-track' element not found.");
+        return;
+    }
+    trackElement.innerHTML = playlistHTML;
+    console.log("renderVideos: Set innerHTML on trackElement.");
+
+    // --- 3. Loop Through Videos to Find Elements and Apply Styles/Listeners ---
+    console.log("renderVideos: Starting loop to find elements and apply styles...");
+    videos.forEach((video) => {
+        const videoId = video.id;
+        const selector = `.video-item[data-video-id="${videoId}"]`;
+
+        // --- 3a. Query for the specific video item ---
+        // console.log(`renderVideos: Attempting query for selector: "${selector}"`); // Optional: uncomment if still failing
+        const videoItemElement = trackElement.querySelector(selector);
+
+        // --- 3b. Check if the element was found (CRUCIAL DEBUG STEP) ---
+        if (!videoItemElement) {
+            // *** If you see this error, the query failed! ***
+            console.error(`renderVideos: FAILED to find element for ID ${videoId} using selector "${selector}"`);
+            return; // Skip the rest for this video
+        }
+        // *** If you DON'T see the error above, the query WORKED ***
+        // console.log(`renderVideos: Successfully found element for ID ${videoId}`); // Optional: uncomment for success confirmation
+
+        // --- 3c. Find the wrapper inside the found item ---
+        const wrapperElement = videoItemElement.querySelector('.video-aspect-wrapper');
+        if (!wrapperElement) {
+            console.warn(`renderVideos: Could not find .video-aspect-wrapper inside item for video ${videoId}`);
+            return; // Skip if wrapper missing
+        }
+
+        // --- 3d. Apply the aspect ratio style ---
+        if (video.nativeWidth > 0 && video.nativeHeight > 0) {
+            console.log("Applying ratio for Video ID " + video.id + ": Native W=" + video.nativeWidth + ", Native H=" + video.nativeHeight + ". CSS: '" + video.nativeWidth + " / " + video.nativeHeight + "'");
+            wrapperElement.style.aspectRatio = `${video.nativeWidth} / ${video.nativeHeight}`;
+            // console.log(`renderVideos: Applied aspect ratio ${video.nativeWidth}/${video.nativeHeight} to wrapper for video ${videoId}`); // Optional: uncomment to confirm style set
+        } else {
+            console.warn(`renderVideos: Invalid dimensions for video ${videoId}. Not setting aspect-ratio.`);
+            // wrapperElement.style.aspectRatio = '16 / 9'; // Optional fallback
+        }
+
+        // --- 3e. Attach event listeners ---
+        const playPauseButton = videoItemElement.querySelector(`#playPauseButton-${videoId}`);
+        const soundButton = videoItemElement.querySelector(`#soundButton-${videoId}`);
+
+        if (playPauseButton) {
+            playPauseButton.addEventListener('click', () => {
+                if (!video.player) video.initializePlayer();
+                if (video.player) video.togglePlayPause(playPauseButton);
+                else console.error(`Play/Pause Error: Player not ready for ${videoId}`);
+            });
+        }
+        if (soundButton) {
+            soundButton.addEventListener('click', () => {
+                if (!video.player) video.initializePlayer();
+                if (video.player) video.toggleSound(soundButton);
+                else console.error(`Sound Error: Player not ready for ${videoId}`);
+            });
+        }
+
+    }); // End of videos.forEach loop
+
+    console.log("--- Finished renderVideos ---");
 }
 
 class Video {
@@ -180,16 +281,42 @@ class Video {
     }
 
     async initialize() {
+        console.log(`[Video ${this.id}] Starting initialize...`); // Keep debug logs for now
         try {
             const data = await this.fetchVimeoData(this.id);
-            if (data) {
-                this.aspectRatio = this.getAspectRatio(data.width, data.height);
-                this.thumbnailUrl = data.thumbnail_large;
+            console.log(`[Video ${this.id}] Fetched Vimeo data:`, data); // Keep debug logs
+
+            // Check if data is valid AND has width/height > 0
+            if (data && data.width > 0 && data.height > 0) {
+                console.log(`[Video ${this.id}] Data is valid. Updating dimensions...`);
+
+                // --- *** ADD THESE LINES *** ---
+                this.nativeWidth = data.width;
+                this.nativeHeight = data.height;
+                // -----------------------------
+
+                // Recalculate ratio based on the now-stored native dimensions
+                this.aspectRatio = this.getAspectRatio(this.nativeWidth, this.nativeHeight);
+
+                console.log(`[Video ${this.id}] Dimensions STORED: W=${this.nativeWidth}, H=${this.nativeHeight}, Ratio=${this.aspectRatio}`);
+
+                // Set other properties
+                this.thumbnailUrl = data.thumbnail_large; // Assuming structure is correct
                 this.iframeSrc = `https://player.vimeo.com/video/${this.id}?autoplay=0&muted=1&controls=0&quality=1080p`;
+
+            } else {
+                console.warn(`[Video ${this.id}] Using default 16:9 due to invalid/missing data. Data was:`, data);
+                // Defaults nativeWidth=16, nativeHeight=9 remain unchanged
+                // Ensure iframeSrc is still set
+                 this.iframeSrc = `https://player.vimeo.com/video/${this.id}?autoplay=0&muted=1&controls=0&quality=1080p`;
             }
         } catch (error) {
-            console.error("Error fetching Vimeo data:", error);
+            console.error(`[Video ${this.id}] Error during initialize:`, error);
+             // Ensure iframeSrc is still set
+             this.iframeSrc = `https://player.vimeo.com/video/${this.id}?autoplay=0&muted=1&controls=0&quality=1080p`;
+            // Defaults nativeWidth=16, nativeHeight=9 remain unchanged
         }
+         console.log(`[Video ${this.id}] Finished initialize.`);
     }
 
     initializePlayer() {

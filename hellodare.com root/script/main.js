@@ -1,6 +1,5 @@
 import { initializeTitleCheck } from './interface.js';
 import { renderPlaylist } from './playlist.js';
-import { initializeGsapScroll } from './scroll.js';
 
 
 window.addEventListener('load', async () => {
@@ -17,8 +16,6 @@ window.addEventListener('load', async () => {
   } catch (error) {
       console.error("ERROR during renderPlaylist:", error);
   }
-
-  initializeGsapScroll();
 
    console.log("All initializations in load handler complete.");
 });
