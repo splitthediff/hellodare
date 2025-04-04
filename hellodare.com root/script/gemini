@@ -1,178 +1,82 @@
-// Refactored Resize Handler and Update Function
-
-// Keep track of initialized videos globally or pass them appropriately
-let currentVideos = []; 
-
-export async function renderPlaylist() {
-    currentVideos = await initializeVideos(); // Store the videos
-    renderVideos(currentVideos); // Initial render
-
-    // Call initializePlayer *after* the initial render
-    currentVideos.forEach(video => video.initializePlayer()); 
-
-    // Debounce resize events for performance
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            updateDOMVideoSizes(currentVideos); // Just update sizes in DOM
-        }, 150); // Adjust debounce delay as needed (e.g., 150ms)
-    });
-}
-
-async function initializeVideos() {
-    const videos = await Promise.all(
-        playlist.map(async (videoData) => {
-            const video = new Video(videoData);
-            await video.initialize();
-            return video;
-        })
-    );
-
-    // Calculate initial sizes (doesn't need to render here)
-    updateVideoObjectSizes(videos); 
-
-    return videos;
-}
-
-// Renamed: Calculates and stores sizes in video objects
-function updateVideoObjectSizes(videos) {
-    const setWidth = getDynamicWidth();
-    // setHeight isn't used in updateVideoSizes, so calculation is optional here
-    // const setHeight = getDynamicHeight(); 
-
-    videos.forEach((video) => {
-        video.updateVideoSizes(setWidth /*, setHeight */); 
-        // console.log for debugging is fine here
-        // console.log(video.videoWidth, video.videoHeight, video.aspectRatio);
-    });
-}
-
-// New function: Updates the DOM elements' styles directly
-function updateDOMVideoSizes(videos) {
-    // Recalculate sizes based on current width
-    updateVideoObjectSizes(videos); 
-
-    // Update existing DOM elements
-    videos.forEach((video) => {
-        const videoItem = document.querySelector(`#iframe-${video.id}`)?.closest('.video-item'); 
-        const controls = document.querySelector(`#playPauseButton-${video.id}`)?.closest('.video-controls');
-
-        if (videoItem) {
-            videoItem.style.width = `${video.videoWidth}px`;
-            videoItem.style.height = `${video.videoHeight}px`;
-        }
-        if (controls) {
-            controls.style.width = `${video.videoWidth}px`;
-        }
-    });
-}
-
-// renderVideos remains mostly the same for the initial render
-// but no longer needs to be called on resize.
-function renderVideos(videos) {
-    let playlistHTML = '';
-
-    if (!videos || videos.length === 0) {
-        console.error("No videos to render.");
-        return;
-    }
-
-    videos.forEach((video) => {
-        // Use calculated sizes for the initial render
-        playlistHTML += `
-        <div class="video-container">
-            <div class="video-item" style="width: ${video.videoWidth}px; height: ${video.videoHeight}px;">
-                <iframe src="${video.iframeSrc}" 
-                        id="iframe-${video.id}"
-                        style="width: 100%; height: 100%; border-radius: 10px;"
-                        loading="lazy" 
-                        frameborder="0" 
-                        allow="autoplay; fullscreen" 
-                        allowfullscreen>
-                </iframe>
-            </div>
-    
-            <div class="video-controls" style="width: ${video.videoWidth}px;">
-                <button class="controls-button play-pause-button" id="playPauseButton-${video.id}">Play</button>
-                <button class="controls-button sound-button" id="soundButton-${video.id}">Sound Off</button>
-            </div>
-        </div>
-        `;
-        // console.log(video.videoWidth, video.videoHeight, video.aspectRatio);
-    });
-
-    const trackElement = document.querySelector('.js-video-track');
-    if (trackElement) {
-        trackElement.innerHTML = playlistHTML;
-    } else {
-         console.error("'.js-video-track' element not found for rendering.");
-         return; // Stop if container not found
-    }
-
-    // Attach event listeners (needs player initialized)
-    videos.forEach((video) => {
-        // Crucially, initialize the player instance HERE after the iframe exists
-        // video.initializePlayer(); // Moved this call to after renderPlaylist calls renderVideos
-
-        const playPauseButton = document.getElementById(`playPauseButton-${video.id}`);
-        const soundButton = document.getElementById(`soundButton-${video.id}`);
-
-        if (playPauseButton) {
-            playPauseButton.addEventListener('click', () => {
-                // Ensure player is initialized before trying to use it
-                if (!video.player) video.initializePlayer(); 
-                video.togglePlayPause(playPauseButton);
-            });
-        }
-
-        if (soundButton) {
-            soundButton.addEventListener('click', () => {
-                 // Ensure player is initialized before trying to use it
-                if (!video.player) video.initializePlayer();
-                video.toggleSound(soundButton);
-            });
-        }
-    });
-}
-
-// Add initializePlayer method call in the Video class
-class Video {
-    // ... (constructor, initialize, other methods) ...
-
-    initializePlayer() {
-        // Only initialize if not already done
-        if (this.player) return; 
-        
-        const iframe = document.getElementById(`iframe-${this.id}`);
-        if (iframe) {
-            try {
-                this.player = new Vimeo.Player(iframe);
-                console.log(`Vimeo Player initialized for ${this.id}`);
-
-                // Optional: Add listeners for player events if needed
-                // this.player.on('play', () => { console.log(`Video ${this.id} played`); });
-                // this.player.on('pause', () => { console.log(`Video ${this.id} paused`); });
-                // this.player.on('ended', () => { console.log(`Video ${this.id} ended`); });
-                
-            } catch (error) {
-                 console.error(`Error initializing Vimeo Player for ${this.id}:`, error);
-            }
-
-        } else {
-            // This might happen if called too early or if render failed
-            console.warn(`Iframe not found for video ID: ${this.id} during player initialization.`);
-        }
-    }
-
-    // ... (rest of the Video class) ...
-}
-
-// Make sure the playlist variable is defined somewhere globally or imported
-// Example: const playlist = [ { vimeoid: '12345', title: '...', ... }, ... ];
-
-// Make sure Vimeo Player API script is included in your HTML:
-// <script src="https://player.vimeo.com/api/player.js"></script>
-
-// Initial call to start everything
-// renderPlaylist();
+/* Page Container */
+.page-container {
+    display: flex;
+    height: 100vh; /* Ensure container fills viewport height */
+    width: 100vw;
+    overflow: hidden; /* Prevent body scroll interfering */
+  }
+  
+  /* ... other styles ... */
+  
+  .middle-column {
+    flex: 3;
+    display: flex; /* Keep flex */
+    /* align-items and justify-content are less relevant now as the track scrolls */
+    overflow: hidden; /* CRUCIAL: Hide parts of video-track not in view */
+    height: 100%; /* Take full height of page-container */
+    position: relative; /* Needed if adding absolute indicators later */
+  }
+  
+  /* VIDEO PORTFOLIO adjustments */
+  .video-track {
+    display: flex;
+    flex-direction: column;
+    /* Remove overflow-y: auto - JS will handle movement */
+    /* Remove height: 100% - let it grow naturally */
+    width: 100%;
+    /* Disable native scrollbars (you already have this) */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    /* Add transition for smooth scrolling */
+    transition: transform 0.6s ease-in-out; /* Adjust timing & easing */
+  }
+  
+  .video-track::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Video container */
+  .video-item { /* Assuming .video-item wraps each iframe */
+    width: 100%;
+    height: 100vh; /* CRUCIAL: Each item takes full viewport height */
+    flex-shrink: 0; /* Prevent items from shrinking */
+    display: flex; /* Optional: center iframe within item */
+    align-items: center; /* Optional: center iframe within item */
+    justify-content: center; /* Optional: center iframe within item */
+    /* background-color: #eee; */ /* Optional: for debugging layout */
+  }
+  
+  .video-item iframe {
+    width: 90%; /* Or adjust as needed */
+    height: 80%; /* Or adjust as needed */
+    max-width: 1280px; /* Example max width */
+    max-height: 720px; /* Example max height */
+    /* Resetting pointer events - we handle scroll differently now */
+    pointer-events: auto;
+    border-radius: var(--video-border-radius);
+    /* background-color: aqua; */ /* For debugging */
+  }
+  
+  /* Remove the old video-container styles if they conflict */
+  /* .video-container { ... } */
+  
+  /* Ensure iframe interaction isn't blocked if needed,
+     but be aware this means scroll won't work while hovering iframe */
+  /* .video-item iframe {
+      pointer-events: auto;
+  } */
+  
+  /* Remove absolute positioning for controls if they were relative to video-container */
+  /* Adjust .video-controls positioning if needed, perhaps relative to .video-item */
+  .video-controls {
+     position: absolute; /* Maybe position relative to .video-item now */
+     bottom: 20px; /* Example */
+     left: 50%;
+     transform: translateX(-50%);
+     z-index: 10;
+     /* background: rgba(0,0,0,0.5); */ /* Add background for visibility */
+     padding: 5px 10px;
+     border-radius: 5px;
+     /* Reset mix-blend-mode if it causes issues */
+     /* mix-blend-mode: difference; */
+  }

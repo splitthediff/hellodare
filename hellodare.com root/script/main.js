@@ -1,18 +1,24 @@
-import { initializeScrollControl } from './scroll.js';
 import { initializeTitleCheck } from './interface.js';
 import { renderPlaylist } from './playlist.js';
+import { initializeGsapScroll } from './scroll.js';
 
-gsap.registerPlugin(ScrollTrigger);
 
-document.addEventListener("DOMContentLoaded", () => {
-  gsap.fromTo(".title", 
-      { opacity: 0, y: 50 }, // Start hidden & slightly below
-      { opacity: 1, y: 0, duration: 1, ease: "power2.out" } // Animate up with fade-in
-  );
-});
+window.addEventListener('load', async () => {
+  console.log("Load event fired. Starting initializations...");
 
-window.addEventListener('load', () => {
+  console.log("Running initializeTitleCheck...");
   initializeTitleCheck();
-  renderPlaylist();
-  initializeScrollControl();
+  console.log("Finished initializeTitleCheck.");
+
+  console.log("Running and AWAITING renderPlaylist...");
+  try {
+      await renderPlaylist(); // Renders the videos
+      console.log("Finished AWAITING renderPlaylist.");
+  } catch (error) {
+      console.error("ERROR during renderPlaylist:", error);
+  }
+
+  initializeGsapScroll();
+
+   console.log("All initializations in load handler complete.");
 });

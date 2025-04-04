@@ -11,19 +11,16 @@
 html, body {
   height: 100%;
   width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
   background-color: var(--background-color);
   color: var(--primary-font-color);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
+  /* Removed display flex/justify/align from body if page-container handles layout */
 }
 
 /* Root variables for styling */
 :root {
   --background-color: #FBF5E9;
-
-  /* Primary Font Settings */
   --primary-font-color: #231F20;
   --primary-font-color-overlap: var(--background-color);
   --primary-font-family: "neue-haas-unica", helvetica, sans-serif;
@@ -31,182 +28,104 @@ html, body {
   --primary-font-weight: 700;
   --secondary-font-size: 1em;
   --secondary-font-weight: 400;
-
-  /* Video Settings */
   --video-border-radius: 0em;
 }
 
-/* Page Container */
+/* --- Page Container --- */
 .page-container {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-}
-
-.left-column {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.middle-column {
-  flex: 3; 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden; /* Hide overflow from parent */
-}
-
-.middle-column > .video-track {
-  overflow-y: auto; /* Allow vertical scrolling */
-}
-
-.video-track {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.right-column {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.info-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  display: none; /* Hidden by default */
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-/* Overlay Content */
-.info-content {
-  background: white;
-  color: black;
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 600px;
-}
-
-/* Close Button */
-.close-button {
-  background: black;
-  color: white;
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-}
-
-
-/* TITLE */
-.title {
-  font-family: var(--primary-font-family);
-  font-size: var(--primary-font-size);
-  font-weight: var(--primary-font-weight);
-  margin-bottom: 1em;
-  opacity: 0; /* Initially hidden */
-  transform: translateY(50px); /* Start below */
-}
-
-.intro-title.overlapped,
-.menu.overlapped {
-  color: var(--primary-font-color-overlap);
-  opacity: 65%;
-}
-
-/* VIDEO PORTFOLIO */
-.video-track {
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  overflow-y: auto;
-  height: 100%;
-  width: 100%; 
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.video-track::-webkit-scrollbar {
-  display: none;
-}
-
-/* Video container */
-.video-container {
-  position: relative;
-  display: flex;
-  height: 100%;
-  width: 100%; 
-  align-items: center;
-  gap: 0em;
+    display: flex;
+    height: 100vh; /* Full viewport height */
+    width: 100vw;  /* Full viewport width */
+    overflow: hidden; /* Should already prevent scroll */
+  }
   
-}
+  /* --- Columns --- */
+  .left-column, .right-column {
+    flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px;
+    /* Add height: 100%; if they need vertical centering relative to the whole page */
+    height: 100%;
+  }
+  
+  .middle-column {
+    flex: 3;
+    height: 100%; /* Take full height of page-container */
+    overflow: hidden; /* CRUCIAL: Clip the video-track */
+    position: relative; /* Good practice for containers */
+    /* background-color: lightblue; */ /* DEBUG: Check its size */
+  }
+  
+  /* --- Video Track --- */
+  .video-track {
+    width: 100%;
+    height: 100%; 
+    position: relative;;
+  }
+  
+  /* --- Video Item --- */
+  .video-item {
+    height: 100%;
+    width: 100%;
+    position: relative; /* Stays relative for positioning wrapper/children */
+    overflow: hidden; /* Keep clipping */
+    display: flex; /* Use flex to center the aspect wrapper */
+    align-items: center;
+    justify-content: center;
+    /* background-color: lightgrey; */ /* DEBUG: See the full item area */
+  }  
 
-.video-item iframe {
-  width: 100%;
-  height: 100%;
-  border-radius: var(--video-border-radius);
-  background-color: aqua;
-}
-
-/* Video Controls */
-.video-controls {
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  justify-content: space-between;
-  padding: .5em;
-  bottom: 0em;
-  z-index: 10; /* Ensure controls appear on top of the video */
-  mix-blend-mode: difference;
-  opacity: 90%;
-}
-
-/* Control Buttons */
-.controls-button {
-  padding: 10px 15px;
-  background-color: rgba(0, 0, 0, 0.0); /* Semi-transparent background */
-  color: white;
-  mix-blend-mode: difference;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-  font-size: 14px;
-  transition: background-color 0.5s ease-in-out;
-}
-
-/* Volume Slider */
-.controls-volume {
-  width: 100px; /* Set width for volume slider */
-  height: 5px; /* Adjust slider thickness */
-  background: rgba(0, 0, 0, 0.3); /* Slightly transparent background */
-  border-radius: 5px;
-  cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.controls-button:hover {
-  color: white
-}
-
-
-/* Sound On/Off Button */
-.sound-button {
-  color: white;
-}
-
-.sound-button.active {
-  background-color: rgba(0, 0, 0, 0.8); /* Darker when active */
-}
+  .video-aspect-wrapper {
+    position: relative; /* <<< CRUCIAL: New context for iframe and controls */
+    width: 100%; /* <<< Takes full width available in .video-item */
+    max-width: 100%; /* Ensure it doesn't exceed parent */
+    /* Choose the correct aspect ratio for your videos */
+    aspect-ratio: 16 / 9; /* <<< Standard HD video. Adjust if needed (e.g., 4 / 3) */
+  
+    /* Prevent wrapper from exceeding parent's height if aspect ratio makes it too tall */
+    max-height: 100%;
+  
+    overflow: hidden; /* Optional: Clip anything overflowing the aspect ratio */
+    /* background-color: rgba(255, 0, 0, 0.3); */ /* DEBUG: See the wrapper area */
+  }
+  
+  
+  /* --- Iframe --- */
+  .video-item .video-aspect-wrapper iframe { /* Increased specificity slightly */
+    position: absolute; /* <<< Position relative to wrapper */
+    top: 0;
+    left: 0;
+    width: 100%; /* <<< Fill the wrapper */
+    height: 100%; /* <<< Fill the wrapper */
+    max-width: 100%; /* Redundant due to absolute pos, but safe */
+    max-height: 100%; /* Redundant due to absolute pos, but safe */
+    display: block;
+    border: none;
+    pointer-events: auto;
+  }
+  
+  
+  /* --- Video Controls --- */
+  .video-controls {
+    position: absolute; /* <<< Position relative to wrapper */
+    /* Adjust distance from bottom as needed */
+    bottom: 15px; /* Or 10px, 20px - distance from bottom of aspect-ratio box */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.6); /* Ensure visibility */
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    /* Ensure clicks go through if needed, or handle on controls */
+    /* pointer-events: auto; */ /* Usually default for controls */
+  }
+  
+  /* --- Other styles (Title, Info Overlay, Buttons etc.) --- */
+  /* --- Keep your other styles as they were unless they conflict --- */
+  
+  /* Example of .active-video style (optional) */
+  .video-item.active-video iframe {
+    /* Maybe add a subtle border or effect */
+    /* box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); */
+  } 

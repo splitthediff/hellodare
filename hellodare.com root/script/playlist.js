@@ -4,6 +4,8 @@ export async function renderPlaylist() {
     currentVideos = await initializeVideos();
     renderVideos(currentVideos);
 
+    initializeGsapScroll();
+
     currentVideos.forEach(video => video.initializePlayer()); 
 
     let resizeTimeout;
@@ -30,28 +32,34 @@ async function initializeVideos() {
 }
 
 function updateVideoObjectSizes(videos) {
-    const setWidth = getDynamicWidth();
+    const currentContainerWidth = getDynamicWidth(); // Get the width to calculate against
 
     videos.forEach((video) => {
-        video.updateVideoSizes(setWidth); 
+        // Call the method on the video object to update its internal state
+        video.updateVideoSizes(currentContainerWidth);
     });
+    console.log("Updated internal video object sizes based on container width:", currentContainerWidth);
 }
 
 function updateDOMVideoSizes(videos) {
-    updateVideoObjectSizes(videos); 
+    updateVideoObjectSizes(videos); // Keep this if it updates internal data
 
+    /*
     videos.forEach((video) => {
-        const videoItem = document.querySelector(`#iframe-${video.id}`)?.closest('.video-item'); 
-        const controls = document.querySelector(`#playPauseButton-${video.id}`)?.closest('.video-controls');
+        //const videoItem = document.querySelector(`#iframe-${video.id}`)?.closest('.video-item');
+        //const controls = document.querySelector(`#playPauseButton-${video.id}`)?.closest('.video-controls');
 
-        if (videoItem) {
-            videoItem.style.width = `${video.videoWidth}px`;
-            videoItem.style.height = `${video.videoHeight}px`;
-        }
-        if (controls) {
-            controls.style.width = `${video.videoWidth}px`;
-        }
-    });
+        // --- REMOVE OR COMMENT OUT THESE LINES ---
+        // if (videoItem) {
+        //     // videoItem.style.width = `${video.videoWidth}px`; // Conflicts with CSS width: 100%
+        //     // videoItem.style.height = `${video.videoHeight}px`; // Conflicts with CSS height: 100%
+        // }
+        // if (controls) {
+        //     // controls.style.width = `${video.videoWidth}px`; // Conflicts with centering CSS
+        // }
+        // ----------------------------------------
+    });*/
+    console.log("Internal video sizes updated on resize. DOM untouched.");
 }
 
 function renderVideos(videos) {
@@ -62,11 +70,8 @@ function renderVideos(videos) {
         return;
     }
 
-    videos.forEach((video) => {
-        playlistHTML += `
-        <div class="video-container">
-            <div class="video-item" style="width: ${video.videoWidth}px; height: ${video.videoHeight}px;">
-                <iframe src="${video.iframeSrc}" 
+  /* <div class="video-item" style="width: ${video.videoWidth}px; height: ${video.videoHeight}px;">
+  <iframe src="${video.iframeSrc}" 
                         id="iframe-${video.id}"
                         style="width: 100%; height: 100%; border-radius: 10px;"
                         loading="lazy" 
@@ -74,13 +79,33 @@ function renderVideos(videos) {
                         allow="autoplay; fullscreen" 
                         allowfullscreen>
                 </iframe>
+                <div class="video-controls" style="width: ${video.videoWidth}px;">
+                    <button class="controls-button play-pause-button" id="playPauseButton-${video.id}">Play</button>
+                    <button class="controls-button sound-button" id="soundButton-${video.id}">Sound Off</button>
+                </div>
+            </div>*/
+    videos.forEach((video) => {
+        // Ensure iframeSrc is set, even if initialization failed partially
+        const src = video.iframeSrc || `https://player.vimeo.com/video/${video.id}?autoplay=0&muted=1&controls=0&quality=1080p&background=1`;
+        
+        playlistHTML += `
+
+            <div class="video-item">
+                <div class="video-aspect-wrapper">
+                    <iframe src="${video.iframeSrc}" 
+                            id="iframe-${video.id}"
+                            loading="lazy" 
+                            frameborder="0" 
+                            allow="autoplay; fullscreen" 
+                            allowfullscreen>
+                    </iframe>
+                
+                    <div class="video-controls">
+                        <button class="controls-button play-pause-button" id="playPauseButton-${video.id}">Play</button>
+                        <button class="controls-button sound-button" id="soundButton-${video.id}">Sound Off</button>
+                    </div>
+                </div>
             </div>
-    
-            <div class="video-controls" style="width: ${video.videoWidth}px;">
-                <button class="controls-button play-pause-button" id="playPauseButton-${video.id}">Play</button>
-                <button class="controls-button sound-button" id="soundButton-${video.id}">Sound Off</button>
-            </div>
-        </div>
         `;
     });
 
@@ -94,25 +119,42 @@ function renderVideos(videos) {
 
     // Attach event listeners (needs player initialized)
     videos.forEach((video) => {
-        // Crucially, initialize the player instance HERE after the iframe exists
-        // video.initializePlayer();
+        // Find the newly created elements for this specific video
+        const videoItemElement = trackElement.querySelector(`.video-item[data-video-id="${video.id}"]`);
+        if (!videoItemElement) {
+             console.warn(`Could not find video item element for ID ${video.id} after render.`);
+             return; // Skip if element wasn't found
+        }
 
-        const playPauseButton = document.getElementById(`playPauseButton-${video.id}`);
-        const soundButton = document.getElementById(`soundButton-${video.id}`);
+        const wrapperElement = videoItemElement.querySelector('.video-aspect-wrapper');
+        const playPauseButton = videoItemElement.querySelector(`#playPauseButton-${video.id}`);
+        const soundButton = videoItemElement.querySelector(`#soundButton-${video.id}`);
 
+        // Apply the aspect ratio to the wrapper
+        if (wrapperElement) {
+            // Use the stored native dimensions
+            wrapperElement.style.aspectRatio = `${video.nativeWidth} / ${video.nativeHeight}`;
+             console.log(`Applied aspect ratio ${video.nativeWidth}/${video.nativeHeight} to wrapper for video ${video.id}`);
+        } else {
+             console.warn(`Could not find aspect wrapper for video ${video.id}`);
+        }
+
+        // Attach event listeners (player initialization is now handled lazily inside handlers)
         if (playPauseButton) {
             playPauseButton.addEventListener('click', () => {
-                // Ensure player is initialized before trying to use it
-                if (!video.player) video.initializePlayer(); 
-                video.togglePlayPause(playPauseButton);
+                // Initialize player on first interaction if not already done
+                if (!video.player) video.initializePlayer();
+                // Check player exists before calling toggle (initializePlayer might fail)
+                if (video.player) video.togglePlayPause(playPauseButton);
+                else console.error(`Cannot toggle play/pause: Player not initialized for ${video.id}`);
             });
         }
 
         if (soundButton) {
             soundButton.addEventListener('click', () => {
-                 // Ensure player is initialized before trying to use it
                 if (!video.player) video.initializePlayer();
-                video.toggleSound(soundButton);
+                if (video.player) video.toggleSound(soundButton);
+                 else console.error(`Cannot toggle sound: Player not initialized for ${video.id}`);
             });
         }
     });
@@ -125,11 +167,16 @@ class Video {
         this.year = videoData.year;
         this.client = videoData.client;
         this.thumbnailUrl = '';
-        this.iframeSrc = ''; 
-        this.aspectRatio = 16 / 9; // Default aspect ratio
+
+        this.iframeSrc = '';
         this.player = null;
+        this.nativeWidth = 16;
+        this.nativeHeight = 9;
+        this.aspectRatio = 16 / 9;
+
+        // --- Currently not using, restore if need to calculate dynamic video height and width ---
         this.videoHeight = 0; 
-        this.videoWidth = 0; 
+        this.videoWidth = 0;
     }
 
     async initialize() {
@@ -170,10 +217,16 @@ class Video {
     }
 
     // This method dynamically calculates video size based on viewport size
-    updateVideoSizes(setWidth, setHeight) {
-        const videoHeight = setWidth / this.aspectRatio;
-        this.videoHeight = videoHeight;
-        this.videoWidth = setWidth;
+    updateVideoSizes(containerWidth) {
+        if (this.aspectRatio > 0 && containerWidth > 0) {
+            this.videoWidth = containerWidth;
+            this.videoHeight = containerWidth / this.aspectRatio;
+             // console.log(`Video ${this.id} calculated size: ${this.videoWidth.toFixed(1)} x ${this.videoHeight.toFixed(1)} (for container width ${containerWidth})`);
+        } else {
+            // Handle cases where aspect ratio or container width is invalid
+            this.videoWidth = 0;
+            this.videoHeight = 0;
+        }
     }
 
     togglePlayPause(playPauseButton) {
@@ -221,8 +274,10 @@ class Video {
 }
 
 function getDynamicWidth() {
-    const trackElement = document.querySelector('.js-video-track'); // get size of video-track width
-    return trackElement ? trackElement.clientWidth : window.innerWidth; 
+    // Adjust selector if needed (e.g., '.middle-column' might be more accurate than '.js-video-track' if track width is 100% of middle)
+    const containerElement = document.querySelector('.middle-column'); // Or '.js-video-track' parent?
+    // Fallback to window width if container not found or has no width
+    return containerElement ? containerElement.clientWidth : window.innerWidth;
 }
 
 const playlist = [{
