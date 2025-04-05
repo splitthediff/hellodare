@@ -25,16 +25,9 @@ let videoItems = [];
 let videoTrack = null;
 let isAnimating = false;
 
-// --- Configuration ---
-// ADJUST THIS: Increase duration for slower, potentially smoother animation
-const animationDuration = 2.5; // <<< TRY 2.0, 2.5, 3.0 or back to 5.0?
-
-// ADJUST THROTTLE STRATEGY: Try a shorter interval
-// This relies more on 'isAnimating' to prevent overlap during the animation,
-// but allows the next scroll input to be processed sooner after animation completes.
-const throttleInterval = 300; // <<< TRY 200-500ms. Independent of animationDuration.
-// const throttleInterval = animationDuration * 1000 + 100; // <<< OLD Strategy (commented out)
-
+// --- Configuration Variables ---
+let animationDuration;
+let throttleInterval;
 
 /**
  * Animates or sets the video track to a specific index.
@@ -111,80 +104,182 @@ function updateActiveClass() {
     });
 }
 
-/**
- * Throttled scroll event handler. Determines direction and calls goToIndex. - UNCHANGED LOGIC, uses new interval
- */
-const handleThrottledScroll = throttle((delta) => {
-    console.log(`>>> handleThrottledScroll EXECUTION: delta=${delta}, currentIdx=${currentIndex}, isAnimating=${isAnimating}`); // LOG K
+// --- Throttled Handler (defined AFTER throttleInterval is set) ---
+let handleThrottledScroll = null;
 
-    if (isAnimating) {
-        console.log("handleThrottledScroll: Ignored, animation currently in progress."); // LOG L
-        return;
+function detectTouchDevice() {
+    let hasTouch = false;
+    // Check modern navigator property first
+    if ('maxTouchPoints' in navigator) {
+        hasTouch = navigator.maxTouchPoints > 0;
     }
-
-    let newIndex = currentIndex;
-    const sensitivity = 0; // Trigger on any non-zero delta
-
-    if (delta > sensitivity && currentIndex < videoItems.length - 1) {
-        newIndex++;
-        console.log(`handleThrottledScroll: Scroll Down detected. Proposed newIndex: ${newIndex}`); // LOG M.1
-    } else if (delta < -sensitivity && currentIndex > 0) {
-        newIndex--;
-        console.log(`handleThrottledScroll: Scroll Up detected. Proposed newIndex: ${newIndex}`); // LOG M.2
-    } else {
-        console.log(`handleThrottledScroll: No index change (delta=${delta}, at bounds, or sensitivity not met).`); // LOG N
-        return;
+    // Fallback for older browsers/devices
+    else if ('ontouchstart' in window) {
+        hasTouch = true;
     }
-
-    goToIndex(newIndex);
-
-}, throttleInterval); // Uses the updated throttleInterval
+    // Basic check for older IE
+    else if ('msMaxTouchPoints' in navigator) {
+        hasTouch = navigator.msMaxTouchPoints > 0;
+    }
+    // Could add more checks (e.g., matchMedia pointer:coarse) if needed
+    return hasTouch;
+}
 
 
 /**
- * Initializes the GSAP scrolling functionality. - UNCHANGED
+ * Initializes the GSAP scrolling functionality.
  */
 export function initializeGsapScroll() {
-    console.log("Initializing GSAP Scroll..."); // INIT LOG 1
+    console.log("Initializing GSAP Scroll (Conditional Timings)...");
 
+    // --- 1. Detect Device Type ---
+    const isTouchDevice = detectTouchDevice();
+    console.log(`Device detected as touch capable: ${isTouchDevice}`);
+
+    // --- 2. Set Conditional Timings ---
+    const DESKTOP_ANIMATION_DURATION = 2.0; 
+    const MOBILE_ANIMATION_DURATION = 0.8; 
+
+    const DESKTOP_THROTTLE_INTERVAL = DESKTOP_ANIMATION_DURATION * 1000 + 100;;
+    const MOBILE_THROTTLE_INTERVAL = 200; 
+
+    // Assign the correct values based on detection
+    animationDuration = isTouchDevice ? MOBILE_ANIMATION_DURATION : DESKTOP_ANIMATION_DURATION;
+    throttleInterval = isTouchDevice ? MOBILE_THROTTLE_INTERVAL : DESKTOP_THROTTLE_INTERVAL;
+
+    console.log(`Using animation duration: ${animationDuration}s`);
+    console.log(`Using throttle interval: ${throttleInterval}ms`);
+
+
+    // --- 3. Create Throttled Handler *using the determined interval* ---
+    handleThrottledScroll = throttle((delta) => {
+        // Ensure isAnimating check is prominent
+        console.log(`>>> handleThrottledScroll EXECUTION: delta=${delta}, isAnimating=${isAnimating}`);
+        if (isAnimating) {
+            console.log("handleThrottledScroll: Ignored, animation in progress.");
+            return; // Rely on this check
+        }
+
+        // --- Determine New Index ---
+        let newIndex = currentIndex;
+        const sensitivity = 0; // Trigger on any non-zero delta for now
+
+        if (delta > sensitivity && currentIndex < videoItems.length - 1) {
+            newIndex++;
+            console.log(`handleThrottledScroll: Scroll Down/Swipe Up detected. Proposed newIndex: ${newIndex}`);
+        } else if (delta < -sensitivity && currentIndex > 0) {
+            newIndex--;
+            console.log(`handleThrottledScroll: Scroll Up/Swipe Down detected. Proposed newIndex: ${newIndex}`);
+        } else {
+            console.log(`handleThrottledScroll: No index change (delta=${delta}, at bounds, or sensitivity not met).`);
+            return; 
+        }
+
+        // --- Trigger Animation ---
+        goToIndex(newIndex); // Pass the determined animationDuration implicitly
+
+    }, throttleInterval); // <<< Pass the correct interval here
+
+
+    // --- 4. Find DOM Elements ---
     videoTrack = document.querySelector(".js-video-track");
     const tempItems = videoTrack ? gsap.utils.toArray(videoTrack.children).filter(el => el.classList.contains('video-item')) : [];
 
     if (!videoTrack || tempItems.length === 0) {
-        console.error("GSAP Scroll init failed: Track '.js-video-track' or children '.video-item' not found."); // INIT LOG 2
+        console.error("GSAP Scroll init failed: Track or video items not found.");
         return;
     }
-
     videoItems = tempItems;
     currentIndex = 0;
     isAnimating = false;
+    console.log(`Found ${videoItems.length} video items.`);
 
-    console.log(`Found ${videoItems.length} video items.`); // INIT LOG 3
+    // --- 5. Set Initial Position ---
+    console.log("Setting initial position...");
+    goToIndex(0, true); // Uses animationDuration implicitly if not immediate
 
-    // --- Set Initial State ---
-    console.log("Setting initial position (index 0)..."); // INIT LOG 4
-    goToIndex(0, true);
+    // --- 6. Attach Event Listeners ---
+    // Clear previous listeners if necessary (using named functions)
+    // ...
 
-    // --- Wheel Event Listener ---
-    window.addEventListener("wheel", (event) => {
-        console.log(`--- Wheel event detected: deltaY=${event.deltaY} ---`); // LOG P
+    // Wheel Listener (uses handleThrottledScroll)
+    const handleWheel = (event) => {
+        console.log(`--- Wheel event detected: deltaY=${event.deltaY} ---`);
         event.preventDefault();
-        handleThrottledScroll(event.deltaY);
-    }, { passive: false });
+        handleThrottledScroll(event.deltaY); // Call shared throttled function
+    };
+    window.addEventListener("wheel", handleWheel, { passive: false });
 
-    // --- Resize Listener ---
+    // Touch Listeners (uses handleThrottledScroll)
+    let touchStartY = null;
+    let touchStartX = null;
+    const minSwipeDistanceY = 2; // Keep tuned values
+    const maxSwipeDistanceX = 2000; // Keep tuned values
+
+    const handleTouchStart = (event) => {
+        if (event.touches.length === 1) { // Only track single touches
+            touchStartY = event.touches[0].clientY;
+            touchStartX = event.touches[0].clientX;
+            // console.log(`Touch Start: Y=${touchStartY}, X=${touchStartX}`); // Optional debug
+        } else {
+            // Reset if multi-touch occurs during start
+            touchStartY = null;
+            touchStartX = null;
+        }
+    };
+
+    const handleTouchMove = (event) => {
+        // Prevent default browser scroll only if we are actively tracking a swipe
+        if (touchStartY !== null) {
+            // console.log("Touch Move - Preventing Default"); // Optional debug
+            event.preventDefault();
+        }
+    };
+
+    const handleTouchEnd = (event) => {
+        const touchEndY = event.changedTouches[0].clientY;
+        const touchEndX = event.changedTouches[0].clientX;
+        
+        const deltaY = touchStartY - touchEndY; // Calculate vertical difference
+        const deltaX = touchStartX - touchEndX; // Calculate horizontal difference
+
+        console.log(`TouchEnd: DeltaY=${deltaY.toFixed(1)}, DeltaX=${deltaX.toFixed(1)}. Thresholds: Y > ${minSwipeDistanceY}, X < ${maxSwipeDistanceX}`);
+
+        if (Math.abs(deltaY) > minSwipeDistanceY && Math.abs(deltaX) < maxSwipeDistanceX) {
+            console.log(`>>> Touch Swipe ACCEPTED: deltaY=${deltaY.toFixed(1)} <<<`);
+            handleThrottledScroll(deltaY); // Call shared throttled function
+        } else {
+            console.log(`--- Touch Swipe REJECTED ---`);
+        }
+        touchStartY = null; touchStartX = null; // Reset
+    };
+
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("touchend", handleTouchEnd, { passive: true });
+
+    // Resize Listener
     let resizeTimeout = null;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            console.log("--- Resize event triggered ---"); // LOG Q.1
-            // No need to check isAnimating here, goToIndex(immediate=true) handles it
-            console.log("Resize handler: Repositioning video track immediately."); // LOG Q.2
-            goToIndex(currentIndex, true);
-        }, 250);
-    });
 
-    console.log("GSAP Scroll Initialization complete."); // INIT LOG 5
+    const handleResize = () => {
+        clearTimeout(resizeTimeout); // Debounce
+        resizeTimeout = setTimeout(() => {
+            console.log("--- Resize event triggered ---");
+            // Optional: Recalculate internal sizes if needed elsewhere
+            // updateDOMVideoSizes(currentVideos);
+
+            console.log("Resize handler: Repositioning video track immediately.");
+            if (typeof goToIndex === 'function' && typeof currentIndex !== 'undefined') {
+                goToIndex(currentIndex, true); // Reposition GSAP immediately
+            } else {
+                 console.warn("goToIndex or currentIndex not available for resize repositioning.");
+            }
+        }, 250); // Debounce delay
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    console.log("GSAP Scroll Initialization complete (Conditional Wheel & Touch active).");
 
     // --- CSS CHECKS ---
     console.warn("CSS CHECK: Ensure the container holding '.js-video-track' has height: 100vh (or desired viewport height) and overflow: hidden.");

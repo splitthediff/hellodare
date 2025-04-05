@@ -70,22 +70,15 @@ html, body {
     display: flex; /* Use flex to center the aspect wrapper */
     align-items: center;
     justify-content: center;
-    /* background-color: lightgrey; */ /* DEBUG: See the full item area */
   }  
 
   .video-aspect-wrapper {
     position: relative;
     width: 100%;
-    max-width: 100%;
-   
-    /*
-    aspect-ratio: 16 / 9; /* <<< Standard HD video. Adjust if needed (e.g., 4 / 3) */
-  
+    max-width: 100%;  
     /* Prevent wrapper from exceeding parent's height if aspect ratio makes it too tall */
     max-height: 100%;
-  
     overflow: hidden; /* Optional: Clip anything overflowing the aspect ratio */
-    /* background-color: rgba(255, 0, 0, 0.3); */ /* DEBUG: See the wrapper area */
   }
   
   
@@ -96,8 +89,6 @@ html, body {
     left: 0;
     width: 100%; /* <<< Fill the wrapper */
     height: 100%; /* <<< Fill the wrapper */
-    max-width: 100%; /* Redundant due to absolute pos, but safe */
-    max-height: 100%; /* Redundant due to absolute pos, but safe */
     display: block;
     border: none;
     pointer-events: none;

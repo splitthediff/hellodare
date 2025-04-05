@@ -1,82 +1,148 @@
-/* Page Container */
-.page-container {
-    display: flex;
-    height: 100vh; /* Ensure container fills viewport height */
-    width: 100vw;
-    overflow: hidden; /* Prevent body scroll interfering */
-  }
-  
-  /* ... other styles ... */
-  
-  .middle-column {
-    flex: 3;
-    display: flex; /* Keep flex */
-    /* align-items and justify-content are less relevant now as the track scrolls */
-    overflow: hidden; /* CRUCIAL: Hide parts of video-track not in view */
-    height: 100%; /* Take full height of page-container */
-    position: relative; /* Needed if adding absolute indicators later */
-  }
-  
-  /* VIDEO PORTFOLIO adjustments */
-  .video-track {
-    display: flex;
-    flex-direction: column;
-    /* Remove overflow-y: auto - JS will handle movement */
-    /* Remove height: 100% - let it grow naturally */
-    width: 100%;
-    /* Disable native scrollbars (you already have this) */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    /* Add transition for smooth scrolling */
-    transition: transform 0.6s ease-in-out; /* Adjust timing & easing */
-  }
-  
-  .video-track::-webkit-scrollbar {
-    display: none;
-  }
-  
-  /* Video container */
-  .video-item { /* Assuming .video-item wraps each iframe */
-    width: 100%;
-    height: 100vh; /* CRUCIAL: Each item takes full viewport height */
-    flex-shrink: 0; /* Prevent items from shrinking */
-    display: flex; /* Optional: center iframe within item */
-    align-items: center; /* Optional: center iframe within item */
-    justify-content: center; /* Optional: center iframe within item */
-    /* background-color: #eee; */ /* Optional: for debugging layout */
-  }
-  
-  .video-item iframe {
-    width: 90%; /* Or adjust as needed */
-    height: 80%; /* Or adjust as needed */
-    max-width: 1280px; /* Example max width */
-    max-height: 720px; /* Example max height */
-    /* Resetting pointer events - we handle scroll differently now */
-    pointer-events: auto;
-    border-radius: var(--video-border-radius);
-    /* background-color: aqua; */ /* For debugging */
-  }
-  
-  /* Remove the old video-container styles if they conflict */
-  /* .video-container { ... } */
-  
-  /* Ensure iframe interaction isn't blocked if needed,
-     but be aware this means scroll won't work while hovering iframe */
-  /* .video-item iframe {
-      pointer-events: auto;
-  } */
-  
-  /* Remove absolute positioning for controls if they were relative to video-container */
-  /* Adjust .video-controls positioning if needed, perhaps relative to .video-item */
-  .video-controls {
-     position: absolute; /* Maybe position relative to .video-item now */
-     bottom: 20px; /* Example */
-     left: 50%;
-     transform: translateX(-50%);
-     z-index: 10;
-     /* background: rgba(0,0,0,0.5); */ /* Add background for visibility */
-     padding: 5px 10px;
-     border-radius: 5px;
-     /* Reset mix-blend-mode if it causes issues */
-     /* mix-blend-mode: difference; */
-  }
+// scroll.js
+
+// --- Keep your existing functions ---
+// throttle(func, limit) { ... }
+// goToIndex(index, immediate = false) { ... }
+// updateActiveClass() { ... }
+// handleThrottledScroll = throttle((delta) => { ... }, throttleInterval);
+// ---------------------------------
+
+
+// Export the main initialization function
+export function initializeGsapScroll() {
+    console.log("Initializing GSAP Scroll (including touch)..."); // INIT LOG 1 (Updated)
+
+    // --- Find DOM Elements ---
+    videoTrack = document.querySelector(".js-video-track"); // Ensure this selector is correct
+    const tempItems = videoTrack ? gsap.utils.toArray(videoTrack.children).filter(el => el.classList.contains('video-item')) : [];
+
+    if (!videoTrack || tempItems.length === 0) {
+        console.error("GSAP Scroll init failed: Track '.js-video-track' or children '.video-item' not found."); // INIT LOG 2
+        return;
+    }
+
+    videoItems = tempItems;
+    currentIndex = 0; // Reset state on init
+    isAnimating = false; // Reset state on init
+
+    console.log(`Found ${videoItems.length} video items.`); // INIT LOG 3
+
+    // --- Set Initial Position ---
+    console.log("Setting initial position (index 0)..."); // INIT LOG 4
+    goToIndex(0, true);
+
+    // --- Clear Previous Listeners (Optional but Recommended) ---
+    // If initializeGsapScroll could be called multiple times, remove old listeners first
+    // window.removeEventListener("wheel", handleWheel); // Need to name the function
+    // window.removeEventListener("touchstart", handleTouchStart);
+    // window.removeEventListener("touchmove", handleTouchMove);
+    // window.removeEventListener("touchend", handleTouchEnd);
+    // window.removeEventListener('resize', handleResize); // Needs named function too
+
+
+    // --- Wheel Event Listener (Desktop) ---
+    // Define the handler function separately if you plan to remove it later
+    const handleWheel = (event) => {
+        // Basic check: Is the event happening inside our main container? (Optional)
+        // if (!event.target.closest('.page-container')) return; // Adjust selector if needed
+
+        console.log(`--- Wheel event detected: deltaY=${event.deltaY} ---`); // LOG P
+        // Prevent default window scroll ONLY IF we are handling the scroll
+        event.preventDefault();
+        handleThrottledScroll(event.deltaY); // Call shared throttled function
+    };
+    window.addEventListener("wheel", handleWheel, { passive: false }); // passive: false required for preventDefault
+
+    // --- Touch Event Listeners (Mobile) ---
+    let touchStartY = null;
+    let touchStartX = null; // Optional: Store X to check swipe direction
+    const minSwipeDistanceY = 40; // Min vertical distance to trigger scroll
+    const maxSwipeDistanceX = 50; // Max horizontal distance allowed during a vertical swipe
+
+    const handleTouchStart = (event) => {
+        // Only track single-finger swipes
+        if (event.touches.length === 1) {
+            touchStartY = event.touches[0].clientY;
+            touchStartX = event.touches[0].clientX; // Store starting X
+            // console.log(`Touch Start: Y=${touchStartY}, X=${touchStartX}`); // DEBUG
+        } else {
+            // Reset if multiple fingers are used
+            touchStartY = null;
+            touchStartX = null;
+        }
+    };
+
+    const handleTouchMove = (event) => {
+        // Prevent the browser's default vertical scrolling/pull-to-refresh etc.
+        // This is crucial for taking control of the scroll gesture.
+        // We only prevent if a valid touch start was registered
+        if (touchStartY !== null) {
+            // console.log("Touch Move - Preventing Default"); // DEBUG
+            event.preventDefault();
+        }
+    };
+
+    const handleTouchEnd = (event) => {
+        // Ensure we had a valid start and this is the end of the tracked touch
+        if (touchStartY === null || event.changedTouches.length === 0) {
+            return;
+        }
+
+        const touchEndY = event.changedTouches[0].clientY;
+        const touchEndX = event.changedTouches[0].clientX; // Get ending X
+
+        const deltaY = touchStartY - touchEndY; // Positive delta = swipe UP (scroll content DOWN)
+        const deltaX = touchStartX - touchEndX; // Positive delta = swipe LEFT
+
+        // console.log(`Touch End: Y=${touchEndY}, X=${touchEndX} | Delta Y=${deltaY}, Delta X=${deltaX}`); // DEBUG
+
+        // --- Gesture Qualification ---
+        // 1. Was the vertical swipe distance sufficient?
+        // 2. Was the swipe *mostly* vertical (not too much horizontal movement)?
+        if (Math.abs(deltaY) > minSwipeDistanceY && Math.abs(deltaX) < maxSwipeDistanceX) {
+            console.log(`--- Touch Swipe Detected: deltaY=${deltaY} (Vertical) ---`);
+            // Feed the vertical delta into the SAME throttled function
+            handleThrottledScroll(deltaY);
+        } else {
+            // console.log("Swipe dismissed (threshold or horizontal dominance)."); // DEBUG
+        }
+
+        // Reset tracking variables for the next touch
+        touchStartY = null;
+        touchStartX = null;
+    };
+
+    // Attach touch listeners
+    // Note: Attaching to window is broad. Attaching to '.page-container' or '.middle-column'
+    // might be better if you only want swipes within that area to trigger the scroll.
+    // Let's stick with window for now for simplicity.
+    window.addEventListener("touchstart", handleTouchStart, { passive: true }); // Can be passive, doesn't prevent default here
+    window.addEventListener("touchmove", handleTouchMove, { passive: false }); // MUST be passive:false to use preventDefault
+    window.addEventListener("touchend", handleTouchEnd, { passive: true });   // Can be passive, doesn't prevent default here
+
+
+    // --- Resize Listener ---
+    let resizeTimeout = null;
+    const handleResize = () => { // Give it a name if removal is needed
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            console.log("--- Resize event triggered ---");
+            // updateDOMVideoSizes might be needed if internal calculations are used elsewhere
+            // updateDOMVideoSizes(currentVideos); // Make sure currentVideos is accessible or passed
+            console.log("Resize handler: Repositioning video track immediately.");
+            if (typeof goToIndex === 'function' && typeof currentIndex !== 'undefined') {
+                goToIndex(currentIndex, true); // Reposition immediately
+            } else {
+                 console.warn("goToIndex or currentIndex not available for resize repositioning.");
+            }
+        }, 250);
+    };
+    window.addEventListener('resize', handleResize);
+
+
+    console.log("GSAP Scroll Initialization complete (Wheel & Touch listeners active)."); // INIT LOG 5 (Updated)
+
+    // --- Keep your CSS CHECK console warnings ---
+    // console.warn("CSS CHECK: Ensure the container...");
+    // ... etc ...
+}
