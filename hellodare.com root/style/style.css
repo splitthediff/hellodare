@@ -34,15 +34,14 @@ html, body {
 /* --- Page Container --- */
 .page-container {
     display: flex;
-    height: 100vh; /* Full viewport height */
-    width: 100vw;  /* Full viewport width */
-    overflow: hidden; /* Should already prevent scroll */
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
   }
   
   /* --- Columns --- */
   .left-column, .right-column {
     flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px;
-    /* Add height: 100%; if they need vertical centering relative to the whole page */
     height: 100%;
   }
   
@@ -51,7 +50,6 @@ html, body {
     height: 100%; /* Take full height of page-container */
     overflow: hidden; /* CRUCIAL: Clip the video-track */
     position: relative; /* Good practice for containers */
-    /* background-color: lightblue; */ /* DEBUG: Check its size */
   }
   
   /* --- Video Track --- */
@@ -80,6 +78,29 @@ html, body {
     max-height: 100%;
     overflow: hidden; /* Optional: Clip anything overflowing the aspect ratio */
   }
+
+  .video-thumbnail {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Cover the area, might crop */
+    /* object-fit: contain; */ /* Fit inside, might show background */
+    z-index: 5; /* Higher than iframe (default 0 or 1), lower than controls */
+    pointer-events: none; /* Don't block clicks intended for controls/iframe underneath */
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.4s ease, visibility 0.4s ease; /* Smooth fade out */
+    background-color: #ffd60a; /* Optional: fallback bg if image fails */
+  }
+  
+  /* State when the thumbnail should be hidden (video playing) */
+  .video-thumbnail.thumbnail-hidden {
+    opacity: 0;
+    visibility: hidden;
+    /* pointer-events: none; */ /* Already set above, redundant but safe */
+  }
   
   
   /* --- Iframe --- */
@@ -93,10 +114,23 @@ html, body {
     border: none;
     pointer-events: none;
   }
+
+  /* Ensure iframe is below thumbnail initially */
+  .video-aspect-wrapper iframe {
+    position: relative; /* Needed for z-index */
+    z-index: 1;
+    width: 100%; /* Ensure iframe fills wrapper */
+    height: 100%;
+}
   
   
   /* --- Video Controls --- */
-  .video-controls {
+  .video-item .video-controls {
+    
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.7s ease;
+
     position: absolute; /* <<< Position relative to wrapper */
     /* Adjust distance from bottom as needed */
     bottom: 15px; /* Or 10px, 20px - distance from bottom of aspect-ratio box */
@@ -110,6 +144,26 @@ html, body {
     gap: 10px;
     align-items: center;
     pointer-events: none;
+  }
+
+  .video-item .video-aspect-wrapper:hover .video-controls {
+    /* Become Visible */
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto; /* Make controls interactive ONLY when visible */
+  }
+
+  .video-item .video-controls .controls-button {
+    /* Add styles for your buttons here */
+    background: none;
+    border: 1px solid white;
+    color: white;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+
+  .video-item .video-controls .controls-button:hover {
+      background-color: rgba(255, 255, 255, 0.2);
   }
   
   /* --- Other styles (Title, Info Overlay, Buttons etc.) --- */

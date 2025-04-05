@@ -1,148 +1,99 @@
-// scroll.js
+// In playlist.js, inside the Video class:
 
-// --- Keep your existing functions ---
-// throttle(func, limit) { ... }
-// goToIndex(index, immediate = false) { ... }
-// updateActiveClass() { ... }
-// handleThrottledScroll = throttle((delta) => { ... }, throttleInterval);
-// ---------------------------------
-
-
-// Export the main initialization function
-export function initializeGsapScroll() {
-    console.log("Initializing GSAP Scroll (including touch)..."); // INIT LOG 1 (Updated)
-
-    // --- Find DOM Elements ---
-    videoTrack = document.querySelector(".js-video-track"); // Ensure this selector is correct
-    const tempItems = videoTrack ? gsap.utils.toArray(videoTrack.children).filter(el => el.classList.contains('video-item')) : [];
-
-    if (!videoTrack || tempItems.length === 0) {
-        console.error("GSAP Scroll init failed: Track '.js-video-track' or children '.video-item' not found."); // INIT LOG 2
+/**
+ * Toggles play/pause state ONLY for the currently active video item.
+ * Prevents interference with scroll-based playback control.
+ * @param {HTMLButtonElement} playPauseButton - The button element that was clicked.
+ */
+togglePlayPause(playPauseButton) {
+    // Check 1: Player Readiness
+    // Make sure the Vimeo Player instance is created and ready.
+    if (!this.player) {
+        console.error(`[Toggle Play ${this.id}] Cannot toggle: Player not initialized or ready.`);
+        // Avoid trying to re-initialize here as it can cause complications.
         return;
     }
 
-    videoItems = tempItems;
-    currentIndex = 0; // Reset state on init
-    isAnimating = false; // Reset state on init
+    // Check 2: Is this video the CURRENTLY ACTIVE one in the scroller?
+    // We determine this by looking for the '.active-video' class on its parent '.video-item'.
+    // This class should be added/removed by the 'updateActiveClass' function in scroll.js.
+    const videoItemElement = document.getElementById(`iframe-${this.id}`)?.closest('.video-item');
+    const isActive = videoItemElement?.classList.contains('active-video');
 
-    console.log(`Found ${videoItems.length} video items.`); // INIT LOG 3
+    // If the video being clicked is NOT the one currently marked as active...
+    if (!isActive) {
+        console.warn(`[Toggle Play ${this.id}] Ignoring click: This video (${this.id}) is not the active scrolled item.`);
+        // *** IMPORTANT: DO NOTHING ***.
+        // Let the scroll logic (controlVideoPlayback) manage playback state for inactive videos.
+        return;
+    }
 
-    // --- Set Initial Position ---
-    console.log("Setting initial position (index 0)..."); // INIT LOG 4
-    goToIndex(0, true);
-
-    // --- Clear Previous Listeners (Optional but Recommended) ---
-    // If initializeGsapScroll could be called multiple times, remove old listeners first
-    // window.removeEventListener("wheel", handleWheel); // Need to name the function
-    // window.removeEventListener("touchstart", handleTouchStart);
-    // window.removeEventListener("touchmove", handleTouchMove);
-    // window.removeEventListener("touchend", handleTouchEnd);
-    // window.removeEventListener('resize', handleResize); // Needs named function too
-
-
-    // --- Wheel Event Listener (Desktop) ---
-    // Define the handler function separately if you plan to remove it later
-    const handleWheel = (event) => {
-        // Basic check: Is the event happening inside our main container? (Optional)
-        // if (!event.target.closest('.page-container')) return; // Adjust selector if needed
-
-        console.log(`--- Wheel event detected: deltaY=${event.deltaY} ---`); // LOG P
-        // Prevent default window scroll ONLY IF we are handling the scroll
-        event.preventDefault();
-        handleThrottledScroll(event.deltaY); // Call shared throttled function
-    };
-    window.addEventListener("wheel", handleWheel, { passive: false }); // passive: false required for preventDefault
-
-    // --- Touch Event Listeners (Mobile) ---
-    let touchStartY = null;
-    let touchStartX = null; // Optional: Store X to check swipe direction
-    const minSwipeDistanceY = 40; // Min vertical distance to trigger scroll
-    const maxSwipeDistanceX = 50; // Max horizontal distance allowed during a vertical swipe
-
-    const handleTouchStart = (event) => {
-        // Only track single-finger swipes
-        if (event.touches.length === 1) {
-            touchStartY = event.touches[0].clientY;
-            touchStartX = event.touches[0].clientX; // Store starting X
-            // console.log(`Touch Start: Y=${touchStartY}, X=${touchStartX}`); // DEBUG
+    // --- If we reach here, the player IS ready AND it IS the active video ---
+    // Proceed with the user's intended play/pause action.
+    console.log(`[Toggle Play ${this.id}] User clicked toggle for ACTIVE video.`);
+    this.player.getPaused().then((paused) => {
+        if (paused) {
+            // If it's paused, the user wants to play it.
+            console.log(`[Toggle Play ${this.id}] Player was paused, attempting play...`);
+            this.player.play().then(() => {
+                // Play succeeded: Update button text.
+                playPauseButton.innerText = 'Pause';
+                console.log(`[Toggle Play ${this.id}] Play successful via click.`);
+            }).catch(e => {
+                 // Play failed (e.g., browser restriction): Log error and ensure button reflects paused state.
+                 console.error(`[Toggle Play ${this.id}] Error during player.play() via click: ${e.name}`);
+                 playPauseButton.innerText = 'Play';
+            });
         } else {
-            // Reset if multiple fingers are used
-            touchStartY = null;
-            touchStartX = null;
+            // If it's playing, the user wants to pause it.
+            console.log(`[Toggle Play ${this.id}] Player was playing, attempting pause...`);
+            this.player.pause().then(() => {
+                // Pause succeeded: Update button text.
+                playPauseButton.innerText = 'Play';
+                console.log(`[Toggle Play ${this.id}] Pause successful via click.`);
+            }).catch(e => {
+                 // Pause failed (less common): Log error and potentially reset button text.
+                 console.error(`[Toggle Play ${this.id}] Error during player.pause() via click: ${e.name}`);
+                 // If pause fails, it might still be playing. For safety, reset to 'Play'
+                 // as the desired state wasn't achieved. Or leave as 'Pause' - debatable UX.
+                 playPauseButton.innerText = 'Play';
+            });
         }
-    };
-
-    const handleTouchMove = (event) => {
-        // Prevent the browser's default vertical scrolling/pull-to-refresh etc.
-        // This is crucial for taking control of the scroll gesture.
-        // We only prevent if a valid touch start was registered
-        if (touchStartY !== null) {
-            // console.log("Touch Move - Preventing Default"); // DEBUG
-            event.preventDefault();
-        }
-    };
-
-    const handleTouchEnd = (event) => {
-        // Ensure we had a valid start and this is the end of the tracked touch
-        if (touchStartY === null || event.changedTouches.length === 0) {
-            return;
-        }
-
-        const touchEndY = event.changedTouches[0].clientY;
-        const touchEndX = event.changedTouches[0].clientX; // Get ending X
-
-        const deltaY = touchStartY - touchEndY; // Positive delta = swipe UP (scroll content DOWN)
-        const deltaX = touchStartX - touchEndX; // Positive delta = swipe LEFT
-
-        // console.log(`Touch End: Y=${touchEndY}, X=${touchEndX} | Delta Y=${deltaY}, Delta X=${deltaX}`); // DEBUG
-
-        // --- Gesture Qualification ---
-        // 1. Was the vertical swipe distance sufficient?
-        // 2. Was the swipe *mostly* vertical (not too much horizontal movement)?
-        if (Math.abs(deltaY) > minSwipeDistanceY && Math.abs(deltaX) < maxSwipeDistanceX) {
-            console.log(`--- Touch Swipe Detected: deltaY=${deltaY} (Vertical) ---`);
-            // Feed the vertical delta into the SAME throttled function
-            handleThrottledScroll(deltaY);
-        } else {
-            // console.log("Swipe dismissed (threshold or horizontal dominance)."); // DEBUG
-        }
-
-        // Reset tracking variables for the next touch
-        touchStartY = null;
-        touchStartX = null;
-    };
-
-    // Attach touch listeners
-    // Note: Attaching to window is broad. Attaching to '.page-container' or '.middle-column'
-    // might be better if you only want swipes within that area to trigger the scroll.
-    // Let's stick with window for now for simplicity.
-    window.addEventListener("touchstart", handleTouchStart, { passive: true }); // Can be passive, doesn't prevent default here
-    window.addEventListener("touchmove", handleTouchMove, { passive: false }); // MUST be passive:false to use preventDefault
-    window.addEventListener("touchend", handleTouchEnd, { passive: true });   // Can be passive, doesn't prevent default here
-
-
-    // --- Resize Listener ---
-    let resizeTimeout = null;
-    const handleResize = () => { // Give it a name if removal is needed
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            console.log("--- Resize event triggered ---");
-            // updateDOMVideoSizes might be needed if internal calculations are used elsewhere
-            // updateDOMVideoSizes(currentVideos); // Make sure currentVideos is accessible or passed
-            console.log("Resize handler: Repositioning video track immediately.");
-            if (typeof goToIndex === 'function' && typeof currentIndex !== 'undefined') {
-                goToIndex(currentIndex, true); // Reposition immediately
-            } else {
-                 console.warn("goToIndex or currentIndex not available for resize repositioning.");
-            }
-        }, 250);
-    };
-    window.addEventListener('resize', handleResize);
-
-
-    console.log("GSAP Scroll Initialization complete (Wheel & Touch listeners active)."); // INIT LOG 5 (Updated)
-
-    // --- Keep your CSS CHECK console warnings ---
-    // console.warn("CSS CHECK: Ensure the container...");
-    // ... etc ...
+    }).catch(e => {
+        // Error fetching the paused state: Log error. Button state is unknown.
+        console.error(`[Toggle Play ${this.id}] Error during player.getPaused() via click: ${e.name}`);
+        // Consider setting a default button text like 'Play' in case of error.
+        playPauseButton.innerText = 'Play';
+    });
 }
+
+/**
+ * Toggles sound on/off for the video player instance.
+ * Includes check for player readiness.
+ * @param {HTMLButtonElement} soundButton - The sound button element clicked.
+ */
+toggleSound(soundButton) {
+    // Check 1: Player Readiness
+    if (!this.player) {
+        console.error(`[Toggle Sound ${this.id}] Cannot toggle: Player not ready.`);
+        return;
+    }
+
+    // Proceed with fetching volume and toggling
+    this.player.getVolume().then((volume) => {
+        if (volume === 0) {
+            // Currently muted, unmute (set volume to 0.5 or preferred level)
+            this.player.setVolume(0.5).then(() => {
+                 soundButton.innerText = 'Sound On';
+            }).catch(e => console.error(`[Toggle Sound ${this.id}] Error setting volume ON: ${e.name}`));
+        } else {
+            // Currently has volume, mute (set volume to 0)
+            this.player.setVolume(0).then(() => {
+                 soundButton.innerText = 'Sound Off';
+            }).catch(e => console.error(`[Toggle Sound ${this.id}] Error setting volume OFF: ${e.name}`));
+        }
+    }).catch(e => console.error(`[Toggle Sound ${this.id}] Error getting volume: ${e.name}`));
+}
+
+// Make sure the rest of your Video class (constructor, initialize, initializePlayer, etc.)
+// is still present and correct based on our earlier steps (especially the simplified initializePlayer).

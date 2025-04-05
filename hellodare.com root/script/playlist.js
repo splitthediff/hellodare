@@ -1,13 +1,16 @@
-import { initializeGsapScroll } from './scroll.js';
+import { initializeGsapScroll, toggleGlobalVolume } from './scroll.js';
 let currentVideos = []; 
 
 export async function renderPlaylist() {
     currentVideos = await initializeVideos();
     renderVideos(currentVideos);
 
-    initializeGsapScroll();
+    initializeAllPlayers(currentVideos);
 
-    currentVideos.forEach(video => video.initializePlayer()); 
+    initializeGsapScroll(currentVideos);
+
+    //currentVideos.forEach(video => video.initializePlayer()); 
+
 
     let resizeTimeout;
     window.addEventListener('resize', () => {
@@ -16,6 +19,15 @@ export async function renderPlaylist() {
             updateDOMVideoSizes(currentVideos);
         }, 150);
     });
+}
+
+function initializeAllPlayers(videos) {
+    console.log("--- Starting initialization of all video players ---");
+    videos.forEach(video => {
+        // Don't await here, let them initialize concurrently
+        video.initializePlayer();
+    });
+     console.log("--- Finished initiating player initializations ---");
 }
 
 async function initializeVideos() {
@@ -63,92 +75,6 @@ function updateDOMVideoSizes(videos) {
     console.log("Internal video sizes updated on resize. DOM untouched.");
 }
 
-/*
-function renderVideos(videos) {
-    let playlistHTML = '';
-
-    if (!videos || videos.length === 0) {
-        console.error("No videos to render.");
-        return;
-    }
-
-    
-    videos.forEach((video) => {
-        // Ensure iframeSrc is set, even if initialization failed partially
-        const src = video.iframeSrc || `https://player.vimeo.com/video/${video.id}?autoplay=0&muted=1&controls=0&quality=1080p&background=1`;
-        
-        playlistHTML += `
-
-            <div class="video-item">
-                <div class="video-aspect-wrapper">
-                    <iframe src="${video.iframeSrc}" 
-                            id="iframe-${video.id}"
-                            loading="lazy" 
-                            frameborder="0" 
-                            allow="autoplay; fullscreen" 
-                            allowfullscreen>
-                    </iframe>
-                
-                    <div class="video-controls">
-                        <button class="controls-button play-pause-button" id="playPauseButton-${video.id}">Play</button>
-                        <button class="controls-button sound-button" id="soundButton-${video.id}">Sound Off</button>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-
-    const trackElement = document.querySelector('.js-video-track');
-    if (trackElement) {
-        trackElement.innerHTML = playlistHTML;
-    } else {
-         console.error("'.js-video-track' element not found for rendering.");
-         return;
-    }
-
-    // Attach event listeners (needs player initialized)
-    videos.forEach((video) => {
-        // Find the newly created elements for this specific video
-        const videoItemElement = trackElement.querySelector(`.video-item[data-video-id="${video.id}"]`);
-        if (!videoItemElement) {
-             console.warn(`Could not find video item element for ID ${video.id} after render.`);
-             return; // Skip if element wasn't found
-        }
-
-        const wrapperElement = videoItemElement.querySelector('.video-aspect-wrapper');
-        const playPauseButton = videoItemElement.querySelector(`#playPauseButton-${video.id}`);
-        const soundButton = videoItemElement.querySelector(`#soundButton-${video.id}`);
-
-        // Apply the aspect ratio to the wrapper
-        if (wrapperElement) {
-            // Use the stored native dimensions
-            wrapperElement.style.aspectRatio = `${video.nativeWidth} / ${video.nativeHeight}`;
-             console.log(`Applied aspect ratio ${video.nativeWidth}/${video.nativeHeight} to wrapper for video ${video.id}`);
-        } else {
-             console.warn(`Could not find aspect wrapper for video ${video.id}`);
-        }
-
-        // Attach event listeners (player initialization is now handled lazily inside handlers)
-        if (playPauseButton) {
-            playPauseButton.addEventListener('click', () => {
-                // Initialize player on first interaction if not already done
-                if (!video.player) video.initializePlayer();
-                // Check player exists before calling toggle (initializePlayer might fail)
-                if (video.player) video.togglePlayPause(playPauseButton);
-                else console.error(`Cannot toggle play/pause: Player not initialized for ${video.id}`);
-            });
-        }
-
-        if (soundButton) {
-            soundButton.addEventListener('click', () => {
-                if (!video.player) video.initializePlayer();
-                if (video.player) video.toggleSound(soundButton);
-                 else console.error(`Cannot toggle sound: Player not initialized for ${video.id}`);
-            });
-        }
-    });
-}*/
-
 function renderVideos(videos) {
     console.log("--- Running renderVideos ---");
     let playlistHTML = '';
@@ -176,12 +102,20 @@ function renderVideos(videos) {
         </div>
    ---------------------------------------- */ 
 
-    // 1. Build the HTML String
+    // HTML STRING BUILD
     videos.forEach((video) => {
         const src = video.iframeSrc || `https://player.vimeo.com/video/${video.id}?autoplay=0&muted=1&controls=0`; // Basic fallback src
+
+        const thumbnailHTML = video.thumbnailUrl
+            ? `<img src="${video.thumbnailUrl}" class="video-thumbnail" id="thumbnail-${video.id}" alt="${video.title || 'Video thumbnail'}">`
+            : ''; 
+        
         playlistHTML += `
             <div class="video-item" data-video-id="${video.id}">
-                <div class="video-aspect-wrapper">
+                <div class="video-aspect-wrapper"> 
+                    {/* --- ADDED THUMBNAIL conditionally --- */}
+                    ${thumbnailHTML}
+                    {/* iframe and controls follow */}
                     <iframe src="${src}" id="iframe-${video.id}" loading="lazy" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
                     <div class="video-controls">
                         <button class="controls-button play-pause-button" id="playPauseButton-${video.id}">Play</button>
@@ -192,7 +126,6 @@ function renderVideos(videos) {
         `;
     });
 
-    // 2. Render HTML to the DOM
     const trackElement = document.querySelector('.js-video-track');
     if (!trackElement) {
         console.error("renderVideos: '.js-video-track' element not found.");
@@ -201,14 +134,11 @@ function renderVideos(videos) {
     trackElement.innerHTML = playlistHTML;
     console.log("renderVideos: Set innerHTML on trackElement.");
 
-    // --- 3. Loop Through Videos to Find Elements and Apply Styles/Listeners ---
     console.log("renderVideos: Starting loop to find elements and apply styles...");
     videos.forEach((video) => {
         const videoId = video.id;
         const selector = `.video-item[data-video-id="${videoId}"]`;
 
-        // --- 3a. Query for the specific video item ---
-        // console.log(`renderVideos: Attempting query for selector: "${selector}"`); // Optional: uncomment if still failing
         const videoItemElement = trackElement.querySelector(selector);
 
         // --- 3b. Check if the element was found (CRUCIAL DEBUG STEP) ---
@@ -217,8 +147,6 @@ function renderVideos(videos) {
             console.error(`renderVideos: FAILED to find element for ID ${videoId} using selector "${selector}"`);
             return; // Skip the rest for this video
         }
-        // *** If you DON'T see the error above, the query WORKED ***
-        // console.log(`renderVideos: Successfully found element for ID ${videoId}`); // Optional: uncomment for success confirmation
 
         // --- 3c. Find the wrapper inside the found item ---
         const wrapperElement = videoItemElement.querySelector('.video-aspect-wrapper');
@@ -231,10 +159,8 @@ function renderVideos(videos) {
         if (video.nativeWidth > 0 && video.nativeHeight > 0) {
             console.log("Applying ratio for Video ID " + video.id + ": Native W=" + video.nativeWidth + ", Native H=" + video.nativeHeight + ". CSS: '" + video.nativeWidth + " / " + video.nativeHeight + "'");
             wrapperElement.style.aspectRatio = `${video.nativeWidth} / ${video.nativeHeight}`;
-            // console.log(`renderVideos: Applied aspect ratio ${video.nativeWidth}/${video.nativeHeight} to wrapper for video ${videoId}`); // Optional: uncomment to confirm style set
         } else {
             console.warn(`renderVideos: Invalid dimensions for video ${videoId}. Not setting aspect-ratio.`);
-            // wrapperElement.style.aspectRatio = '16 / 9'; // Optional fallback
         }
 
         // --- 3e. Attach event listeners ---
@@ -275,75 +201,113 @@ class Video {
         this.nativeHeight = 9;
         this.aspectRatio = 16 / 9;
 
+        this._isInitializingPlayer = false;
+
+        this.hasPlayedOnce = false; 
+
         // --- Currently not using, restore if need to calculate dynamic video height and width ---
         this.videoHeight = 0; 
         this.videoWidth = 0;
     }
 
     async initialize() {
-        console.log(`[Video ${this.id}] Starting initialize...`); // Keep debug logs for now
         try {
             const data = await this.fetchVimeoData(this.id);
-            console.log(`[Video ${this.id}] Fetched Vimeo data:`, data); // Keep debug logs
 
-            // Check if data is valid AND has width/height > 0
             if (data && data.width > 0 && data.height > 0) {
-                console.log(`[Video ${this.id}] Data is valid. Updating dimensions...`);
 
-                // --- *** ADD THESE LINES *** ---
                 this.nativeWidth = data.width;
                 this.nativeHeight = data.height;
-                // -----------------------------
 
-                // Recalculate ratio based on the now-stored native dimensions
                 this.aspectRatio = this.getAspectRatio(this.nativeWidth, this.nativeHeight);
 
-                console.log(`[Video ${this.id}] Dimensions STORED: W=${this.nativeWidth}, H=${this.nativeHeight}, Ratio=${this.aspectRatio}`);
-
-                // Set other properties
-                this.thumbnailUrl = data.thumbnail_large; // Assuming structure is correct
-                this.iframeSrc = `https://player.vimeo.com/video/${this.id}?autoplay=0&muted=1&controls=0&quality=1080p`;
+                this.thumbnailUrl = data.thumbnail_large;
+                this.iframeSrc = `https://player.vimeo.com/video/${this.id}?autoplay=1&muted=1&controls=0&quality=1080p`;
 
             } else {
                 console.warn(`[Video ${this.id}] Using default 16:9 due to invalid/missing data. Data was:`, data);
-                // Defaults nativeWidth=16, nativeHeight=9 remain unchanged
-                // Ensure iframeSrc is still set
-                 this.iframeSrc = `https://player.vimeo.com/video/${this.id}?autoplay=0&muted=1&controls=0&quality=1080p`;
+                 this.iframeSrc = `https://player.vimeo.com/video/${this.id}?autoplay=1&muted=1&controls=0&quality=1080p`;
             }
         } catch (error) {
-            console.error(`[Video ${this.id}] Error during initialize:`, error);
-             // Ensure iframeSrc is still set
-             this.iframeSrc = `https://player.vimeo.com/video/${this.id}?autoplay=0&muted=1&controls=0&quality=1080p`;
-            // Defaults nativeWidth=16, nativeHeight=9 remain unchanged
+            //console.error(`[Video ${this.id}] Error during initialize:`, error);
+             this.iframeSrc = `https://player.vimeo.com/video/${this.id}?autoplay=1&muted=1&controls=0&quality=1080p`;
         }
          console.log(`[Video ${this.id}] Finished initialize.`);
     }
 
     initializePlayer() {
         // Only initialize if not already done
-        if (this.player) return; 
-        
+        if (this.player || this._isInitializingPlayer) return;
+        this._isInitializingPlayer = true;
+    
         const iframe = document.getElementById(`iframe-${this.id}`);
-        if (iframe) {
-            try {
-                this.player = new Vimeo.Player(iframe);
-                console.log(`Vimeo Player initialized for ${this.id}`);
-
-                this.player.on('play', () => { console.log(`Video ${this.id} played`); });
-                this.player.on('pause', () => { console.log(`Video ${this.id} paused`); });
-                this.player.on('ended', () => { console.log(`Video ${this.id} ended`); });
-                
-            } catch (error) {
-                 console.error(`Error initializing Vimeo Player for ${this.id}:`, error);
-            }
-
-        } else {
-            // This might happen if called too early or if render failed
-            console.warn(`Iframe not found for video ID: ${this.id} during player initialization.`);
+        if (!iframe) {
+            console.warn(`[Player Init ${this.id}] Iframe element NOT FOUND.`);
+            this._isInitializingPlayer = false; // Reset flag
+            return;
         }
-    }
+    
+        console.log(`[Player Init ${this.id}] Attempting to create Vimeo Player...`);
+        try {
+            // Create the player instance
+            const playerInstance = new Vimeo.Player(iframe);
+    
+            // Wait for the player to be ready
+            playerInstance.ready().then(() => {
+                console.log(`[Player Init ${this.id}] Player is READY.`);
+                this.player = playerInstance; // Assign the player
+    
+                // --- NEW LISTENER BLOCK STARTS HERE ---
+                // Attach Thumbnail Control Listeners & Basic Logs
+                const thumbnailElement = document.getElementById(`thumbnail-${this.id}`);
+    
+                if (thumbnailElement) { // Only add listeners if thumbnail exists
+                    // On the FIRST Play event: Hide thumbnail permanently and set flag
+                    this.player.on('play', () => {
+                        if (!this.hasPlayedOnce) { // Check the flag
+                            console.log(`[Player Event ${this.id}] First play - Hiding thumbnail permanently.`);
+                            thumbnailElement.classList.add('thumbnail-hidden');
+                            this.hasPlayedOnce = true; // Set the flag
+                        } else {
+                            console.log(`[Player Event ${this.id}] Status: played (subsequent)`);
+                        }
+                    });
+    
+                    // Keep basic logs for pause/ended, but don't touch thumbnail
+                    this.player.on('pause', () => console.log(`[Player Event ${this.id}] Status: paused`));
+                    this.player.on('ended', () => {
+                        console.log(`[Player Event ${this.id}] Status: ended`);
+                        const btn = document.getElementById(`playPauseButton-${this.id}`);
+                        if (btn) btn.innerText = 'Play'; // Still reset button text
+                    });
+    
+                } else {
+                    // If no thumbnail, just add basic logs
+                     this.player.on('play', () => console.log(`[Player Event ${this.id}] Status: played`));
+                     this.player.on('pause', () => console.log(`[Player Event ${this.id}] Status: paused`));
+                     this.player.on('ended', () => {
+                         console.log(`[Player Event ${this.id}] Status: ended`);
+                         const btn = document.getElementById(`playPauseButton-${this.id}`);
+                         if (btn) btn.innerText = 'Play';
+                     });
+                }
+                // --- NEW LISTENER BLOCK ENDS HERE ---
+    
+                this._isInitializingPlayer = false; // Reset flag on success
+    
+            }).catch((error) => {
+                console.error(`[Player Init ${this.id}] Player 'ready()' promise REJECTED:`, error);
+                this.player = null;
+                this._isInitializingPlayer = false;
+            });
+    
+        } catch (error) {
+             console.error(`[Player Init ${this.id}] FAILED during 'new Vimeo.Player()':`, error);
+             this.player = null;
+             this._isInitializingPlayer = false;
+        }
+    } // End of initializePlayer
 
-    // This method dynamically calculates video size based on viewport size
     updateVideoSizes(containerWidth) {
         if (this.aspectRatio > 0 && containerWidth > 0) {
             this.videoWidth = containerWidth;
@@ -356,33 +320,90 @@ class Video {
         }
     }
 
+    /**
+     * Toggles play/pause state ONLY for the currently active video item.
+     * Prevents interference with scroll-based playback control.
+     * @param {HTMLButtonElement} playPauseButton - The button element that was clicked.
+     */
     togglePlayPause(playPauseButton) {
-        if (!this.player) return;
+        // Check 1: Player Readiness
+        // Make sure the Vimeo Player instance is created and ready.
+        if (!this.player) {
+            console.error(`[Toggle Play ${this.id}] Cannot toggle: Player not initialized or ready.`);
+            // Avoid trying to re-initialize here as it can cause complications.
+            return;
+        }
 
+        // Check 2: Is this video the CURRENTLY ACTIVE one in the scroller?
+        // We determine this by looking for the '.active-video' class on its parent '.video-item'.
+        // This class should be added/removed by the 'updateActiveClass' function in scroll.js.
+        const videoItemElement = document.getElementById(`iframe-${this.id}`)?.closest('.video-item');
+        const isActive = videoItemElement?.classList.contains('active-video');
+
+        // If the video being clicked is NOT the one currently marked as active...
+        if (!isActive) {
+            console.warn(`[Toggle Play ${this.id}] Ignoring click: This video (${this.id}) is not the active scrolled item.`);
+            // *** IMPORTANT: DO NOTHING ***.
+            // Let the scroll logic (controlVideoPlayback) manage playback state for inactive videos.
+            return;
+        }
+
+        // --- If we reach here, the player IS ready AND it IS the active video ---
+        // Proceed with the user's intended play/pause action.
+        console.log(`[Toggle Play ${this.id}] User clicked toggle for ACTIVE video.`);
         this.player.getPaused().then((paused) => {
             if (paused) {
-                this.player.play();
-                playPauseButton.innerText = 'Pause';
+                // If it's paused, the user wants to play it.
+                console.log(`[Toggle Play ${this.id}] Player was paused, attempting play...`);
+                this.player.play().then(() => {
+                    // Play succeeded: Update button text.
+                    playPauseButton.innerText = 'Pause';
+                    console.log(`[Toggle Play ${this.id}] Play successful via click.`);
+                }).catch(e => {
+                    // Play failed (e.g., browser restriction): Log error and ensure button reflects paused state.
+                    console.error(`[Toggle Play ${this.id}] Error during player.play() via click: ${e.name}`);
+                    playPauseButton.innerText = 'Play';
+                });
             } else {
-                this.player.pause();
-                playPauseButton.innerText = 'Play';
+                // If it's playing, the user wants to pause it.
+                console.log(`[Toggle Play ${this.id}] Player was playing, attempting pause...`);
+                this.player.pause().then(() => {
+                    // Pause succeeded: Update button text.
+                    playPauseButton.innerText = 'Play';
+                    console.log(`[Toggle Play ${this.id}] Pause successful via click.`);
+                }).catch(e => {
+                    // Pause failed (less common): Log error and potentially reset button text.
+                    console.error(`[Toggle Play ${this.id}] Error during player.pause() via click: ${e.name}`);
+                    // If pause fails, it might still be playing. For safety, reset to 'Play'
+                    // as the desired state wasn't achieved. Or leave as 'Pause' - debatable UX.
+                    playPauseButton.innerText = 'Play';
+                });
             }
+        }).catch(e => {
+            // Error fetching the paused state: Log error. Button state is unknown.
+            console.error(`[Toggle Play ${this.id}] Error during player.getPaused() via click: ${e.name}`);
+            // Consider setting a default button text like 'Play' in case of error.
+            playPauseButton.innerText = 'Play';
         });
     }
+        /**
+         * Handles the click on the sound button for ANY video.
+         * Calls the exported global toggle function from scroll.js.
+         * Does NOT need the button element passed anymore.
+         */
+        toggleSound(/* soundButton - Argument no longer needed */) {
+            console.log(`Sound button clicked for video ${this.id}, calling global toggle.`);
 
-    toggleSound(soundButton) {
-        if (!this.player) return;
-
-        this.player.getVolume().then((volume) => {
-            if (volume === 0) {
-                this.player.setVolume(0.5); // Turn sound on
-                soundButton.innerText = 'Sound On';
-            } else {
-                this.player.setVolume(0); // Mute
-                soundButton.innerText = 'Sound Off';
+            // Optional but recommended: Check if player is ready before allowing toggle
+            // This prevents errors if the button is somehow clicked before init completes
+            if (!this.player) {
+                console.warn(`[Toggle Sound ${this.id}] Player not ready, cannot toggle global volume yet.`);
+                return;
             }
-        });
-    }
+
+            // Call the imported function to handle global state and update all players/buttons
+            toggleGlobalVolume();
+        }
 
     async fetchVimeoData(id) {
         try {
