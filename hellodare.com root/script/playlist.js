@@ -1,4 +1,4 @@
-import { initializeGsapScroll, toggleGlobalVolume } from './scroll.js';
+import { initializeGsapScroll, toggleGlobalVolume} from './scroll.js';
 let currentVideos = []; 
 
 export async function renderPlaylist() {
@@ -78,8 +78,11 @@ function renderVideos(videos) {
 
     if (!videos || videos.length === 0) {
         console.error("renderVideos: No videos array provided or array is empty.");
+        videos = [];
         return;
     }
+
+    const scrollItemClass = "scroll-item";
 
     // HTML PLAYLIST BUILD
     videos.forEach((video) => {
@@ -88,9 +91,9 @@ function renderVideos(videos) {
         const thumbnailHTML = video.thumbnailUrl
             ? `<img src="${video.thumbnailUrl}" class="video-thumbnail" id="thumbnail-${video.id}" alt="${video.title || 'Video thumbnail'}">`
             : ''; 
-        
+        // Add Videos
         playlistHTML += `
-            <div class="video-item" data-video-id="${video.id}">
+            <div class="${scrollItemClass} video-item" data-video-id="${video.id}">
                 <div class="video-aspect-wrapper"> 
                     {/* --- ADDED THUMBNAIL conditionally --- */}
                     ${thumbnailHTML}
@@ -102,8 +105,19 @@ function renderVideos(videos) {
                     </div>
                 </div>
             </div>
-        `;
+        `;  
     });
+     // Add Info
+     playlistHTML += `
+        <div class="${scrollItemClass} info-section" id="info-section">
+            <div class="info-content"> {/* Add a wrapper for easier styling */}
+                <h2>About Us</h2>
+                <p>This is where your information text goes. Add details about your company, project, or contact information.</p>
+                <p>You can add more paragraphs, lists, or other elements here.</p>
+                {/* Add more content as needed */}
+            </div>
+        </div>
+    `;
 
     const trackElement = document.querySelector('.js-video-track');
     if (!trackElement) {

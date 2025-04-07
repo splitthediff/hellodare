@@ -1,3 +1,7 @@
+/* ======================================== */
+/*            REVISED CSS                   */
+/* ======================================== */
+
 /* Universal reset for all elements */
 *,
 *::before,
@@ -11,11 +15,11 @@
 html, body {
   height: 100%;
   width: 100%;
-  overflow: hidden;
+  overflow: hidden; /* Crucial: Prevent browser scrollbars */
   box-sizing: border-box;
   background-color: var(--background-color);
   color: var(--primary-font-color);
-  /* Removed display flex/justify/align from body if page-container handles layout */
+  font-family: var(--primary-font-family); /* Set base font on body */
 }
 
 /* Root variables for styling */
@@ -23,156 +27,229 @@ html, body {
   --background-color: #FBF5E9;
   --primary-font-color: #231F20;
   --primary-font-color-overlap: var(--background-color);
-  --primary-font-family: "neue-haas-unica", helvetica, sans-serif;
-  --primary-font-size: 1.3em;
-  --primary-font-weight: 700;
-  --secondary-font-size: 1em;
+  --primary-font-family: serif, "neue-haas-unica", helvetica, sans-serif;
+  --primary-font-size: 1.1em;
+  --primary-font-weight: 400;
+  --secondary-font-size: .9em;
   --secondary-font-weight: 400;
-  --video-border-radius: 0em;
+  --video-border-radius: 0em; /* Currently unused, but good to have */
+}
+
+/* TITLE / INFO text styling */
+.title {
+  font-size: var(--primary-font-size);
+  font-weight: var(--primary-font-weight);
+  background-color: transparent;
+  display: inline;
+  border: none;
+  padding: 0;
+  /* font-family is inherited from body */
+}
+
+.info {
+  font-size: var(--secondary-font-size);
+  font-weight: var(--secondary-font-weight);
+  background-color: transparent;
+  display: inline;
+  border: none;
+  padding: 0;
+  /* font-family is inherited from body */
+}
+
+/* Optional overlap styling for title */
+.intro-title.overlapped {
+  color: var(--primary-font-color-overlap);
+  opacity: 65%;
 }
 
 /* --- Page Container --- */
 .page-container {
-    display: flex;
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden;
-  }
-  
-  /* --- Columns --- */
-  .left-column, .right-column {
-    flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px;
-    height: 100%;
-  }
-  
-  .middle-column {
-    flex: 3;
-    height: 100%; /* Take full height of page-container */
-    overflow: hidden; /* CRUCIAL: Clip the video-track */
-    position: relative; /* Good practice for containers */
-  }
-  
-  /* --- Video Track --- */
-  .video-track {
-    width: 100%;
-    height: 100%; 
-    position: relative;;
-  }
-  
-  /* --- Video Item --- */
-  .video-item {
-    height: 100%;
-    width: 100%;
-    position: relative; /* Stays relative for positioning wrapper/children */
-    overflow: hidden; /* Keep clipping */
-    display: flex; /* Use flex to center the aspect wrapper */
-    align-items: center;
-    justify-content: center;
-  }  
-
-  .video-aspect-wrapper {
-    position: relative;
-    width: 100%;
-    max-width: 100%;  
-    /* Prevent wrapper from exceeding parent's height if aspect ratio makes it too tall */
-    max-height: 100%;
-    overflow: hidden; /* Optional: Clip anything overflowing the aspect ratio */
-  }
-
-  .video-thumbnail {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Cover the area, might crop */
-    /* object-fit: contain; */ /* Fit inside, might show background */
-    z-index: 5; /* Higher than iframe (default 0 or 1), lower than controls */
-    pointer-events: none; /* Don't block clicks intended for controls/iframe underneath */
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.3s ease, visibility 0.4s ease; /* Smooth fade out */
-    background-color: #ffd60a; /* Optional: fallback bg if image fails */
-  }
-  
-  /* State when the thumbnail should be hidden (video playing) */
-  .video-thumbnail.thumbnail-hidden {
-    opacity: 0;
-    visibility: hidden;
-    z-index: 0;
-    pointer-events: none;
-  }
-  
-  
-  /* --- Iframe --- */
-  .video-item .video-aspect-wrapper iframe { /* Increased specificity slightly */
-    position: absolute; /* <<< Position relative to wrapper */
-    top: 0;
-    left: 0;
-    width: 100%; /* <<< Fill the wrapper */
-    height: 100%; /* <<< Fill the wrapper */
-    display: block;
-    border: none;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  /* Ensure iframe is below thumbnail initially */
-  .video-aspect-wrapper iframe {
-    position: relative; /* Needed for z-index */
-    z-index: 1;
-    width: 100%; /* Ensure iframe fills wrapper */
-    height: 100%;
+  display: flex;
+  height: 100vh; /* Use viewport height */
+  width: 100vw; /* Use viewport width */
+  overflow: hidden; /* Redundant with body, but safe */
 }
-  
-  
-  /* --- Video Controls --- */
-  .video-item .video-controls {
-    
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.7s ease;
 
-    position: absolute; /* <<< Position relative to wrapper */
-    /* Adjust distance from bottom as needed */
-    bottom: 15px; /* Or 10px, 20px - distance from bottom of aspect-ratio box */
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
-    background: rgba(0, 0, 0, 0.6); /* Ensure visibility */
-    padding: 5px 10px;
-    border-radius: 5px;
+/* --- Columns --- */
+.left-column, .right-column {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  height: 100%;
+  position: relative; /* Needed for z-index stacking if content overlaps */
+  z-index: 20; /* Ensure columns are above the middle content */
+  color: var(--primary-font-color); /* Ensure text color */
+}
+
+.middle-column {
+  flex: 3; /* Takes up more space */
+  height: 100%; /* Fill the container height */
+  overflow: hidden; /* CRUCIAL: Clips the translating video-track */
+  position: relative; /* Establishes positioning context */
+}
+
+/* --- Video Track --- */
+/* This element is animated by GSAP (yPercent) */
+.video-track {
+  width: 100%;
+  height: 100%; /* Track itself only needs to be height of container */
+  position: relative; /* Good practice for transformed elements */
+  will-change: transform; /* Hint for browser optimization */
+}
+
+/* --- SCROLL ITEM (Common class for Videos and Info Section) --- */
+.scroll-item {
+  width: 100%;
+  height: 100vh; /* Each item takes full viewport height */
+  position: relative; /* Keep in flow, allow absolute children */
+  overflow: hidden; /* Clip content within this item */
+  /* Optional: Add if parent (.video-track) is flex, otherwise not needed */
+  /* flex-shrink: 0; */
+  /* Optional: Add for native CSS snapping (GSAP overrides usually) */
+  /* scroll-snap-align: start; */
+}
+
+/* --- Video Item Specific Styles (If any needed beyond scroll-item) --- */
+.video-item {
+  /* No specific styles needed here now, inherited from .scroll-item */
+  /* Centering is handled by the wrapper */
+}
+
+/* --- Aspect Wrapper (Contains video/thumbnail/controls) --- */
+/* Uses absolute positioning for better centering within scroll-item */
+.video-aspect-wrapper {
+  position: absolute; /* Position within the .scroll-item */
+  top: 50%;           /* Center vertically */
+  left: 50%;          /* Center horizontally */
+  transform: translate(-50%, -50%); /* Fine-tune centering */
+  width: 100%;        /* Use full width of parent */
+  /* Height is determined by aspect-ratio property set via JS */
+  max-height: 100%;   /* Prevent exceeding parent height */
+  overflow: hidden;   /* Clip contents */
+  background-color: #111; /* Optional: Dark background during load */
+}
+
+
+/* --- Thumbnail --- */
+.video-thumbnail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 2; /* Above iframe, below controls */
+  pointer-events: none; /* Don't block hover for controls */
+  opacity: 1;
+  visibility: visible;
+  /* Use step-end for visibility to ensure it's visible during fade-in */
+  transition: opacity 0.4s ease-in-out, visibility 0s linear 0s;
+  /* background-color: #ffd60a; */ /* Fallback BG */
+}
+
+.video-thumbnail.thumbnail-hidden {
+  opacity: 0;
+  visibility: hidden;
+  /* Use step-end delay to hide visibility only *after* fade out completes */
+  transition: opacity 0.4s ease-in-out, visibility 0s linear 0.4s;
+  z-index: 0; /* Go behind iframe */
+}
+
+/* --- Iframe --- */
+/* Positioned absolutely within the aspect wrapper */
+.video-aspect-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block; /* Remove extra space below iframe */
+  border: none;
+  z-index: 1; /* Below thumbnail initially, above when thumb hidden */
+  pointer-events: none; /* Prevent direct interaction */
+}
+
+
+/* --- Video Controls --- */
+.video-controls { /* Simplified selector */
+  opacity: 0;
+  visibility: hidden;
+  /* Use step-end delay for visibility hide */
+  transition: opacity 0.3s ease-in-out, visibility 0s linear 0.3s;
+  position: absolute;
+  bottom: 20px; /* Increased spacing */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3; /* Above thumbnail and iframe */
+  background: rgba(0, 0, 0, 0.5); /* Slightly less opaque */
+  padding: 8px 15px; /* More padding */
+  border-radius: 6px;
+  display: flex;
+  gap: 12px; /* More gap */
+  align-items: center;
+  pointer-events: none; /* Initially not interactive */
+}
+
+/* Show controls on hover of the ASPECT WRAPPER */
+.video-aspect-wrapper:hover .video-controls {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto; /* Enable interaction */
+  /* Ensure visibility transition delay is 0 on hover */
+  transition-delay: 0s;
+}
+
+.controls-button { /* Simplified selector */
+  background: none;
+  border: none; /* Removed border for cleaner look */
+  color: white;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.9em; /* Adjust as needed */
+  transition: background-color 0.2s ease;
+}
+
+.controls-button:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 4px; /* Slight rounding on hover */
+}
+
+/* --- Info Section Specific Styles --- */
+.info-section {
+    /* Inherits width, height, position, overflow from .scroll-item */
+    background-color: var(--background-color); /* Use variable */
     display: flex;
-    gap: 10px;
+    justify-content: center;
     align-items: center;
-    pointer-events: none;
-  }
+    padding: 40px; /* Padding for content */
+    color: var(--primary-font-color); /* Use variable */
+}
 
-  .video-item .video-aspect-wrapper:hover .video-controls {
-    /* Become Visible */
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto; /* Make controls interactive ONLY when visible */
-  }
+.info-content {
+    max-width: 700px; /* Adjust max width */
+    text-align: left; /* Or center, depending on design */
+}
 
-  .video-item .video-controls .controls-button {
-    /* Add styles for your buttons here */
-    background: none;
-    border: 1px solid white;
-    color: white;
-    padding: 5px 10px;
-    cursor: pointer;
-  }
+.info-content h2 {
+    margin-bottom: 1em;
+    font-size: 1.8em; /* Example size */
+    font-weight: var(--primary-font-weight); /* Use variable */
+}
 
-  .video-item .video-controls .controls-button:hover {
-      background-color: rgba(255, 255, 255, 0.2);
-  }
-  
-  /* --- Other styles (Title, Info Overlay, Buttons etc.) --- */
-  /* --- Keep your other styles as they were unless they conflict --- */
-  
-  /* Example of .active-video style (optional) */
-  .video-item.active-video iframe {
-    /* Maybe add a subtle border or effect */
-    /* box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); */
-  } 
+.info-content p {
+    margin-bottom: 1em;
+    line-height: 1.6;
+    font-size: var(--primary-font-size); /* Use variable */
+}
+
+/* --- Active Scroll Item Style --- */
+/* REMEMBER to update JS: item?.classList.toggle('active-scroll-item', ...) */
+.scroll-item.active-scroll-item {
+  /* Add any visual indication that this is the active section */
+  /* Example:
+  outline: 3px solid rgba(0, 0, 0, 0.1);
+  outline-offset: -3px;
+   */
+}
