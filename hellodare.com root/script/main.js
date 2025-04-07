@@ -15,8 +15,8 @@ window.addEventListener('load', async () => {
       await renderPlaylist(); // Renders the videos
       console.log("Finished AWAITING renderPlaylist.");
 
-      // --- EVENT LISTENER
-      const infoButton = document.getElementById('info-button');
+      // --- INFO EVENT LISTENER
+      const infoButton = document.getElementById('info-button-id');
       
       if (infoButton) {
           infoButton.addEventListener('click', (event) => {
@@ -38,7 +38,24 @@ window.addEventListener('load', async () => {
       } else {
           console.warn("Info button element ('#info-button-id') not found. Cannot attach listener.");
       }
-      // --- END OF EVENT LISTENER CODE ---
+      
+      // --- TITLE EVENT LISTENER
+      const titleElement = document.getElementById('main-page-title');
+
+      if (titleElement) {
+          // Make title clickable (optional, improves accessibility)
+          titleElement.style.cursor = 'pointer';
+
+          titleElement.addEventListener('click', (event) => {
+              event.preventDefault(); // Good practice
+              console.log("Main title clicked! Scrolling to top (index 0).");
+
+              // --- Call goToIndex with 0 to scroll to the first item ---
+              goToIndex(0); // Use default animation (immediate = false)
+
+          });
+          console.log("Main title click listener attached.");
+        }
 
   } catch (error) {
       console.error("ERROR during renderPlaylist:", error);
