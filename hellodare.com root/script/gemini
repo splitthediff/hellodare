@@ -1,99 +1,44 @@
-// In playlist.js, inside the Video class:
+// playlist.js -> Video Class
 
-/**
- * Toggles play/pause state ONLY for the currently active video item.
- * Prevents interference with scroll-based playback control.
- * @param {HTMLButtonElement} playPauseButton - The button element that was clicked.
- */
-togglePlayPause(playPauseButton) {
-    // Check 1: Player Readiness
-    // Make sure the Vimeo Player instance is created and ready.
-    if (!this.player) {
-        console.error(`[Toggle Play ${this.id}] Cannot toggle: Player not initialized or ready.`);
-        // Avoid trying to re-initialize here as it can cause complications.
-        return;
-    }
+async initialize() {
+    console.log(`[Video ${this.id}] Starting initialize...`);
+    try {
+        // Fetch data using the NEW oEmbed fetchVimeoData function
+        const data = await this.fetchVimeoData(this.id);
 
-    // Check 2: Is this video the CURRENTLY ACTIVE one in the scroller?
-    // We determine this by looking for the '.active-video' class on its parent '.video-item'.
-    // This class should be added/removed by the 'updateActiveClass' function in scroll.js.
-    const videoItemElement = document.getElementById(`iframe-${this.id}`)?.closest('.video-item');
-    const isActive = videoItemElement?.classList.contains('active-video');
+        // Check if data was successfully fetched and has necessary properties
+        if (data && data.width > 0 && data.height > 0 && data.thumbnail_url) {
+            console.log(`[Video ${this.id}] Using oEmbed data. W=${data.width}, H=${data.height}, Thumb=${data.thumbnail_url}`);
 
-    // If the video being clicked is NOT the one currently marked as active...
-    if (!isActive) {
-        console.warn(`[Toggle Play ${this.id}] Ignoring click: This video (${this.id}) is not the active scrolled item.`);
-        // *** IMPORTANT: DO NOTHING ***.
-        // Let the scroll logic (controlVideoPlayback) manage playback state for inactive videos.
-        return;
-    }
+            // --- Use oEmbed properties ---
+            this.nativeWidth = data.width;       // oEmbed provides video dimensions
+            this.nativeHeight = data.height;     // oEmbed provides video dimensions
+            this.thumbnailUrl = data.thumbnail_url; // Use the higher-quality thumbnail URL
 
-    // --- If we reach here, the player IS ready AND it IS the active video ---
-    // Proceed with the user's intended play/pause action.
-    console.log(`[Toggle Play ${this.id}] User clicked toggle for ACTIVE video.`);
-    this.player.getPaused().then((paused) => {
-        if (paused) {
-            // If it's paused, the user wants to play it.
-            console.log(`[Toggle Play ${this.id}] Player was paused, attempting play...`);
-            this.player.play().then(() => {
-                // Play succeeded: Update button text.
-                playPauseButton.innerText = 'Pause';
-                console.log(`[Toggle Play ${this.id}] Play successful via click.`);
-            }).catch(e => {
-                 // Play failed (e.g., browser restriction): Log error and ensure button reflects paused state.
-                 console.error(`[Toggle Play ${this.id}] Error during player.play() via click: ${e.name}`);
-                 playPauseButton.innerText = 'Play';
-            });
+            // Calculate aspect ratio from fetched dimensions
+            this.aspectRatio = this.getAspectRatio(this.nativeWidth, this.nativeHeight);
+
+            // Construct iframe src (keep this part the same)
+            this.iframeSrc = `https://player.vimeo.com/video/${this.id}?muted=1&controls=0&quality=1080p`;
+
         } else {
-            // If it's playing, the user wants to pause it.
-            console.log(`[Toggle Play ${this.id}] Player was playing, attempting pause...`);
-            this.player.pause().then(() => {
-                // Pause succeeded: Update button text.
-                playPauseButton.innerText = 'Play';
-                console.log(`[Toggle Play ${this.id}] Pause successful via click.`);
-            }).catch(e => {
-                 // Pause failed (less common): Log error and potentially reset button text.
-                 console.error(`[Toggle Play ${this.id}] Error during player.pause() via click: ${e.name}`);
-                 // If pause fails, it might still be playing. For safety, reset to 'Play'
-                 // as the desired state wasn't achieved. Or leave as 'Pause' - debatable UX.
-                 playPauseButton.innerText = 'Play';
-            });
+            // Fallback if oEmbed data is invalid or missing required fields
+            console.warn(`[Video ${this.id}] Using default 16:9 aspect ratio and no thumbnail due to invalid/missing oEmbed data. Data received:`, data);
+            this.nativeWidth = 16; // Default
+            this.nativeHeight = 9;  // Default
+            this.aspectRatio = 16 / 9;
+            this.thumbnailUrl = ''; // No reliable thumbnail
+            this.iframeSrc = `https://player.vimeo.com/video/${this.id}?muted=1&controls=0&quality=1080p`;
         }
-    }).catch(e => {
-        // Error fetching the paused state: Log error. Button state is unknown.
-        console.error(`[Toggle Play ${this.id}] Error during player.getPaused() via click: ${e.name}`);
-        // Consider setting a default button text like 'Play' in case of error.
-        playPauseButton.innerText = 'Play';
-    });
-}
-
-/**
- * Toggles sound on/off for the video player instance.
- * Includes check for player readiness.
- * @param {HTMLButtonElement} soundButton - The sound button element clicked.
- */
-toggleSound(soundButton) {
-    // Check 1: Player Readiness
-    if (!this.player) {
-        console.error(`[Toggle Sound ${this.id}] Cannot toggle: Player not ready.`);
-        return;
+    } catch (error) {
+        // Catch errors specifically from the initialize logic (fetch errors handled in fetchVimeoData)
+        console.error(`[Video ${this.id}] Error during initialize logic:`, error);
+        // Set safe defaults on error
+        this.nativeWidth = 16;
+        this.nativeHeight = 9;
+        this.aspectRatio = 16 / 9;
+        this.thumbnailUrl = '';
+        this.iframeSrc = `https://player.vimeo.com/video/${this.id}?muted=1&controls=0&quality=1080p`;
     }
-
-    // Proceed with fetching volume and toggling
-    this.player.getVolume().then((volume) => {
-        if (volume === 0) {
-            // Currently muted, unmute (set volume to 0.5 or preferred level)
-            this.player.setVolume(0.5).then(() => {
-                 soundButton.innerText = 'Sound On';
-            }).catch(e => console.error(`[Toggle Sound ${this.id}] Error setting volume ON: ${e.name}`));
-        } else {
-            // Currently has volume, mute (set volume to 0)
-            this.player.setVolume(0).then(() => {
-                 soundButton.innerText = 'Sound Off';
-            }).catch(e => console.error(`[Toggle Sound ${this.id}] Error setting volume OFF: ${e.name}`));
-        }
-    }).catch(e => console.error(`[Toggle Sound ${this.id}] Error getting volume: ${e.name}`));
+    console.log(`[Video ${this.id}] Finished initialize.`);
 }
-
-// Make sure the rest of your Video class (constructor, initialize, initializePlayer, etc.)
-// is still present and correct based on our earlier steps (especially the simplified initializePlayer).

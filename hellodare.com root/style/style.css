@@ -91,7 +91,7 @@ html, body {
     pointer-events: none; /* Don't block clicks intended for controls/iframe underneath */
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.4s ease, visibility 0.4s ease; /* Smooth fade out */
+    transition: opacity 0.3s ease, visibility 0.4s ease; /* Smooth fade out */
     background-color: #ffd60a; /* Optional: fallback bg if image fails */
   }
   
@@ -99,7 +99,8 @@ html, body {
   .video-thumbnail.thumbnail-hidden {
     opacity: 0;
     visibility: hidden;
-    /* pointer-events: none; */ /* Already set above, redundant but safe */
+    z-index: 0;
+    pointer-events: none;
   }
   
   
@@ -112,6 +113,7 @@ html, body {
     height: 100%; /* <<< Fill the wrapper */
     display: block;
     border: none;
+    z-index: 0;
     pointer-events: none;
   }
 
