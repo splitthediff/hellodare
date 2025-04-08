@@ -1,4 +1,4 @@
-// scroll.js (FINAL VERSION - Play Once Logic, No Request Mgr)
+// scroll.js (SHOULD MATCH PREVIOUS WORKING VERSION - Play Once Logic, No Request Mgr)
 
 /**
  * Throttles a function to ensure it's called at most once within a specified limit.
@@ -77,7 +77,6 @@ export function goToIndex(index, immediate = false) {
             onComplete: () => {
                 console.log(`[goToIndex Animation COMPLETE] Target index: ${currentIndex}.`);
                 isAnimating = false; // Reset flag only on completion
-                // Playback logic already initiated
             },
             onInterrupt: () => {
                  console.warn(`[goToIndex Animation INTERRUPTED] Targeting index ${currentIndex}.`);
@@ -135,11 +134,10 @@ export function initializeGsapScroll(videos) {
 
     // Define Throttled Scroll Handler
     handleThrottledScroll = throttle((delta) => {
-        // isAnimating check done inside goToIndex
         let newIndex = currentIndex;
         if (delta > 0 && currentIndex < scrollItems.length - 1) newIndex++;
         else if (delta < 0 && currentIndex > 0) newIndex--;
-        else return; // No change or boundary
+        else return;
         if (newIndex !== currentIndex) goToIndex(newIndex);
     }, throttleInterval);
 
@@ -198,7 +196,7 @@ export function initializeGsapScroll(videos) {
 async function controlVideoPlayback(currentIdx, previousIdx) { // previousIdx no longer strictly needed but kept for logs
     if (!scrollItems || scrollItems.length === 0) return;
 
-    console.log(`--- [Async Play Once Logic] Controlling Playback: Activate=${currentIdx}, Deactivate Others, GlobalVol=${globalVolumeLevel.toFixed(2)} ---`);
+    console.log(`--- [Async Play Once Logic - TIMEUPDATE] Controlling Playback: Activate=${currentIdx}, Deactivate Others, GlobalVol=${globalVolumeLevel.toFixed(2)} ---`);
 
     // Iterate through actual video indices
     for (let index = 0; index < controlledVideos.length; index++) {
@@ -213,7 +211,7 @@ async function controlVideoPlayback(currentIdx, previousIdx) { // previousIdx no
             try {
                 const player = await video.initializePlayer();
 
-                // CHECK hasPlayedOnce: Only play if it HASN'T played once already
+                // CHECK hasPlayedOnce: Only play if it HASN'T played once already (set via timeupdate or manual reset)
                 if (video.hasPlayedOnce) {
                      console.log(`%c[ControlVid ${video.id}] Activate Play SKIPPED: hasPlayedOnce is TRUE. Ensuring pause.`, "color: blue; font-weight: bold;");
                      if (playPauseButton) playPauseButton.innerText = 'Play';
@@ -236,35 +234,18 @@ async function controlVideoPlayback(currentIdx, previousIdx) { // previousIdx no
         }
         // If this video index is NOT the one being activated:
         else {
-            // --- THIS VIDEO IS BEING DEACTIVATED ---
-            if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
-            if (video.player) {
+             // Pause inactive videos
+             if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
+             if (video.player) {
                 try {
-                    // --- ADD DELAYED PAUSE ---
-                    const videoId = video.id; // Capture ID for closure
-                    setTimeout(() => {
-                        // Check player still exists and video is STILL inactive
-                        if (video && video.player && currentIndex !== index) {
-                            console.log(`[Delayed Pause ${videoId}] Executing pause.`);
-                            video.player.pause().catch(e => console.warn(`[Delayed Pause ${videoId}] Error: ${e.message}`));
-                             // Update button after trying pause
-                             const btn = document.getElementById(`playPauseButton-${videoId}`);
-                             if(btn) btn.innerText = 'Play';
-                        } else {
-                            console.log(`[Delayed Pause ${videoId}] Skipped (player gone or video became active).`);
-                        }
-                    }, 150); // Delay in milliseconds (e.g., 150ms) - ADJUST AS NEEDED
-                    // --- END DELAYED PAUSE ---
-
-                    // Maybe set button text immediately? Or wait for timeout? Let's wait.
-                    // if (playPauseButton) playPauseButton.innerText = 'Play';
-
-                } catch (syncError) { // Catch immediate sync errors if any
-                     console.warn(`[ControlVid ${video.id}] Sync error setting up delayed pause: ${syncError.message}`);
+                    // Use non-awaited pause for potentially better performance when scrolling fast
+                    video.player.pause().catch(e => console.warn(`[ControlVid ${video.id}] Non-critical pause error: ${e.message}`));
+                    if (playPauseButton) playPauseButton.innerText = 'Play'; // Set button text immediately
+                } catch (syncError) {
+                     console.warn(`[ControlVid ${video.id}] Sync error on pause: ${syncError.message}`);
                      if (playPauseButton) playPauseButton.innerText = 'Play';
                 }
              } else {
-                 // If player doesn't exist, ensure button is 'Play'
                  if (playPauseButton) playPauseButton.innerText = 'Play';
              }
         }
@@ -273,7 +254,7 @@ async function controlVideoPlayback(currentIdx, previousIdx) { // previousIdx no
     // Handle Info Section Activation (Ensure other videos are paused)
     if (currentIdx >= controlledVideos.length) {
          console.log(`[ControlVid] Info Section Activated (Index ${currentIdx}). Ensuring all videos paused.`);
-         for (const vidToPause of controlledVideos) { // Redundant check ok
+         for (const vidToPause of controlledVideos) {
              const btn = document.getElementById(`playPauseButton-${vidToPause?.id}`);
              if (vidToPause && vidToPause.player) {
                   vidToPause.player.pause().catch(e => {});
@@ -282,13 +263,13 @@ async function controlVideoPlayback(currentIdx, previousIdx) { // previousIdx no
          }
     }
 
-    console.log(`--- [Async Play Once Logic] Finished Controlling Playback & Volume ---`);
-}
+    console.log(`--- [Async Play Once Logic - TIMEUPDATE] Finished Controlling Playback & Volume ---`);
+} // === END controlVideoPlayback ===
 
 
 /**
  * Adjusts the global volume level and applies it asynchronously to all ready players.
- * (No changes needed here)
+ * (No changes needed)
  */
 async function adjustGlobalVolume(delta) {
     let newVolume = globalVolumeLevel + delta;
@@ -312,7 +293,7 @@ async function adjustGlobalVolume(delta) {
 
 /**
  * Toggles the global volume between muted (0) and a default level asynchronously.
- * (No changes needed here)
+ * (No changes needed)
  * This function is EXPORTED.
  */
 export async function toggleGlobalVolume() {

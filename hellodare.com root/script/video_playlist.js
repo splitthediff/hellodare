@@ -1,4 +1,14 @@
 export const playlist = [{
+    vimeoid: "1059558209",
+    title: `WhereTo: Canada`,
+    client: 'Expedia',
+    year: '2024'
+},  {
+    vimeoid: "1059558221",
+    title: `WhereTo: Canada`,
+    client: 'Expedia',
+    year: '2024'
+},  {
     vimeoid: "834195660",
     title: `White Men Can't Jump / Main on End`,
     client: 'Hulu',
@@ -23,9 +33,4 @@ export const playlist = [{
     title: `Icarus / Main on End`,
     client: 'Netflix',
     year: '2018'
-}, {
-    vimeoid: "1059558209",
-    title: `WhereTo: Canada`,
-    client: 'Expedia',
-    year: '2024'
 }];
