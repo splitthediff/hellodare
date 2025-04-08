@@ -95,9 +95,7 @@ function renderVideos(videos) {
         playlistHTML += `
             <div class="${scrollItemClass} video-item" data-video-id="${video.id}">
                 <div class="video-aspect-wrapper"> 
-                    {/* --- ADDED THUMBNAIL conditionally --- */}
                     ${thumbnailHTML}
-                    {/* iframe and controls follow */}
                     <iframe src="${src}" id="iframe-${video.id}" loading="lazy" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
                     <div class="video-controls">
                         <button class="controls-button play-pause-button" id="playPauseButton-${video.id}">Play</button>
@@ -110,11 +108,9 @@ function renderVideos(videos) {
      // Add Info
      playlistHTML += `
         <div class="${scrollItemClass} info-section" id="info-section">
-            <div class="info-content"> {/* Add a wrapper for easier styling */}
-                <h2>About Us</h2>
-                <p>This is where your information text goes. Add details about your company, project, or contact information.</p>
-                <p>You can add more paragraphs, lists, or other elements here.</p>
-                {/* Add more content as needed */}
+            <div class="info-content">
+                <h2> Studio Dare is the creative studio of Leanne Dare. <h2>
+                We work in a multitude of disciplines including graphics, animation, live action direction, photography & creative direction, . Our work spans across film, television, branding, social media, and marketing platforms, delivering thought provoking and smile producing content.
             </div>
         </div>
     `;
@@ -418,8 +414,8 @@ class Video {
         }
 
         // 2. Check if this video is the active one (Keep this logic)
-        const videoItemElement = document.getElementById(`iframe-${this.id}`)?.closest('.video-item');
-        const isActive = videoItemElement?.classList.contains('active-video');
+        const scrollItemElement = document.getElementById(`iframe-${this.id}`)?.closest('.scroll-item');
+        const isActive = scrollItemElement?.classList.contains('active-scroll-item');
 
         if (!isActive) {
             console.warn(`[Toggle Play ${this.id}] Ignoring click: This video is not the active scrolled item.`);

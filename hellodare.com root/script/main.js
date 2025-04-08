@@ -19,17 +19,17 @@ window.addEventListener('load', async () => {
       const infoButton = document.getElementById('info-button-id');
       
       if (infoButton) {
-          infoButton.addEventListener('click', (event) => {
-              event.preventDefault(); // Prevent default if it's a link
-              console.log("Info button clicked!");
+          infoButton.style.cursor = 'pointer';
 
-              // Find scroll items at the time of click
+          infoButton.addEventListener('click', (event) => {
+              event.preventDefault();
+
               const currentScrollItems = document.querySelectorAll('.js-video-track .scroll-item');
 
               if (currentScrollItems && currentScrollItems.length > 0) {
                   const infoSectionIndex = currentScrollItems.length - 1; // Index of the last item
                   console.log(`Attempting to scroll to info section index: ${infoSectionIndex}`);
-                  goToIndex(infoSectionIndex); // Call the imported function
+                  goToIndex(infoSectionIndex);
               } else {
                   console.warn("Could not find any '.scroll-item' elements when info button clicked.");
               }
@@ -43,16 +43,12 @@ window.addEventListener('load', async () => {
       const titleElement = document.getElementById('main-page-title');
 
       if (titleElement) {
-          // Make title clickable (optional, improves accessibility)
           titleElement.style.cursor = 'pointer';
 
           titleElement.addEventListener('click', (event) => {
-              event.preventDefault(); // Good practice
-              console.log("Main title clicked! Scrolling to top (index 0).");
+              event.preventDefault();
 
-              // --- Call goToIndex with 0 to scroll to the first item ---
-              goToIndex(0); // Use default animation (immediate = false)
-
+              goToIndex(0);
           });
           console.log("Main title click listener attached.");
         }

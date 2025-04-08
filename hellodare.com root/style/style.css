@@ -15,11 +15,11 @@
 html, body {
   height: 100%;
   width: 100%;
-  overflow: hidden; /* Crucial: Prevent browser scrollbars */
+  overflow: hidden; /* Prevent browser scrollbars */
   box-sizing: border-box;
   background-color: var(--background-color);
   color: var(--primary-font-color);
-  font-family: var(--primary-font-family); /* Set base font on body */
+  font-family: var(--primary-font-family);
 }
 
 /* Root variables for styling */
@@ -30,9 +30,10 @@ html, body {
   --primary-font-family: serif, "neue-haas-unica", helvetica, sans-serif;
   --primary-font-size: 1.1em;
   --primary-font-weight: 400;
+  --primary-line-height: 200px;
   --secondary-font-size: .9em;
   --secondary-font-weight: 400;
-  --video-border-radius: 0em; /* Currently unused, but good to have */
+  --video-border-radius: 0em; /* Currently unused */
 }
 
 /* TITLE / INFO text styling */
@@ -43,7 +44,6 @@ html, body {
   display: inline;
   border: none;
   padding: 0;
-  /* font-family is inherited from body */
 }
 
 .info {
@@ -52,9 +52,22 @@ html, body {
   background-color: transparent;
   display: inline;
   border: none;
-  padding: 0;
-  /* font-family is inherited from body */
 }
+
+
+.info-section {
+    font-size: var(--secondary-font-size);
+    font-weight: var(--secondary-font-weight);
+    background-color: transparent;
+    display: inline;
+    border: none;
+    position: absolute; 
+    top: 50%;           
+    transform: translate(-50%, -50%); 
+    width: 100%;  
+    max-height: 100%; 
+    overflow: hidden;   
+  }
 
 /* Optional overlap styling for title */
 .intro-title.overlapped {
@@ -65,9 +78,8 @@ html, body {
 /* --- Page Container --- */
 .page-container {
   display: flex;
-  height: 100vh; /* Use viewport height */
-  width: 100vw; /* Use viewport width */
-  overflow: hidden; /* Redundant with body, but safe */
+  height: 100dvh;
+  width: 100vw;
 }
 
 /* --- Columns --- */
@@ -76,7 +88,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 0;
   height: 100%;
   position: relative; /* Needed for z-index stacking if content overlaps */
   z-index: 20; /* Ensure columns are above the middle content */
@@ -84,8 +96,8 @@ html, body {
 }
 
 .middle-column {
-  flex: 3; /* Takes up more space */
-  height: 100%; /* Fill the container height */
+  flex: 3;
+  height: 100%;
   overflow: hidden; /* CRUCIAL: Clips the translating video-track */
   position: relative; /* Establishes positioning context */
 }
@@ -102,16 +114,13 @@ html, body {
 /* --- SCROLL ITEM (Common class for Videos and Info Section) --- */
 .scroll-item {
   width: 100%;
-  height: 100vh; /* Each item takes full viewport height */
+  height: 100%; /* Each item takes full viewport height */
   position: relative; /* Keep in flow, allow absolute children */
   overflow: hidden; /* Clip content within this item */
-  /* Optional: Add if parent (.video-track) is flex, otherwise not needed */
-  /* flex-shrink: 0; */
-  /* Optional: Add for native CSS snapping (GSAP overrides usually) */
-  /* scroll-snap-align: start; */
+  scroll-snap-align: start; /* optional - usually overidden by GSAP
 }
 
-/* --- Video Item Specific Styles (If any needed beyond scroll-item) --- */
+/* --- Video Item  --- */
 .video-item {
   /* No specific styles needed here now, inherited from .scroll-item */
   /* Centering is handled by the wrapper */
@@ -128,7 +137,7 @@ html, body {
   /* Height is determined by aspect-ratio property set via JS */
   max-height: 100%;   /* Prevent exceeding parent height */
   overflow: hidden;   /* Clip contents */
-  background-color: #111; /* Optional: Dark background during load */
+  background-color: var(--background-color);
 }
 
 
@@ -144,6 +153,7 @@ html, body {
   pointer-events: none; /* Don't block hover for controls */
   opacity: 1;
   visibility: visible;
+  border-radius: var(--video-border-radius);
   /* Use step-end for visibility to ensure it's visible during fade-in */
   transition: opacity 0.4s ease-in-out, visibility 0s linear 0s;
   /* background-color: #ffd60a; */ /* Fallback BG */
@@ -167,6 +177,7 @@ html, body {
   height: 100%;
   display: block; /* Remove extra space below iframe */
   border: none;
+  border-radius: var(--video-border-radius);
   z-index: 1; /* Below thumbnail initially, above when thumb hidden */
   pointer-events: none; /* Prevent direct interaction */
 }
@@ -219,12 +230,11 @@ html, body {
 /* --- Info Section Specific Styles --- */
 .info-section {
     /* Inherits width, height, position, overflow from .scroll-item */
-    background-color: var(--background-color); /* Use variable */
+    /*background-color: aqua;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 40px; /* Padding for content */
-    color: var(--primary-font-color); /* Use variable */
+    color: var(--primary-font-color); *//* Use variable */
 }
 
 .info-content {
@@ -233,15 +243,14 @@ html, body {
 }
 
 .info-content h2 {
-    margin-bottom: 1em;
-    font-size: 1.8em; /* Example size */
+    font-size: var(--primary-font-size); /* Example size */
     font-weight: var(--primary-font-weight); /* Use variable */
 }
 
 .info-content p {
-    margin-bottom: 1em;
-    line-height: 1.6;
-    font-size: var(--primary-font-size); /* Use variable */
+    font-size: var(--secondary-font-size); /* Example size */
+    font-weight: var(--secondary-font-weight); /* Use variable */
+    line-height: var(--primary-line-height);
 }
 
 /* --- Active Scroll Item Style --- */
