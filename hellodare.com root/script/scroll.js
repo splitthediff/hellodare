@@ -1,4 +1,4 @@
-// scroll.js
+// scroll.js (FINAL VERSION - Play Once Logic, No Request Mgr)
 
 /**
  * Throttles a function to ensure it's called at most once within a specified limit.
@@ -20,7 +20,7 @@ function throttle(func, limit) {
 
 // --- State Variables ---
 let currentIndex = 0;
-let scrollItems = []; // MODIFIED: Holds all items (videos + info)
+let scrollItems = []; // Holds all scrollable DOM elements
 let videoTrack = null;
 let isAnimating = false;
 
@@ -29,80 +29,59 @@ let animationDuration;
 let throttleInterval;
 
 // --- Video Control Variables ---
-// This still holds ONLY the actual Video class instances passed from playlist.js
-let controlledVideos = [];
+let controlledVideos = []; // Holds Video class instances
 
 // --- Global Volume State ---
-let globalVolumeLevel = 0.0; // Start muted
-const DEFAULT_UNMUTE_LEVEL = 0.6; // Volume when unmuting (0.0 to 1.0)
+let globalVolumeLevel = 0.0;
+const DEFAULT_UNMUTE_LEVEL = 0.6;
 
 /**
- * Animates or sets the video track to a specific index AND controls video playback/state.
+ * Animates or sets the video track to a specific index AND triggers playback control.
  * @param {number} index - The target index (0 to scrollItems.length - 1).
  * @param {boolean} [immediate=false] - If true, set position instantly without animation.
  */
 export function goToIndex(index, immediate = false) {
-    // --- MODIFIED: Use scrollItems for boundary checks ---
-    if (!videoTrack || !scrollItems || scrollItems.length === 0) {
-         console.error("goToIndex aborted: videoTrack or scrollItems missing.");
-         return;
-    }
-    if (index < 0 || index >= scrollItems.length) { // Use scrollItems.length
-         console.warn(`goToIndex aborted: Index ${index} out of bounds (0-${scrollItems.length - 1}).`);
-         return;
-    }
-    // --- END MODIFICATION ---
+    // Boundary checks using scrollItems
+    if (!videoTrack || !scrollItems || scrollItems.length === 0) { console.error("goToIndex aborted: videoTrack or scrollItems missing."); return; }
+    if (index < 0 || index >= scrollItems.length) { console.warn(`goToIndex aborted: Index ${index} out of bounds (0-${scrollItems.length - 1}).`); return; }
 
-    // Prevent stacking animations (if not immediate)
-    if (isAnimating && !immediate) {
-        console.log(`goToIndex aborted: Animation already in progress.`);
-        return;
-    }
+    // Prevent stacking animations
+    if (isAnimating && !immediate) { console.log(`goToIndex aborted: Animation already in progress.`); return; }
 
-    const previousIndex = currentIndex; // Store index we are scrolling FROM
+    const previousIndex = currentIndex;
+    if (index === previousIndex && !immediate) { return; } // No change
 
-    // Prevent redundant calls if index hasn't changed (allow if immediate)
-    if (index === previousIndex && !immediate) {
-        // console.log(`[goToIndex] Already at index ${index}.`); // Optional log
-        return;
-    }
-
-    isAnimating = true; // Set flag BEFORE animation/set starts
-    currentIndex = index; // Update currentIndex
+    // Update state
+    isAnimating = !immediate; // Only true if animating
+    currentIndex = index;
     console.log(`goToIndex: Updated currentIndex to ${currentIndex}. Previous was ${previousIndex}`);
-    updateActiveClass(); // Update active class for the new item
+    updateActiveClass(); // Update visual indicator
 
     const targetYPercent = -currentIndex * 100;
 
-    // Perform Scroll Action
+    // Trigger playback control attempt IMMEDIATELY
+    controlVideoPlayback(currentIndex, previousIndex).catch(err => {
+        console.error("[goToIndex Direct Call] Error controlling video playback:", err);
+    });
+
+    // Perform Scroll Animation / Set
     if (immediate) {
         gsap.set(videoTrack, { yPercent: targetYPercent });
-        isAnimating = false;
-        // updateActiveClass(); // Already called above
-        // Call the async function but don't wait for it here. Handle errors.
-        controlVideoPlayback(currentIndex, previousIndex).catch(err => {
-             console.error("[goToIndex Immediate] Error controlling video playback:", err);
-        });
+        // isAnimating remains false
     } else {
         gsap.to(videoTrack, {
             yPercent: targetYPercent,
             duration: animationDuration,
-            ease: "back.out(.5)", // Or your preferred ease
+            ease: "back.out(.5)",
             overwrite: "auto",
             onComplete: () => {
-                console.log(`[goToIndex Animation COMPLETE] Target index: ${currentIndex}. Setting isAnimating = false.`);
-                 // --- SET FLAG TO FALSE *BEFORE* potentially long async call ---
-                isAnimating = false;
-                // updateActiveClass(); // Already called above
-                 // Call the async function but don't wait for it here. Handle errors.
-                controlVideoPlayback(currentIndex, previousIndex).catch(err => {
-                    console.error("[goToIndex Animation] Error controlling video playback onComplete:", err);
-                });
+                console.log(`[goToIndex Animation COMPLETE] Target index: ${currentIndex}.`);
+                isAnimating = false; // Reset flag only on completion
+                // Playback logic already initiated
             },
             onInterrupt: () => {
-                 console.warn(`[goToIndex Animation INTERRUPTED] Targeting index ${currentIndex}. Setting isAnimating = false.`);
-                 // --- Ensure flag is reset on interrupt ---
-                 isAnimating = false;
+                 console.warn(`[goToIndex Animation INTERRUPTED] Targeting index ${currentIndex}.`);
+                 isAnimating = false; // Ensure reset
             }
         });
     }
@@ -112,19 +91,16 @@ export function goToIndex(index, immediate = false) {
  * Updates the 'active-scroll-item' class on scrollable items based on currentIndex.
  */
 function updateActiveClass() {
-     // --- MODIFIED: Use scrollItems and new class name ---
      if (!scrollItems || scrollItems.length === 0) return;
      scrollItems.forEach((item, i) => {
-        item?.classList.toggle('active-scroll-item', i === currentIndex); // Use new class name
+        item?.classList.toggle('active-scroll-item', i === currentIndex);
     });
-     // --- END MODIFICATION ---
 }
 
 /**
  * Detects if the current device supports touch events.
  */
 function detectTouchDevice() {
-    // ... (no changes needed here) ...
     let hasTouch = false; if ('maxTouchPoints' in navigator) hasTouch = navigator.maxTouchPoints > 0; else if ('ontouchstart' in window) hasTouch = true; else if ('msMaxTouchPoints' in navigator) hasTouch = navigator.msMaxTouchPoints > 0; return hasTouch;
 }
 
@@ -136,212 +112,123 @@ let handleThrottledScroll = null;
  * @param {Array<Video>} videos - The array of Video objects from playlist.js.
  */
 export function initializeGsapScroll(videos) {
-    controlledVideos = videos; // Store the actual video objects separately
-    // Log message updated later after finding scrollItems
+    controlledVideos = videos; // Store video objects
 
-    globalVolumeLevel = 0.0; // Ensure starting muted
+    globalVolumeLevel = 0.0;
     const isTouchDevice = detectTouchDevice();
 
-    // Conditional Timings (adjust as needed)
-    const DESKTOP_ANIMATION_DURATION = 1.0; // Example
-    const MOBILE_ANIMATION_DURATION = 0.7;  // Example
-    const DESKTOP_THROTTLE_INTERVAL = 200;  // Example - adjust responsiveness
+    // --- Timings --- (Adjust these values as needed for feel)
+    const DESKTOP_ANIMATION_DURATION = 1.0;
+    const MOBILE_ANIMATION_DURATION = 0.7;
+    const DESKTOP_THROTTLE_INTERVAL = 200; // How often scroll input is processed
     const MOBILE_THROTTLE_INTERVAL = 200;
     animationDuration = isTouchDevice ? MOBILE_ANIMATION_DURATION : DESKTOP_ANIMATION_DURATION;
     throttleInterval = isTouchDevice ? MOBILE_THROTTLE_INTERVAL : DESKTOP_THROTTLE_INTERVAL;
+    // --- End Timings ---
 
     // Find DOM Elements
     videoTrack = document.querySelector(".js-video-track");
     if (!videoTrack) { console.error("Scroll Init Failed: '.js-video-track' not found."); return; }
-
-    // --- MODIFIED: Select ALL items with the common class ---
     scrollItems = gsap.utils.toArray(videoTrack.children).filter(el => el.classList.contains('scroll-item'));
-    if (scrollItems.length === 0) {
-        console.error("Scroll Init Failed: No '.scroll-item' children found in track.");
-        return;
-    }
-    console.log(`Found ${scrollItems.length} total scroll items (videos + info).`);
-    // --- END MODIFICATION ---
-
-    // --- MODIFIED: Update log message ---
+    if (scrollItems.length === 0) { console.error("Scroll Init Failed: No '.scroll-item' children found."); return; }
     console.log("GSAP Scroll Initializing with", controlledVideos.length, "videos and", scrollItems.length, "total scroll items.");
-    // --- END MODIFICATION ---
 
-
-    // Define Throttled Scroll Handler (using scrollItems.length)
+    // Define Throttled Scroll Handler
     handleThrottledScroll = throttle((delta) => {
-        // isAnimating check was REMOVED from here in previous step
+        // isAnimating check done inside goToIndex
         let newIndex = currentIndex;
-        // Use simple positive/negative check, check boundaries with scrollItems.length
-        if (delta > 0 && currentIndex < scrollItems.length - 1) { // Scroll Down/Next
-            newIndex++;
-        } else if (delta < 0 && currentIndex > 0) { // Scroll Up/Previous
-            newIndex--;
-        } else {
-             return; // No change or boundary
-        }
-
-        if (newIndex !== currentIndex) {
-            // console.log(`[Throttle Inner] Calling goToIndex(${newIndex})`);
-            goToIndex(newIndex); // Let goToIndex handle isAnimating check
-        }
+        if (delta > 0 && currentIndex < scrollItems.length - 1) newIndex++;
+        else if (delta < 0 && currentIndex > 0) newIndex--;
+        else return; // No change or boundary
+        if (newIndex !== currentIndex) goToIndex(newIndex);
     }, throttleInterval);
-
 
     // Reset State
     currentIndex = 0;
     isAnimating = false;
 
-    // === DEFINE EVENT HANDLERS (Continuing from Part 1) ===
-
-    // --- MODIFIED: Keyboard Handler - Check if current index is video ---
+    // === DEFINE EVENT HANDLERS ===
     const handleKeyDown = async (event) => {
         const targetTagName = event.target.tagName;
         if (targetTagName === 'INPUT' || targetTagName === 'TEXTAREA' || event.target.isContentEditable) return;
-
-        // Check against scrollItems for general boundary
         if (!scrollItems || scrollItems.length === 0) return;
-
-        // Get active video object *only if* currentIndex points to a video
         const activeVideo = (currentIndex < controlledVideos.length) ? controlledVideos[currentIndex] : null;
 
         switch (event.key) {
             case ' ': case 'Spacebar':
                 event.preventDefault();
-                // Only toggle play/pause if the current item IS a video
                 if (activeVideo) {
-                    const playPauseButton = document.getElementById(`playPauseButton-${activeVideo.id}`);
-                    if (playPauseButton) {
-                         console.log(`[Keydown Space] Calling togglePlayPause for ${activeVideo.id}`);
-                        try {
-                             await activeVideo.togglePlayPause(playPauseButton);
-                        } catch (toggleError) {
-                            console.error(`[Keydown Space] Error calling togglePlayPause:`, toggleError);
-                        }
-                    } else {
-                        console.warn("Spacebar: Could not find play/pause button for active video.");
-                    }
-                } else {
-                    console.log("Spacebar ignored: Info section is active.");
-                }
+                    const btn = document.getElementById(`playPauseButton-${activeVideo.id}`);
+                    if (btn) try { await activeVideo.togglePlayPause(btn); } catch (e) { console.error(e); }
+                    else console.warn("Spacebar: Btn not found");
+                } else console.log("Spacebar ignored: Info section active.");
                 break;
-
-            // Scroll keys operate on the whole sequence
-            case 'ArrowLeft': case 'ArrowUp':
-                event.preventDefault();
-                // console.log("[Keydown Left/Up] Triggering scroll previous (-1)");
-                handleThrottledScroll(-1);
-                break;
-            case 'ArrowRight': case 'ArrowDown':
-                event.preventDefault();
-                // console.log("[Keydown Right/Down] Triggering scroll next (+1)");
-                handleThrottledScroll(1);
-                break;
-
-            // Volume keys affect global state (handled by adjustGlobalVolume which loops controlledVideos)
-            case 'AudioVolumeUp': case '+': // Example mapping
-                event.preventDefault();
-                console.log("[Keydown Volume Up]");
-                await adjustGlobalVolume(0.1);
-                break;
-            case 'AudioVolumeDown': case '-': // Example mapping
-                event.preventDefault();
-                console.log("[Keydown Volume Down]");
-                await adjustGlobalVolume(-0.1);
-                break;
+            case 'ArrowLeft': case 'ArrowUp': event.preventDefault(); handleThrottledScroll(-1); break;
+            case 'ArrowRight': case 'ArrowDown': event.preventDefault(); handleThrottledScroll(1); break;
+            case 'AudioVolumeUp': case '+': event.preventDefault(); await adjustGlobalVolume(0.1); break;
+            case 'AudioVolumeDown': case '-': event.preventDefault(); await adjustGlobalVolume(-0.1); break;
         }
     };
-    // --- END MODIFICATION ---
 
-    // --- Wheel Handler (No changes needed) ---
-    const handleWheel = (event) => {
-        event.preventDefault();
-        handleThrottledScroll(event.deltaY);
-    };
-
-    // --- Touch Handlers (No changes needed) ---
-    let touchStartY = null, touchStartX = null;
-    const minSwipeDistanceY = 30, maxSwipeDistanceX = 100; // Adjust sensitivity
-    const handleTouchStart = (event) => { /* ... */ if (event.touches.length === 1){ touchStartY = event.touches[0].clientY; touchStartX = event.touches[0].clientX; } else { touchStartY = null; touchStartX = null; } };
-    const handleTouchMove = (event) => { /* ... */ if (touchStartY !== null) { const touchCurrentX = event.touches[0].clientX; if (Math.abs(touchStartX - touchCurrentX) < maxSwipeDistanceX) { event.preventDefault(); } } };
-    const handleTouchEnd = (event) => { /* ... */ if (touchStartY === null) return; const touchEndY = event.changedTouches[0].clientY; const touchEndX = event.changedTouches[0].clientX; const deltaY = touchStartY - touchEndY; const deltaX = Math.abs(touchStartX - touchEndX); if (Math.abs(deltaY) > minSwipeDistanceY && deltaX < maxSwipeDistanceX) { handleThrottledScroll(deltaY); } touchStartY = null; touchStartX = null; };
-
-    // --- Resize Handler (No changes needed) ---
-    let resizeTimeout = null;
-    const handleResize = () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { console.log("Resize handler: Repositioning video track immediately."); goToIndex(currentIndex, true); }, 250); };
-
-    // === END OF HANDLER DEFINITIONS ===
+    const handleWheel = (event) => { event.preventDefault(); handleThrottledScroll(event.deltaY); };
+    let touchStartY = null, touchStartX = null; const minSwipeDistanceY = 30, maxSwipeDistanceX = 100;
+    const handleTouchStart = (event) => { if (event.touches.length === 1){ touchStartY = event.touches[0].clientY; touchStartX = event.touches[0].clientX; } else { touchStartY = null; touchStartX = null; } };
+    const handleTouchMove = (event) => { if (touchStartY !== null) { const tX = event.touches[0].clientX; if (Math.abs(touchStartX - tX) < maxSwipeDistanceX) { event.preventDefault(); } } };
+    const handleTouchEnd = (event) => { if (touchStartY === null) return; const tY = event.changedTouches[0].clientY; const tX = event.changedTouches[0].clientX; const dY = touchStartY - tY; const dX = Math.abs(touchStartX - tX); if (Math.abs(dY) > minSwipeDistanceY && dX < maxSwipeDistanceX) { handleThrottledScroll(dY); } touchStartY = null; touchStartX = null; };
+    let resizeTimeout = null; const handleResize = () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { console.log("Resize handler: Repositioning."); goToIndex(currentIndex, true); }, 250); };
+    // === END HANDLER DEFINITIONS ===
 
     // === Set Initial Position ===
-    goToIndex(0, true); // Includes initial video control call
+    goToIndex(0, true);
 
     // === ATTACH Event Listeners ===
-    // Remove potential old listeners first
-    window.removeEventListener('keydown', handleKeyDown);
-    window.removeEventListener('wheel', handleWheel);
-    window.removeEventListener('touchstart', handleTouchStart);
-    window.removeEventListener('touchmove', handleTouchMove);
-    window.removeEventListener('touchend', handleTouchEnd);
-    window.removeEventListener('resize', handleResize);
-
-    // Add the listeners
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: false });
-    window.addEventListener('touchend', handleTouchEnd, { passive: true });
-    window.addEventListener('resize', handleResize);
+    window.removeEventListener('keydown', handleKeyDown); window.removeEventListener('wheel', handleWheel); window.removeEventListener('touchstart', handleTouchStart); window.removeEventListener('touchmove', handleTouchMove); window.removeEventListener('touchend', handleTouchEnd); window.removeEventListener('resize', handleResize);
+    window.addEventListener('keydown', handleKeyDown); window.addEventListener('wheel', handleWheel, { passive: false }); window.addEventListener('touchstart', handleTouchStart, { passive: true }); window.addEventListener('touchmove', handleTouchMove, { passive: false }); window.addEventListener('touchend', handleTouchEnd, { passive: true }); window.addEventListener('resize', handleResize);
 
     console.log("GSAP Scroll Initialization complete. Listeners active.");
 } // === END of initializeGsapScroll ===
 
 
 /**
- * Sets volume, plays/pauses videos depending on whether the target index is a video or info.
+ * Sets volume, plays the current video IF it hasn't played once, pauses others.
+ * Aware of the Info Section.
  * @param {number} currentIdx - The index of the scroll item to activate.
- * @param {number} previousIdx - The index of the item being scrolled away from.
+ * @param {number} previousIdx - The index of the item being scrolled away from (Only used for logging now).
  */
-// --- MODIFIED: Make controlVideoPlayback aware of info section ---
-async function controlVideoPlayback(currentIdx, previousIdx) {
-    // Use scrollItems length for boundary checks/iteration planning if needed,
-    // but primarily operate based on whether an index maps to controlledVideos
-    if (!scrollItems || scrollItems.length === 0) return; // Check scrollItems exist
+async function controlVideoPlayback(currentIdx, previousIdx) { // previousIdx no longer strictly needed but kept for logs
+    if (!scrollItems || scrollItems.length === 0) return;
 
-    console.log(`--- [Async Info Aware] Controlling Playback: Activate=${currentIdx}, Deactivate Others, GlobalVol=${globalVolumeLevel.toFixed(2)} ---`);
+    console.log(`--- [Async Play Once Logic] Controlling Playback: Activate=${currentIdx}, Deactivate Others, GlobalVol=${globalVolumeLevel.toFixed(2)} ---`);
 
-    // Iterate through all possible video indices based on controlledVideos length
-    // This is safer than iterating scrollItems length for video operations
+    // Iterate through actual video indices
     for (let index = 0; index < controlledVideos.length; index++) {
-        const video = controlledVideos[index]; // Get the video object
-        if (!video) continue; // Skip if somehow a video object is missing
+        const video = controlledVideos[index];
+        if (!video) continue;
 
         const playPauseButton = document.getElementById(`playPauseButton-${video.id}`);
         const soundButton = document.getElementById(`soundButton-${video.id}`);
-
-        // --- Action for the VIDEO AT INDEX 'index' ---
 
         // If this video index is the one being activated:
         if (index === currentIdx) {
             try {
                 const player = await video.initializePlayer();
-                // Check the flag for recently finished loops
-                if (video.justFinishedLoopLimit) {
-                    console.log(`[ControlVid ${video.id}] Activate Play SKIPPED: Video just finished loop limit.`);
-                    video.justFinishedLoopLimit = false; // Reset flag
-                    if (playPauseButton) playPauseButton.innerText = 'Play';
-                    await player.setVolume(globalVolumeLevel); // Still set volume
-                    if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
+
+                // CHECK hasPlayedOnce: Only play if it HASN'T played once already
+                if (video.hasPlayedOnce) {
+                     console.log(`%c[ControlVid ${video.id}] Activate Play SKIPPED: hasPlayedOnce is TRUE. Ensuring pause.`, "color: blue; font-weight: bold;");
+                     if (playPauseButton) playPauseButton.innerText = 'Play';
+                     if (video.thumbnailElement) video.thumbnailElement.classList.remove('thumbnail-hidden');
+                     if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
+                     await player.pause().catch(e=>console.warn(`[ControlVid ${video.id}] Pause check warning: ${e.message}`));
                 } else {
-                    // Activate the video normally
-                    // console.log(`[ControlVid ${video.id}] Activating Video (Index ${index}). Setting volume & playing...`);
+                    // It hasn't played through yet, proceed with normal activation
+                    // console.log(`[ControlVid ${video.id}] Activating Video (Index ${index}). hasPlayedOnce=false. Setting volume & playing...`);
                     await player.setVolume(globalVolumeLevel);
                     if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
                     await player.play();
-                    // console.log(`[ControlVid ${video.id}] Play command successful.`);
                     if (playPauseButton) playPauseButton.innerText = 'Pause';
                 }
             } catch (error) {
-                // Handle errors activating this video
                 console.warn(`[ControlVid ${video?.id || 'N/A'}] Error activating video (Index ${index}): ${error.message}`);
                 if (playPauseButton) playPauseButton.innerText = 'Play';
                 if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
@@ -349,36 +236,59 @@ async function controlVideoPlayback(currentIdx, previousIdx) {
         }
         // If this video index is NOT the one being activated:
         else {
-             // Always update sound button to reflect global state
-             if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
-             // Pause this inactive video if player exists (using non-awaited version)
-             if (video.player) {
-                 try {
-                     video.player.pause().catch(e => console.warn(`[ControlVid ${video.id}] Non-critical pause error: ${e.message}`));
-                     if (playPauseButton) playPauseButton.innerText = 'Play'; // Set button text immediately
-                 } catch (syncError) { // Catch rare sync errors accessing player
-                      console.warn(`[ControlVid ${video.id}] Sync error on pause: ${syncError.message}`);
-                      if (playPauseButton) playPauseButton.innerText = 'Play';
-                 }
+            // --- THIS VIDEO IS BEING DEACTIVATED ---
+            if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
+            if (video.player) {
+                try {
+                    // --- ADD DELAYED PAUSE ---
+                    const videoId = video.id; // Capture ID for closure
+                    setTimeout(() => {
+                        // Check player still exists and video is STILL inactive
+                        if (video && video.player && currentIndex !== index) {
+                            console.log(`[Delayed Pause ${videoId}] Executing pause.`);
+                            video.player.pause().catch(e => console.warn(`[Delayed Pause ${videoId}] Error: ${e.message}`));
+                             // Update button after trying pause
+                             const btn = document.getElementById(`playPauseButton-${videoId}`);
+                             if(btn) btn.innerText = 'Play';
+                        } else {
+                            console.log(`[Delayed Pause ${videoId}] Skipped (player gone or video became active).`);
+                        }
+                    }, 150); // Delay in milliseconds (e.g., 150ms) - ADJUST AS NEEDED
+                    // --- END DELAYED PAUSE ---
+
+                    // Maybe set button text immediately? Or wait for timeout? Let's wait.
+                    // if (playPauseButton) playPauseButton.innerText = 'Play';
+
+                } catch (syncError) { // Catch immediate sync errors if any
+                     console.warn(`[ControlVid ${video.id}] Sync error setting up delayed pause: ${syncError.message}`);
+                     if (playPauseButton) playPauseButton.innerText = 'Play';
+                }
              } else {
-                 // If player doesn't exist yet, ensure button is 'Play'
+                 // If player doesn't exist, ensure button is 'Play'
                  if (playPauseButton) playPauseButton.innerText = 'Play';
              }
         }
-    }
+    } // End for loop iterating through actual videos
 
-    // --- Additional check: If the activated index is BEYOND the videos (it's the info section) ---
+    // Handle Info Section Activation (Ensure other videos are paused)
     if (currentIdx >= controlledVideos.length) {
-         console.log(`[ControlVid] Info Section Activated (Index ${currentIdx}). No video playback actions needed for it.`);
+         console.log(`[ControlVid] Info Section Activated (Index ${currentIdx}). Ensuring all videos paused.`);
+         for (const vidToPause of controlledVideos) { // Redundant check ok
+             const btn = document.getElementById(`playPauseButton-${vidToPause?.id}`);
+             if (vidToPause && vidToPause.player) {
+                  vidToPause.player.pause().catch(e => {});
+                  if(btn) btn.innerText = 'Play';
+             } else if(btn) { btn.innerText = 'Play'; }
+         }
     }
 
-    console.log(`--- [Async Info Aware] Finished Controlling Playback & Volume ---`);
+    console.log(`--- [Async Play Once Logic] Finished Controlling Playback & Volume ---`);
 }
-// --- END MODIFICATION ---
 
 
 /**
  * Adjusts the global volume level and applies it asynchronously to all ready players.
+ * (No changes needed here)
  */
 async function adjustGlobalVolume(delta) {
     let newVolume = globalVolumeLevel + delta;
@@ -402,6 +312,8 @@ async function adjustGlobalVolume(delta) {
 
 /**
  * Toggles the global volume between muted (0) and a default level asynchronously.
+ * (No changes needed here)
+ * This function is EXPORTED.
  */
 export async function toggleGlobalVolume() {
     const newVolume = (globalVolumeLevel > 0) ? 0.0 : DEFAULT_UNMUTE_LEVEL;
@@ -419,4 +331,4 @@ export async function toggleGlobalVolume() {
         }
     }
      console.log(`[Async] Finished toggling global volume.`);
-} 
+}

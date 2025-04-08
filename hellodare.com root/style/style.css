@@ -253,6 +253,66 @@ html, body {
     line-height: var(--primary-line-height);
 }
 
+/* --- Video Info Overlay --- */
+.video-info-overlay {
+    position: absolute;
+    bottom: 15px; /* Position near the bottom */
+    left: 15px;   /* Position on the left */
+    z-index: 4; /* Above thumbnail/iframe, below controls if they overlap */
+    color: #ffffff; /* White text */
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent dark background */
+    padding: 8px 12px;
+    border-radius: 4px;
+    max-width: calc(100% - 30px); /* Prevent overlapping scrollbars if any */
+
+    /* Initial state: hidden */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px); /* Optional slide-up effect */
+    pointer-events: none; /* Not interactive */
+
+    /* Transition for fade and slide */
+    transition: opacity 0.3s ease-in-out, visibility 0.3s step-end, transform 0.3s ease-in-out;
+}
+
+/* Styling for text inside the overlay */
+.video-info-overlay .video-info-title {
+    font-size: 1em; /* Adjust as needed */
+    font-weight: 600; /* Bolder title */
+    margin: 0 0 4px 0; /* Spacing below title */
+    line-height: 1.2;
+    /* Ensure text doesn't wrap awkwardly if too long */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.video-info-overlay .video-info-year {
+    font-size: 0.85em; /* Smaller year */
+    font-weight: 400;
+    margin: 0;
+    line-height: 1;
+    opacity: 0.8; /* Slightly less prominent */
+}
+
+
+/* --- Hover Effect --- */
+/* Show the overlay when hovering the WRAPPER */
+.video-aspect-wrapper:hover .video-info-overlay {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0); /* Slide up */
+    transition-delay: 0s, 0s, 0s; /* Ensure visibility transition is immediate */
+    /* pointer-events: auto; */ /* Only needed if overlay itself needs interaction */
+}
+
+/* --- Adjust Controls Z-index (if needed) --- */
+/* Ensure controls are definitely above the info overlay if they might overlap */
+.video-controls {
+  /* position: absolute; ... other styles ... */
+  z-index: 5; /* Make sure this is higher than .video-info-overlay's z-index */
+}
+
 /* --- Active Scroll Item Style --- */
 /* REMEMBER to update JS: item?.classList.toggle('active-scroll-item', ...) */
 .scroll-item.active-scroll-item {
