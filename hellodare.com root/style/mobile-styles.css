@@ -1,0 +1,110 @@
+/* ======================================== */
+/*            Mobile Layout Styles          */
+/* ======================================== */
+
+/* Apply these styles on screens smaller than 769px */
+@media (max-width: 768px) {
+
+    /* Allow body scroll ONLY if absolutely necessary, prefer contained scroll */
+    /* html, body { overflow: auto; } */
+  
+    .page-container {
+      /* Change flex direction to stack columns vertically */
+      flex-direction: column;
+      height: 100dvh; /* Still use dynamic height for the whole container */
+      width: 100vw;
+      overflow: hidden; /* Keep hidden - scrolling is inside middle column */
+    }
+  
+    /* --- Columns Adjustments --- */
+    .left-column,
+    .right-column,
+    .middle-column {
+      /* Override horizontal flex sizing */
+      flex: none; /* Remove flex-grow/shrink/basis */
+      width: 100%; /* Make columns full width */
+    }
+  
+    .left-column {
+      height: auto; /* Height based on title content */
+      order: 1; /* Ensure title is first visually */
+      padding-top: 12%; /* Adjust padding */
+      /* Ensure text is centered if desired */
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      flex-shrink: 0; 
+      background: transparent;/* Prevent shrinking */
+       /* Add a bottom border for separation? */
+      /* border-bottom: 1px solid rgba(0,0,0,0.1); */
+    }
+  
+    .middle-column {
+      /* This column should take the remaining vertical space */
+      flex: 1; /* Grow to fill available space */
+      height: auto; /* Height is determined by flex: 1 */
+      order: 2; /* Middle position */
+      /* Keep overflow: hidden and position: relative from desktop styles */
+      overflow: hidden;
+      position: relative;
+    }
+  
+    .right-column {
+      height: auto; /* Height based on button content */
+      order: 3; /* Ensure info button is last visually */
+      padding-bottom: 15%; /* Adjust padding */
+       /* Ensure button is centered */
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      flex-shrink: 0; /* Prevent shrinking */
+      background: transparent;
+    }
+  
+    /* --- Video Track & Scroll Items --- */
+    .scroll-item {
+       height: 100%;
+    }
+  
+     /* Optional: Adjust aspect wrapper centering if needed */
+     /* The absolute centering should still work */
+    .scroll-item .video-aspect-wrapper {
+        width: 92%;
+        max-height: 100%; /* Prevent vertical overflow */
+        overflow: hidden;
+    }
+  
+    /* Optional: Adjust control/info overlay positions */
+    .video-controls {
+        bottom: 10px; /* Slightly less space */
+        padding: 5px 10px;
+    }
+    .video-info-overlay {
+        bottom: 10px;
+        left: 10px;
+        padding: 5px 8px;
+        /* Ensure font sizes are readable */
+        font-size: 0.8em;
+    }
+    .video-info-overlay .video-info-title {
+        font-size: 0.9em;
+    }
+     .video-info-overlay .video-info-year {
+        font-size: 0.75em;
+     }
+  
+     /* Info Section Content */
+     .info-section {
+         padding: 20px; /* Adjust padding */
+     }
+      .info-content {
+          max-width: 90%; /* Allow more width relative to screen */
+      }
+      .info-content h2 {
+          font-size: 2em;
+      }
+       .info-content p {
+          font-size: 1.5em; /* Adjust base font size */
+      }
+  
+  }
