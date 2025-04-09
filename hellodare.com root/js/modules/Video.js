@@ -1,0 +1,161 @@
+// js/modules/Video.js - Defines the Video class
+
+// NOTE: Assumes Vimeo.Player is global
+
+export class Video {
+    constructor(videoData) {
+        this.id = videoData.vimeoid;
+        this.title = videoData.title;
+        this.year = videoData.year;
+        this.client = videoData.client;
+        this.thumbnailUrl = '';
+        this.iframeSrc = '';
+        this.player = null;
+        this.nativeWidth = 16;
+        this.nativeHeight = 9;
+        this.aspectRatio = 16 / 9;
+
+        // --- State for Play Once & Time Update Workaround ---
+        this.hasPlayedOnce = false; // True if video reached its end (naturally or via timeupdate)
+        this.duration = 0; // Video duration in seconds
+        this.timeupdateThreshold = 0.75; // How close to end (in seconds) counts as "ended"
+        this.isEnding = false; // Internal flag to prevent multiple triggers via timeupdate
+        // ----------------------------------------------------
+
+        this.playerInitializationPromise = null;
+        this.thumbnailElement = null;
+    }
+
+    async initialize() {
+        // console.log(`[Video ${this.id}] Starting initialize...`);
+        try {
+            const data = await this.fetchVimeoData(this.id);
+            if (data && data.width > 0 && data.height > 0 && data.thumbnail_url) {
+                this.nativeWidth = data.width; this.nativeHeight = data.height;
+                this.thumbnailUrl = data.thumbnail_url;
+                this.aspectRatio = this.getAspectRatio(this.nativeWidth, this.nativeHeight);
+            } else {
+                console.warn(`[Video ${this.id}] Using default 16:9 / no thumbnail due to invalid oEmbed data.`);
+                this.nativeWidth = 16; this.nativeHeight = 9; this.aspectRatio = 16 / 9; this.thumbnailUrl = '';
+            }
+        } catch (error) {
+            console.error(`[Video ${this.id}] Error during initialize logic:`, error);
+            this.nativeWidth = 16; this.nativeHeight = 9; this.aspectRatio = 16 / 9; this.thumbnailUrl = '';
+        } finally {
+            // Always set iframe src, even on error (using hardcoded params)
+            this.iframeSrc = `https://player.vimeo.com/video/${this.id}?muted=1&controls=0&quality=1080p`;
+        }
+        // console.log(`[Video ${this.id}] Finished initialize.`);
+    }
+
+    initializePlayer() {
+        // --- Guard Clauses ---
+        if (this.playerInitializationPromise) return this.playerInitializationPromise;
+        if (this.player) { /* console.log(`[Player Init ${this.id}] Existing ready player.`); */ return Promise.resolve(this.player); }
+
+        // console.log(`%c[Player Init ${this.id}] Starting new initialization...`, "color: green;");
+        this.playerInitializationPromise = new Promise((resolve, reject) => {
+            const iframe = document.getElementById(`iframe-${this.id}`);
+            if (!iframe) { console.error(`[Player Init ${this.id}] Iframe not found.`); this.playerInitializationPromise = null; return reject(new Error(`Iframe ${this.id} not found`)); }
+
+            try {
+                const playerInstance = new Vimeo.Player(iframe);
+
+                const handleTimeUpdate = (data) => {
+                    const currentTime = data.seconds;
+                    if (this.duration > 0 && currentTime >= (this.duration - this.timeupdateThreshold) && !this.isEnding) {
+                         this.isEnding = true; this.hasPlayedOnce = true;
+                         console.log(`%c[Player ${this.id}] TIMEUPDATE near end. Simulating 'ended'. Pausing.`, "color: purple;");
+                         if (this.player) {
+                             // console.log(`[Player Event ${this.id}] Detaching timeupdate listener.`);
+                             this.player.off('timeupdate', handleTimeUpdate); // Detach listener
+                             this.player.pause().catch(e => console.warn(`Pause error on timeupdate: ${e.name}`));
+                         }
+                         const btn = document.getElementById(`playPauseButton-${this.id}`); if (btn) btn.innerText = 'Play';
+                    } else if (this.isEnding && this.duration > 0 && currentTime < (this.duration - this.timeupdateThreshold - 0.1)) {
+                         // console.log(`[Player ${this.id}] Time moved away, resetting isEnding.`);
+                         this.isEnding = false; // Reset if time moves away
+                    }
+                };
+
+                playerInstance.ready().then(async () => {
+                    // console.log(`%c[Player Init ${this.id}] Ready.`, "color: green; font-weight: bold;");
+                    this.player = playerInstance; this.isEnding = false;
+                    try { this.duration = await this.player.getDuration() || 0; /* console.log(`Duration: ${this.duration}`); */ } catch (e) { this.duration = 0; }
+
+                    // --- Attach Listeners ---
+                    this.player.on('pause', () => { /* console.log(`[Player ${this.id}] paused`); */ if (this.thumbnailElement) this.thumbnailElement.classList.remove('thumbnail-hidden'); });
+                    this.player.on('error', (error) => { console.error(`[Player ${this.id}] Error:`, error.name); });
+
+                    const handlePlay = () => {
+                        // console.log(`[Player ${this.id}] played`);
+                        if (this.thumbnailElement) this.thumbnailElement.classList.add('thumbnail-hidden');
+                        this.isEnding = false;
+                        if (this.player) { // Reattach timeupdate on play
+                            this.player.off('timeupdate', handleTimeUpdate);
+                            this.player.on('timeupdate', handleTimeUpdate);
+                        }
+                    };
+                    this.player.on('play', handlePlay);
+                    this.player.on('timeupdate', handleTimeUpdate); // Initial attach
+
+                    resolve(this.player);
+                }).catch((error) => { console.error(`[Player Init ${this.id}] Ready rejected:`, error); this.player = null; this.playerInitializationPromise = null; reject(error); });
+            } catch (error) { console.error(`[Player Init ${this.id}] Constructor failed:`, error); this.player = null; this.playerInitializationPromise = null; reject(error); }
+        });
+        return this.playerInitializationPromise;
+    }
+
+    updateVideoSizes(containerWidth) { if (this.aspectRatio > 0 && containerWidth > 0) { this.videoWidth = containerWidth; this.videoHeight = containerWidth / this.aspectRatio; } else { this.videoWidth = 0; this.videoHeight = 0; } }
+
+    async togglePlayPause(playPauseButton) {
+        let player;
+        try { player = await this.initializePlayer(); }
+        catch (error) { console.error(`[Toggle Play ${this.id}] Player init failed: ${error.message}`); if (playPauseButton) playPauseButton.innerText = 'Error'; return; }
+
+        const scrollItemElement = document.getElementById(`iframe-${this.id}`)?.closest('.scroll-item'); // Use correct class
+        const isActive = scrollItemElement?.classList.contains('active-scroll-item'); // Use correct class
+        if (!isActive) { console.warn(`[Toggle Play ${this.id}] Ignoring click: Not active item.`); return; }
+
+        try {
+            const paused = await player.getPaused();
+            const wasAtSimulatedEnd = this.isEnding || this.hasPlayedOnce; // Check state before reset
+
+            if (paused) {
+                this.hasPlayedOnce = false; this.isEnding = false; // Reset flags
+                // console.log(`[Toggle Play ${this.id}] Reset flags. Attempting play...`);
+                if (wasAtSimulatedEnd && this.duration > 0) { // Seek if needed
+                    try { await player.setCurrentTime(0); } catch (e) { console.warn(`Seek error: ${e.name}`); }
+                }
+                await player.play();
+                if (playPauseButton) playPauseButton.innerText = 'Pause';
+            } else {
+                await player.pause();
+                if (playPauseButton) playPauseButton.innerText = 'Play';
+            }
+        } catch (error) {
+             console.error(`[Toggle Play ${this.id}] API error:`, error.name);
+             try { if(playPauseButton) playPauseButton.innerText = await player.getPaused() ? 'Play' : 'Pause'; } catch (e) { if(playPauseButton) playPauseButton.innerText = 'Error';}
+        }
+    } // --- End togglePlayPause ---
+
+    async toggleSound() {
+        try {
+            await this.initializePlayer();
+            // Assumes toggleGlobalVolume is available in calling scope (playlistManager.js)
+            if (typeof toggleGlobalVolume === 'function') {
+                 toggleGlobalVolume();
+            } else {
+                 console.error("toggleGlobalVolume function not available in toggleSound scope");
+            }
+        } catch (error) { console.warn(`[Toggle Sound ${this.id}] Player not ready: ${error.message}`); }
+    }
+
+    async fetchVimeoData(id) {
+        const videoUrl = `https://vimeo.com/${id}`; const oEmbedUrl = `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(videoUrl)}`;
+        try { const response = await fetch(oEmbedUrl); if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`); const contentType = response.headers.get("content-type"); if (!contentType || !contentType.includes("application/json")) throw new Error(`Expected JSON response, got ${contentType}`); const data = await response.json(); return data;
+        } catch (error) { console.error(`[Fetch Data ${id}] Error fetching Vimeo oEmbed data for ${videoUrl}:`, error); return null; }
+    }
+
+    getAspectRatio(videoWidth, videoHeight) { return videoWidth && videoHeight ? videoWidth / videoHeight : 16 / 9; }
+}

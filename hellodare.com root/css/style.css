@@ -80,6 +80,15 @@ html, body {
   padding: 0;
 }
 
+.info {
+  font-size: var(--primary-font-size);
+  font-weight: var(--primary-font-weight);
+  background-color: transparent;
+  display: inline;
+  border: none;
+  padding: 0;
+}
+
 /* Optional overlap styling for title */
 .intro-title.overlapped {
   color: var(--primary-font-color-overlap);
