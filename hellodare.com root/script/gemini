@@ -1,128 +1,57 @@
-// playlist.js -> Video Class (REPLACE these two methods)
+/* ======================================== */
+/*            MOBILE LAYOUT STYLES          */
+/* ======================================== */
 
-initializePlayer() {
-    // --- Guard Clauses ---
-    if (this.playerInitializationPromise) return this.playerInitializationPromise;
-    if (this.player) { console.log(`[Player Init ${this.id}] Returning existing ready player.`); return Promise.resolve(this.player); }
+@media (max-width: 768px) { /* Adjust breakpoint as needed */
 
-    console.log(`%c[Player Init ${this.id}] Starting new initialization process...`, "color: green;");
-    this.playerInitializationPromise = new Promise((resolve, reject) => {
-        const iframe = document.getElementById(`iframe-${this.id}`);
-        if (!iframe) { /* ... error handling ... */ }
-
-        try {
-            const playerInstance = new Vimeo.Player(iframe);
-
-            // --- Define the TimeUpdate Handler within the scope ---
-            // We need to reference this exact function to remove it later
-            const handleTimeUpdate = (data) => {
-                const currentTime = data.seconds;
-                // Ensure duration is valid before checking
-                if (this.duration > 0 && currentTime >= (this.duration - this.timeupdateThreshold)) {
-                    if (!this.isEnding) {
-                        this.isEnding = true;
-                        this.hasPlayedOnce = true;
-                        console.error(`%c[Player Event ${this.id}] TIMEUPDATE near end (${currentTime.toFixed(2)}/${this.duration.toFixed(2)}s). Simulating 'ended'. Pausing & DETACHING Listener.`, "background: #dddddd; color: black; font-weight: bold;");
-
-                        // --- DETACH LISTENER ---
-                        if (this.player) {
-                            console.log(`[Player Event ${this.id}] Detaching timeupdate listener.`);
-                            this.player.off('timeupdate', handleTimeUpdate); // Use the named function reference
-                            this.player.pause().catch(e => console.error(`[Player Event ${this.id}] Error pausing on timeupdate 'ended':`, e.name));
-                        }
-                        // ----------------------
-
-                        const playPauseButton = document.getElementById(`playPauseButton-${this.id}`);
-                        if (playPauseButton) playPauseButton.innerText = 'Play';
-                        // Thumbnail handled by 'pause' event
-                    }
-                } else {
-                     // Reset isEnding if time moves away from the end (e.g., seeking back)
-                     if (this.isEnding) { this.isEnding = false; }
-                }
-            };
-            // --- End TimeUpdate Handler Definition ---
-
-
-            playerInstance.ready().then(async () => {
-                console.log(`%c[Player Init ${this.id}] Player READY. Attaching listeners & getting duration...`, "color: green; font-weight: bold;");
-                this.player = playerInstance;
-                this.isEnding = false; // Reset flag
-
-                // --- Get Duration ---
-                try {
-                    const duration = await this.player.getDuration();
-                    this.duration = duration || 0;
-                    console.log(`[Player Init ${this.id}] Duration set to: ${this.duration.toFixed(2)}s`);
-                } catch (durationError) { /* ... error handling ... */ }
-
-                // --- Attach Static Event Listeners ---
-                this.player.on('pause', () => {
-                    console.log(`[Player Event ${this.id}] Status: paused`);
-                    if (this.thumbnailElement) this.thumbnailElement.classList.remove('thumbnail-hidden');
-                    // Don't detach timeupdate on regular pause, only on simulated end
-                });
-
-                 this.player.on('error', (error) => { /* ... error logging ... */ });
-
-                // --- Attach/Reattach 'play' and initial 'timeupdate' ---
-                // Define play separately to easily manage listener attachment
-                const handlePlay = () => {
-                    console.log(`[Player Event ${this.id}] Status: played`);
-                    if (this.thumbnailElement) this.thumbnailElement.classList.add('thumbnail-hidden');
-                    this.isEnding = false; // Reset ending flag on play
-
-                    // --- RE-ATTACH TIMEUPDATE LISTENER ON PLAY ---
-                    if (this.player) {
-                         console.log(`[Player Event ${this.id}] Attaching/Re-attaching timeupdate listener.`);
-                         // Remove first to prevent potential duplicates if 'play' fires unexpectedly multiple times
-                         this.player.off('timeupdate', handleTimeUpdate);
-                         this.player.on('timeupdate', handleTimeUpdate);
-                    }
-                    // -----------------------------------------
-                };
-
-                this.player.on('play', handlePlay);
-                // Initial attach of timeupdate
-                this.player.on('timeupdate', handleTimeUpdate);
-
-
-                resolve(this.player);
-            }).catch(/* ... handle ready error ... */);
-        } catch (error) { /* ... handle constructor error ... */ }
-    });
-    return this.playerInitializationPromise;
-} // --- End of initializePlayer ---
-
-
-// --- MODIFIED togglePlayPause ---
-async togglePlayPause(playPauseButton) {
-    let player;
-    try { player = await this.initializePlayer(); }
-    catch (error) { /* ... error handling ... */ return; }
-
-    const scrollItemElement = document.getElementById(`iframe-${this.id}`)?.closest('.scroll-item');
-    const isActive = scrollItemElement?.classList.contains('active-scroll-item');
-    if (!isActive) { /* ... warning ... */ return; }
-
-    try {
-        const paused = await player.getPaused();
-        if (paused) {
-            // Reset state. The 'play' event listener will re-attach timeupdate.
-            this.hasPlayedOnce = false;
-            this.isEnding = false; // Ensure ending flag is reset
-            console.log(`[Toggle Play ${this.id}] Reset flags. Attempting play...`);
-            await player.play();
-            if (playPauseButton) playPauseButton.innerText = 'Pause';
-        } else {
-             console.log(`[Toggle Play ${this.id}] Attempting pause...`);
-             await player.pause();
-             if (playPauseButton) playPauseButton.innerText = 'Play';
-             // Optional: If you want absolutely no timeupdate checks while manually paused
-             // if (this.player) {
-             //     const handleTimeUpdate = /* Need access to the handler function here, maybe store on 'this'? */;
-             //     if (handleTimeUpdate) this.player.off('timeupdate', handleTimeUpdate);
-             // }
-        }
-    } catch (error) { /* ... error handling ... */ }
-} // --- End togglePlayPause ---
+    .page-container {
+      flex-direction: column; /* Stack columns */
+    }
+  
+    /* --- Columns Adjustments --- */
+    .left-column,
+    .right-column,
+    .middle-column {
+      flex: none; /* Remove flex sizing */
+      width: 100%; /* Full width */
+      height: auto; /* Height determined by content or flex-grow */
+      padding: 15px; /* Consistent mobile padding */
+    }
+  
+    .left-column { order: 1; text-align: center; flex-shrink: 0; }
+    .middle-column { order: 2; flex-grow: 1; /* Fill remaining space */ padding: 0; /* Remove padding if track fills it */ }
+    .right-column { order: 3; text-align: center; flex-shrink: 0; }
+  
+    /* --- Video Item Padding (via Wrapper Width) --- */
+    .scroll-item .video-aspect-wrapper {
+        width: 90%; /* Creates 5% padding on each side */
+        /* border-radius adjustment? */
+        /* border-radius: 10px; */ /* Example */
+    }
+  
+    /* --- Info Section Content Padding --- */
+    .info-section {
+        /* Inherits display:flex from base */
+        padding: 25px 0; /* Adjust vertical padding, remove horizontal */
+    }
+  
+    .info-content {
+        /* Center content using width within flex parent */
+        width: 90%; /* <<< Match video wrapper width */
+        max-width: 100%; /* Allow it to use 90% */
+        /* padding: 10px 0; */ /* Add internal vertical padding if needed */
+    }
+  
+    /* Optional: Mobile text size adjustments */
+    .info-content h2 { font-size: 1.4em; }
+    .info-content p { font-size: 0.95em; line-height: 1.5; }
+  
+  
+    /* Optional: Mobile Controls/Overlay Adjustments */
+    .video-controls { bottom: 10px; padding: 5px 10px; gap: 8px; }
+    .controls-button { padding: 4px 8px; font-size: 0.8em; }
+    .video-info-overlay { bottom: 10px; left: 10px; padding: 6px 10px; }
+    .video-info-overlay .video-info-title { font-size: 0.9em; }
+    .video-info-overlay .video-info-year { font-size: 0.75em; }
+  
+  } /* === END of @media query === */

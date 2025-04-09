@@ -2,6 +2,12 @@
 /*            Mobile Layout Styles          */
 /* ======================================== */
 
+/* Root variables for nmobile styling */
+:root {
+    --primary-mobile-font-size: 1.1em;
+    --secondary-mobile-font-size: .9em;
+  }
+
 /* Apply these styles on screens smaller than 769px */
 @media (max-width: 768px) {
 
@@ -93,18 +99,26 @@
         font-size: 0.75em;
      }
   
-     /* Info Section Content */
-     .info-section {
-         padding: 20px; /* Adjust padding */
-     }
-      .info-content {
-          max-width: 90%; /* Allow more width relative to screen */
-      }
-      .info-content h2 {
-          font-size: 2em;
-      }
-       .info-content p {
-          font-size: 1.5em; /* Adjust base font size */
-      }
+     /* --- Info Section Mobile Styles --- */
+    .info-section {
+    }
+
+    .info-content {
+        width: 92%;
+        max-width: 700px;
+        box-sizing: border-box;
+        text-align: left;
+        transform: none;
+    }
+
+
+    /* ... other mobile styles (controls, overlays, text sizes) ... */
+    .info-content h2 {
+        font-size: var(--primary-mobile-font-size) /* Your size */
+    }
+    .info-content p {
+        font-size: var(--secondary-mobile-font-size); /* Your size */
+    }
+
   
   }

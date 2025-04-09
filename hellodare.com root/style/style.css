@@ -30,11 +30,42 @@ html, body {
   --primary-font-family: serif, "neue-haas-unica", helvetica, sans-serif;
   --primary-font-size: 1.1em;
   --primary-font-weight: 400;
-  --primary-line-height: 200px;
+  --primary-line-height: 2em;
   --secondary-font-size: .9em;
   --secondary-font-weight: 400;
   --video-border-radius: 0em; /* Currently unused */
 }
+
+/* --- Page Container --- */
+.page-container {
+    display: flex;
+    height: 100dvh;
+    width: 100vw;
+  }
+
+/* --- Columns --- */
+.left-column, .right-column {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    height: 100%;
+    position: relative; /* Needed for z-index stacking if content overlaps */
+    z-index: 20; /* Ensure columns are above the middle content */
+    color: var(--primary-font-color); /* Ensure text color */
+  }
+  
+  .middle-column {
+    flex: 3;
+    height: 100%;
+    overflow: hidden; /* CRUCIAL: Clips the translating video-track */
+    position: relative; /* Establishes positioning context */
+  }
+
+/* ========================================================================== */
+/*            SECTION 1 & 3 / LEFT & RIGHT (TOP & BOTTOM)                     */
+/* ========================================================================== */  
 
 /* TITLE / INFO text styling */
 .title {
@@ -46,78 +77,33 @@ html, body {
   padding: 0;
 }
 
-.info {
-  font-size: var(--secondary-font-size);
-  font-weight: var(--secondary-font-weight);
-  background-color: transparent;
-  display: inline;
-  border: none;
-}
-
-
-.info-section {
-    font-size: var(--secondary-font-size);
-    font-weight: var(--secondary-font-weight);
-    background-color: transparent;
-    display: inline;
-    border: none;
-    position: absolute; 
-    top: 50%;           
-    transform: translate(-50%, -50%); 
-    width: 100%;  
-    max-height: 100%; 
-    overflow: hidden;   
-  }
-
 /* Optional overlap styling for title */
 .intro-title.overlapped {
   color: var(--primary-font-color-overlap);
   opacity: 65%;
 }
 
-/* --- Page Container --- */
-.page-container {
-  display: flex;
-  height: 100dvh;
-  width: 100vw;
-}
+/* ========================================================================== */
+/*            SECTION 12 / MIDDLE                                             */
+/* ========================================================================== */  
 
-/* --- Columns --- */
-.left-column, .right-column {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  height: 100%;
-  position: relative; /* Needed for z-index stacking if content overlaps */
-  z-index: 20; /* Ensure columns are above the middle content */
-  color: var(--primary-font-color); /* Ensure text color */
-}
-
-.middle-column {
-  flex: 3;
-  height: 100%;
-  overflow: hidden; /* CRUCIAL: Clips the translating video-track */
-  position: relative; /* Establishes positioning context */
-}
+/* --- SCROLL ITEM (Common class for Videos and Info Section) --- */
+.scroll-item {
+    width: 100%;
+    height: 100%; /* Each item takes full viewport height */
+    position: relative; /* Keep in flow, allow absolute children */
+    overflow: hidden; /* Clip content within this item */
+    /*scroll-snap-align: start;*/ 
+  }
 
 /* --- Video Track --- */
+
 /* This element is animated by GSAP (yPercent) */
 .video-track {
   width: 100%;
   height: 100%; /* Track itself only needs to be height of container */
   position: relative; /* Good practice for transformed elements */
   will-change: transform; /* Hint for browser optimization */
-}
-
-/* --- SCROLL ITEM (Common class for Videos and Info Section) --- */
-.scroll-item {
-  width: 100%;
-  height: 100%; /* Each item takes full viewport height */
-  position: relative; /* Keep in flow, allow absolute children */
-  overflow: hidden; /* Clip content within this item */
-  scroll-snap-align: start; /* optional - usually overidden by GSAP
 }
 
 /* --- Video Item  --- */
@@ -140,7 +126,6 @@ html, body {
   background-color: var(--background-color);
 }
 
-
 /* --- Thumbnail --- */
 .video-thumbnail {
   position: absolute;
@@ -150,7 +135,7 @@ html, body {
   height: 100%;
   object-fit: cover;
   z-index: 2; /* Above iframe, below controls */
-  pointer-events: none; /* Don't block hover for controls */
+  pointer-events: none;
   opacity: 1;
   visibility: visible;
   border-radius: var(--video-border-radius);
@@ -182,18 +167,16 @@ html, body {
   pointer-events: none; /* Prevent direct interaction */
 }
 
-
 /* --- Video Controls --- */
-.video-controls { /* Simplified selector */
+.video-controls {
   opacity: 0;
   visibility: hidden;
-  /* Use step-end delay for visibility hide */
   transition: opacity 0.3s ease-in-out, visibility 0s linear 0.3s;
   position: absolute;
   bottom: 20px; /* Increased spacing */
   left: 50%;
   transform: translateX(-50%);
-  z-index: 3; /* Above thumbnail and iframe */
+  z-index: 5; /* Above thumbnail and iframe */
   background: rgba(0, 0, 0, 0.5); /* Slightly less opaque */
   padding: 8px 15px; /* More padding */
   border-radius: 6px;
@@ -227,39 +210,55 @@ html, body {
     border-radius: 4px; /* Slight rounding on hover */
 }
 
-/* --- Info Section Specific Styles --- */
 .info-section {
-    /* Inherits width, height, position, overflow from .scroll-item */
-    /*background-color: aqua;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--primary-font-color); *//* Use variable */
+    justify-content: left; /* Horizontal Center */
+    align-items: center;   /* Vertical Center */
+    padding: 40px;         /* Keep overall padding */
+    color: var(--primary-font-color);
+    background-color: var(--background-color); /* Use correct background */
+    box-sizing: border-box;
+    height: 100%; /* Ensure it takes full height from .scroll-item */
+    width: 100%;
+    position: relative; /* Should inherit this */
+    overflow: hidden;   /* Ensure this is set */
 }
 
 .info-content {
-    max-width: 700px; /* Adjust max width */
-    text-align: left; /* Or center, depending on design */
+    width: 100%; /* Still allow it to use parent's padding */
+    max-width: 700px; /* Keep max-width */
+    box-sizing: border-box;
+    text-align: left;
+
+    transform: translateY(calc(50% - (var(--primary-font-size) * 0.5) ));
 }
 
 .info-content h2 {
-    font-size: var(--primary-font-size); /* Example size */
-    font-weight: var(--primary-font-weight); /* Use variable */
+    font-size: var(--primary-font-size);
+    font-weight: var(--primary-font-weight);
+
+    margin-bottom: var(--primary-font-size);
 }
 
 .info-content p {
-    font-size: var(--secondary-font-size); /* Example size */
-    font-weight: var(--secondary-font-weight); /* Use variable */
+    font-size: var(--secondary-font-size);
+    font-weight: var(--secondary-font-weight);
     line-height: var(--primary-line-height);
+}
+
+/* --- Active Scroll Item Style --- */
+.scroll-item.active-scroll-item {
+  /* Add visual indication if desired */
+  /* outline: 2px solid blue; */
 }
 
 /* --- Video Info Overlay --- */
 .video-info-overlay {
     position: absolute;
-    bottom: 15px; /* Position near the bottom */
-    left: 15px;   /* Position on the left */
+    bottom: 15px;
+    left: 15px;
     z-index: 4; /* Above thumbnail/iframe, below controls if they overlap */
-    color: #ffffff; /* White text */
+    color: #ffffff;
     background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent dark background */
     padding: 8px 12px;
     border-radius: 4px;
@@ -275,7 +274,6 @@ html, body {
     transition: opacity 0.3s ease-in-out, visibility 0.3s step-end, transform 0.3s ease-in-out;
 }
 
-/* Styling for text inside the overlay */
 .video-info-overlay .video-info-title {
     font-size: 1em; /* Adjust as needed */
     font-weight: 600; /* Bolder title */
@@ -295,8 +293,6 @@ html, body {
     opacity: 0.8; /* Slightly less prominent */
 }
 
-
-/* --- Hover Effect --- */
 /* Show the overlay when hovering the WRAPPER */
 .video-aspect-wrapper:hover .video-info-overlay {
     opacity: 1;
@@ -304,21 +300,4 @@ html, body {
     transform: translateY(0); /* Slide up */
     transition-delay: 0s, 0s, 0s; /* Ensure visibility transition is immediate */
     /* pointer-events: auto; */ /* Only needed if overlay itself needs interaction */
-}
-
-/* --- Adjust Controls Z-index (if needed) --- */
-/* Ensure controls are definitely above the info overlay if they might overlap */
-.video-controls {
-  /* position: absolute; ... other styles ... */
-  z-index: 5; /* Make sure this is higher than .video-info-overlay's z-index */
-}
-
-/* --- Active Scroll Item Style --- */
-/* REMEMBER to update JS: item?.classList.toggle('active-scroll-item', ...) */
-.scroll-item.active-scroll-item {
-  /* Add any visual indication that this is the active section */
-  /* Example:
-  outline: 3px solid rgba(0, 0, 0, 0.1);
-  outline-offset: -3px;
-   */
 }
