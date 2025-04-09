@@ -5,6 +5,7 @@
 import { initializeGsapScroll, toggleGlobalVolume, goToIndex } from './scroll.js';
 import { playlist } from '../data/playlistData.js';
 import { Video } from '../modules/Video.js';
+import { config } from '../config.js';
 
 // --- Global Variable ---
 let currentVideos = [];
@@ -20,7 +21,9 @@ export async function renderPlaylist() {
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => { updateDOMVideoSizes(currentVideos); }, 250);
+        resizeTimeout = setTimeout(() => {
+            updateDOMVideoSizes(currentVideos);
+        }, config.input.resizeDebounce); // <<< Use config
     });
 }
 
@@ -50,9 +53,8 @@ function renderVideos(videos) {
     console.log("--- Running renderVideos ---");
     let playlistHTML = '';
     if (!videos) { videos = []; }
-    const scrollItemClass = "scroll-item"; // Hardcoded class name
+    const scrollItemClass = config.selectors.scrollItem.substring(1);
 
-    // 1. Build Video HTML
     videos.forEach((video) => {
         const src = video.iframeSrc;
         const thumbnailHTML = video.thumbnailUrl ? `<img src="${video.thumbnailUrl}" class="video-thumbnail" id="thumbnail-${video.id}" alt="${video.title || 'Video thumbnail'}">` : '';
@@ -74,7 +76,6 @@ function renderVideos(videos) {
         `;
     });
 
-    // 2. Add Info Section HTML
     playlistHTML += `
         <div class="${scrollItemClass} info-section" id="info-section">
             <div class="info-content">
@@ -92,12 +93,10 @@ function renderVideos(videos) {
         </div>
     `;
 
-    // 3. Render to DOM
-    const trackElement = document.querySelector('.js-video-track'); // Hardcoded selector
-    if (!trackElement) { console.error("renderVideos: '.js-video-track' element not found."); return; }
+    const trackElement = document.querySelector(config.selectors.track);
+    if (!trackElement) { console.error(`renderVideos: '${config.selectors.track}' not found.`); return; }
     trackElement.innerHTML = playlistHTML;
 
-    // 4. Attach Listeners & Styles for VIDEOS ONLY
     videos.forEach((video) => {
         const videoId = video.id;
         const videoItemElement = trackElement.querySelector(`.video-item[data-video-id="${videoId}"]`);
@@ -108,7 +107,16 @@ function renderVideos(videos) {
         const soundButton = videoItemElement.querySelector(`#soundButton-${videoId}`);
         const thumbnailElement = videoItemElement.querySelector(`#thumbnail-${videoId}`);
         if (playPauseButton) { playPauseButton.addEventListener('click', async () => { await video.togglePlayPause(playPauseButton); }); }
-        if (soundButton) { soundButton.addEventListener('click', async () => { await video.toggleSound(); }); }
+        if (soundButton) {
+            // The 'toggleGlobalVolume' used here is the one imported at the top of THIS file
+            soundButton.addEventListener('click', async () => {
+                // console.log(`Sound button clicked for ${video.id}`);
+                // Pass the imported function AS AN ARGUMENT to the video's method
+                await video.toggleSound(toggleGlobalVolume); // <<< ENSURE THIS PASSES THE ARGUMENT
+            });
+        } else {
+            console.warn(`renderVideos: Sound button not found for ${video.id}`);
+        }
         if (thumbnailElement) { video.thumbnailElement = thumbnailElement; }
     });
 
@@ -116,7 +124,7 @@ function renderVideos(videos) {
 }
 
 function getDynamicWidth() {
-    const containerElement = document.querySelector('.middle-column');
+    const containerElement = document.querySelector(config.selectors.middleColumn);
     return containerElement ? containerElement.clientWidth : window.innerWidth;
 }
 

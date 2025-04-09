@@ -2,6 +2,7 @@
 
 // Assuming utils.js is in ../utils/ relative to this modules/ folder
 import { throttle } from '../utils/utils.js';
+import { config } from '../config.js'; 
 
 // --- Module State ---
 let scrollInputProcessor = null; // Function to call when scroll input occurs (throttled)
@@ -9,10 +10,11 @@ let adjustVolumeCallback = null; // Function to call for volume keys
 let togglePlayPauseCallback = null; // Function to call for spacebar (needs active video)
 let getActiveVideoCallback = null; // Function to get the current video object
 
-// Hardcoded settings used directly in handlers
-const resizeDebounceTime = 250;
-const touchMinY = 30;
-const touchMaxX = 100;
+
+// --- 2. Use config for DEFAULTS ---
+let resizeDebounceTime = config.input.resizeDebounce;
+let touchMinY = config.input.touchSensitivityY;
+let touchMaxX = config.input.touchSensitivityX;
 
 
 // --- Event Handler Functions ---
@@ -23,13 +25,18 @@ async function handleKeyDown(event) {
     switch (event.key) {
         case ' ': case 'Spacebar':
             event.preventDefault();
+            console.log("[InputMgr] Spacebar detected."); // Log detection
             if (getActiveVideoCallback && togglePlayPauseCallback) {
                 const activeVideo = getActiveVideoCallback();
+                console.log("[InputMgr] Active video:", activeVideo); // Log the video object
                 if (activeVideo) {
-                    togglePlayPauseCallback(activeVideo); // Call the provided callback directly
+                    console.log("[InputMgr] Calling togglePlayPauseCallback wrapper...");
+                    togglePlayPauseCallback(activeVideo); // Call the wrapper
                 } else {
-                    console.log("Spacebar ignored: No active video.");
+                    console.log("[InputMgr] Spacebar ignored: No active video returned.");
                 }
+            } else {
+                 console.warn("[InputMgr] Spacebar ignored: Callbacks not initialized.");
             }
             break;
         case 'ArrowLeft': case 'ArrowUp':
@@ -92,28 +99,39 @@ function attachEventListeners(touchHandlers, resizeHandler) {
 }
 
 /** Initializes the input manager. */
-// --- VERSION BEFORE CONFIG VALUES WERE PASSED IN ---
 export function initializeInput(
     scrollProcessor,
     resizeCb,
     adjustVolumeFn,
-    getActiveVideoFn,
-    togglePlayPauseFn // This is the function from scroll.js that expects (video, button)
+    getActiveVideoFn, 
+    togglePlayPauseFn,
+    // Use config for default values if args not provided
+    resizeDebounce = config.input.resizeDebounce,
+    touchY = config.input.touchSensitivityY,
+    touchX = config.input.touchSensitivityX
     ) {
     scrollInputProcessor = scrollProcessor;
     adjustVolumeCallback = adjustVolumeFn;
     getActiveVideoCallback = getActiveVideoFn;
-    // Wrap the togglePlayPauseFn to find the button before calling it
-    togglePlayPauseCallback = (video) => {
+    togglePlayPauseCallback = (video) => { // This is the WRAPPER called by handleKeyDown
         const btn = document.getElementById(`playPauseButton-${video?.id}`);
-        if (video && btn) {
-             try { togglePlayPauseFn(video, btn); } catch(e) { console.error(e); }
-        } else { console.warn("Cannot toggle: video or button not found."); }
+        if (video && btn && typeof togglePlayPauseFn === 'function') { // Check original fn exists
+             try {
+                 console.log(`[InputMgr] Wrapper calling original togglePlayPauseFn for video ${video.id}`);
+                 togglePlayPauseFn(video, btn); // <<< Call original fn with video AND button
+             } catch(e) { console.error("Error calling togglePlayPauseFn from wrapper:", e); }
+        } else {
+             console.warn(`[InputMgr] Cannot toggle: video, button, or togglePlayPauseFn missing. Video: ${!!video}, Button: ${!!btn}, Fn: ${typeof togglePlayPauseFn}`);
+        }
     };
 
-    const touchHandlers = createTouchHandlers(); // Uses hardcoded constants
-    const resizeHandler = createResizeHandler(resizeCb); // Uses hardcoded constant
+    // Store values (either defaults from config or passed-in overrides)
+    resizeDebounceTime = resizeDebounce;
+    touchMinY = touchY;
+    touchMaxX = touchX;
 
+    const touchHandlers = createTouchHandlers();
+    const resizeHandler = createResizeHandler(resizeCb);
     attachEventListeners(touchHandlers, resizeHandler);
     console.log("Input Manager Initialized.");
 }

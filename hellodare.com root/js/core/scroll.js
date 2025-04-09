@@ -5,13 +5,16 @@
 import { throttle, detectTouchDevice } from '../utils/utils.js';
 import * as VideoController from './videoController.js';
 import * as InputManager from '../modules/inputManager.js';
+import { config } from '../config.js';
 
 // --- Module State ---
 let currentIndex = 0;
 let scrollItems = [];
 let videoTrack = null;
 let isAnimating = false;
-let animationDuration = 1.0; // Default
+
+// --- Config Variables ---
+let animationDuration = config.animation.desktopDuration;
 
 // ==================================================
 // CORE SCROLL & ANIMATION LOGIC
@@ -19,7 +22,7 @@ let animationDuration = 1.0; // Default
 function updateActiveClass() {
      if (!scrollItems || scrollItems.length === 0) return;
      scrollItems.forEach((item, i) => {
-        item?.classList.toggle('active-scroll-item', i === currentIndex); // Use hardcoded class
+        item?.classList.toggle(config.selectors.activeScrollItemClass, i === currentIndex);
     });
 }
 
@@ -47,7 +50,7 @@ export function goToIndex(index, immediate = false) {
         gsap.to(videoTrack, {
             yPercent: targetYPercent,
             duration: animationDuration, // Uses variable set in init
-            ease: "back.out(.5)",      // Hardcoded ease
+            ease: config.animation.ease, // Config animation ease
             overwrite: "auto",
             onComplete: () => { isAnimating = false; },
             onInterrupt: () => { isAnimating = false; }
@@ -62,23 +65,20 @@ export function initializeGsapScroll(videos) {
     VideoController.setVideos(videos);
 
     // Find DOM Elements (Hardcoded selectors)
-    videoTrack = document.querySelector(".js-video-track");
-    if (!videoTrack) { console.error("Scroll Init Failed: '.js-video-track' not found."); return; }
-    scrollItems = gsap.utils.toArray(videoTrack.children).filter(el => el.classList.contains('scroll-item')); // Hardcoded class
-    if (scrollItems.length === 0) { console.error("Scroll Init Failed: No '.scroll-item' children found."); return; }
-    console.log(`Scroll Initializing with ${videos.length} videos and ${scrollItems.length} total items.`);
+    videoTrack = document.querySelector(config.selectors.track);
+    if (!videoTrack) { 
+        console.error(`Scroll Init Failed: '${config.selectors.track}' not found.`); return; 
+    }
+    scrollItems = gsap.utils.toArray(videoTrack.children).filter(el => el.classList.contains(config.selectors.scrollItem.substring(1))); // Remove leading '.' for classList check
+    if (scrollItems.length === 0) { 
+        console.error(`Scroll Init Failed: No '${config.selectors.scrollItem}' children found.`); return; 
+    }
+    console.log(`Scroll Initializing...`);
 
     // Determine Config (Hardcoded values)
     const isTouchDevice = detectTouchDevice();
-    const DESKTOP_ANIMATION_DURATION = 1.0;
-    const MOBILE_ANIMATION_DURATION = 0.7;
-    const DESKTOP_THROTTLE_INTERVAL = 200;
-    const MOBILE_THROTTLE_INTERVAL = 200;
-    animationDuration = isTouchDevice ? MOBILE_ANIMATION_DURATION : DESKTOP_ANIMATION_DURATION;
-    const throttleInterval = isTouchDevice ? MOBILE_THROTTLE_INTERVAL : DESKTOP_THROTTLE_INTERVAL;
-    const resizeDebounce = 250; // Hardcoded
-    const touchSensitivityY = 30; // Hardcoded
-    const touchSensitivityX = 100; // Hardcoded
+    animationDuration = isTouchDevice ? config.animation.mobileDuration : config.animation.desktopDuration;
+    const throttleInterval = isTouchDevice ? config.input.mobileThrottle : config.input.desktopThrottle;
 
     // Define Input -> Scroll Logic
     const processScrollInput = (delta) => {
@@ -107,8 +107,10 @@ export function initializeGsapScroll(videos) {
         resizeCallback,
         VideoController.adjustGlobalVolume,
         getActiveVideoFn,
-        togglePlayPauseFn
-        // NOTE: Not passing debounce/sensitivity here as inputManager uses defaults
+        togglePlayPauseFn,
+        config.input.resizeDebounce,      // Pass config
+        config.input.touchSensitivityY,  // Pass config
+        config.input.touchSensitivityX   // Pass config
     );
 
     // Reset State & Set Initial Position

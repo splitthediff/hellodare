@@ -1,9 +1,11 @@
 // js/core/videoController.js - Manages video playback and volume
 
+import { config } from '../config.js';
+
 // --- Module State ---
 let controlledVideos = []; // Stores the Video class instances
 let globalVolumeLevel = 0.0;
-const DEFAULT_UNMUTE_LEVEL = 0.6; // Hardcoded constant
+const DEFAULT_UNMUTE_LEVEL = config.video.defaultUnmuteLevel;
 
 /** Stores the array of video objects. */
 export function setVideos(videosArray) {

@@ -2,6 +2,8 @@
 
 // NOTE: Assumes Vimeo.Player is global
 
+import { config } from '../config.js';
+
 export class Video {
     constructor(videoData) {
         this.id = videoData.vimeoid;
@@ -43,7 +45,7 @@ export class Video {
             this.nativeWidth = 16; this.nativeHeight = 9; this.aspectRatio = 16 / 9; this.thumbnailUrl = '';
         } finally {
             // Always set iframe src, even on error (using hardcoded params)
-            this.iframeSrc = `https://player.vimeo.com/video/${this.id}?muted=1&controls=0&quality=1080p`;
+            this.iframeSrc = `https://player.vimeo.com/video/${this.id}?${config.video.vimeoParams}&quality=${config.video.vimeoQuality}`;
         }
         // console.log(`[Video ${this.id}] Finished initialize.`);
     }
@@ -84,7 +86,19 @@ export class Video {
                     try { this.duration = await this.player.getDuration() || 0; /* console.log(`Duration: ${this.duration}`); */ } catch (e) { this.duration = 0; }
 
                     // --- Attach Listeners ---
-                    this.player.on('pause', () => { /* console.log(`[Player ${this.id}] paused`); */ if (this.thumbnailElement) this.thumbnailElement.classList.remove('thumbnail-hidden'); });
+                    this.player.on('pause', () => {
+                        console.log(`[Player Event ${this.id}] Status: paused`);
+
+                        // Only show thumbnail if the video has reached its simulated end
+                        // We check the 'hasPlayedOnce' flag which is set by the timeupdate handler
+                        if (this.thumbnailElement && this.hasPlayedOnce) {
+                            console.log(`[Player Event ${this.id}] Showing thumbnail because hasPlayedOnce is true.`);
+                            this.thumbnailElement.classList.remove('thumbnail-hidden');
+                        } else if (this.thumbnailElement) {
+                            // Otherwise (manual pause, scroll pause), keep it hidden or ensure it's hidden
+                            console.log(`[Player Event ${this.id}] Pause occurred, but hasPlayedOnce is false. Keeping/Making thumbnail hidden.`);
+                        }
+                    });
                     this.player.on('error', (error) => { console.error(`[Player ${this.id}] Error:`, error.name); });
 
                     const handlePlay = () => {
@@ -113,8 +127,8 @@ export class Video {
         try { player = await this.initializePlayer(); }
         catch (error) { console.error(`[Toggle Play ${this.id}] Player init failed: ${error.message}`); if (playPauseButton) playPauseButton.innerText = 'Error'; return; }
 
-        const scrollItemElement = document.getElementById(`iframe-${this.id}`)?.closest('.scroll-item'); // Use correct class
-        const isActive = scrollItemElement?.classList.contains('active-scroll-item'); // Use correct class
+        const scrollItemElement = document.getElementById(`iframe-${this.id}`)?.closest(config.selectors.scrollItem);
+        const isActive = scrollItemElement?.classList.contains(config.selectors.activeScrollItemClass);
         if (!isActive) { console.warn(`[Toggle Play ${this.id}] Ignoring click: Not active item.`); return; }
 
         try {
@@ -139,16 +153,22 @@ export class Video {
         }
     } // --- End togglePlayPause ---
 
-    async toggleSound() {
+    async toggleSound(toggleGlobalVolumeFunction) { // <<< Accept function as argument
+        // console.log(`[Toggle Sound ${this.id}] Clicked.`);
         try {
             await this.initializePlayer();
-            // Assumes toggleGlobalVolume is available in calling scope (playlistManager.js)
-            if (typeof toggleGlobalVolume === 'function') {
-                 toggleGlobalVolume();
+            // console.log(`[Toggle Sound ${this.id}] Player ready. Calling provided toggle function.`);
+
+            // --- Call the PASSED IN function ---
+            if (typeof toggleGlobalVolumeFunction === 'function') {
+                toggleGlobalVolumeFunction(); // <<< Call the argument
             } else {
-                 console.error("toggleGlobalVolume function not available in toggleSound scope");
+                 console.error("toggleGlobalVolumeFunction was not provided to toggleSound");
             }
-        } catch (error) { console.warn(`[Toggle Sound ${this.id}] Player not ready: ${error.message}`); }
+            // ---
+        } catch (error) {
+            console.warn(`[Toggle Sound ${this.id}] Player not ready: ${error.message}`);
+        }
     }
 
     async fetchVimeoData(id) {

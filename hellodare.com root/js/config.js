@@ -32,9 +32,9 @@ export const config = {
         scrollItem: ".scroll-item",
         middleColumn: ".middle-column", // Used by getDynamicWidth
         // IDs (use # for querySelector, or just name for getElementById)
-        infoButtonId: "scroll-to-info-btn", // ID for the button itself
-        titleElementId: "main-page-title",  // ID for the clickable title
-        infoSectionId: "info-section",      // ID for the info section scroll item
+        infoButtonId: "#scroll-to-info-btn", // ID for the button itself
+        titleElementId: "#main-page-title",  // ID for the clickable title
+        infoSectionId: "#info-section",      // ID for the info section scroll item
         // Class Names (just the name, no dot)
         activeScrollItemClass: "active-scroll-item" // Class added to the active item
     },
