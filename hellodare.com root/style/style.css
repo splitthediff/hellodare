@@ -34,6 +34,9 @@ html, body {
   --secondary-font-size: .9em;
   --secondary-font-weight: 400;
   --video-border-radius: 0em; /* Currently unused */
+  --h1-font-size: 1.1em;
+  --h1-font-weight: 400;
+  --h1-line-height: 2em;
 }
 
 /* --- Page Container --- */
@@ -212,9 +215,8 @@ html, body {
 
 .info-section {
     display: flex;
-    justify-content: left; /* Horizontal Center */
-    align-items: center;   /* Vertical Center */
-    padding: 40px;         /* Keep overall padding */
+    justify-content: flex-start;
+    align-items: center;
     color: var(--primary-font-color);
     background-color: var(--background-color); /* Use correct background */
     box-sizing: border-box;
@@ -225,22 +227,42 @@ html, body {
 }
 
 .info-content {
+    display: flex;          
+    flex-direction: row;    
+    justify-content: flex-start;
+    gap: 2em;  
+
     width: 100%; /* Still allow it to use parent's padding */
-    max-width: 700px; /* Keep max-width */
+    max-width: 900px; /* Keep max-width */
     box-sizing: border-box;
     text-align: left;
 
     transform: translateY(calc(50% - (var(--primary-font-size) * 0.5) ));
 }
 
-.info-content h2 {
+.info-column {
+    box-sizing: border-box;
+    text-align: left;
+    flex-basis: 0;
+    flex-shrink: 1;
+}
+
+.info-column-left {
+    flex-grow: 3;
+}
+
+.info-column-right {
+    flex-grow: 1;
+}
+
+.info-column h2,
+.info-column h3 { /* Adjust selector if using different headings */
     font-size: var(--primary-font-size);
     font-weight: var(--primary-font-weight);
-
     margin-bottom: var(--primary-font-size);
 }
 
-.info-content p {
+.info-column p {
     font-size: var(--secondary-font-size);
     font-weight: var(--secondary-font-weight);
     line-height: var(--primary-line-height);

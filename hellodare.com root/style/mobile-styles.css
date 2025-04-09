@@ -101,18 +101,29 @@
   
      /* --- Info Section Mobile Styles --- */
     .info-section {
+        justify-content: center;
     }
 
     .info-content {
-        width: 92%;
-        max-width: 700px;
-        box-sizing: border-box;
-        text-align: left;
-        transform: none;
+        flex-direction: column; /* Stack columns */
+        align-items: center; /* Center stacked columns horizontally */
+        gap: 30px; /* Vertical gap */
+        width: 90%;
+        max-width: 100%;
+        transform: none; /* Reset transform for standard centering */
+        justify-content: flex-start; /* Reset justification if needed */
     }
-
-
-    /* ... other mobile styles (controls, overlays, text sizes) ... */
+    .info-column {
+        flex-grow: 0;     /* <<< Reset grow */
+        flex-basis: auto; /* <<< Reset basis */
+        flex-shrink: 1;   /* Keep shrink */
+        width: 100%;      /* Columns take full width when stacked */
+        text-align: center; /* Mobile text align */
+    }
+     /* No need for specific left/right grow/basis on mobile */
+     .info-column-left, .info-column-right {
+         /* No specific flex properties needed here for mobile */
+     }
     .info-content h2 {
         font-size: var(--primary-mobile-font-size) /* Your size */
     }

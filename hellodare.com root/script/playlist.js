@@ -73,12 +73,19 @@ function renderVideos(videos) {
     });
 
     // Info Section HTML
-    playlistHTML += `
-       <div class="${scrollItemClass} info-section" id="info-section">
+       playlistHTML += `
+        <div class="${scrollItemClass} info-section" id="info-section">
             <div class="info-content">
-                <h2> _
-                </h2>
-                <p>Studio Dare is the creative studio of Leanne Dare. We work in a multitude of disciplines including graphics, animation, live action direction, photography & creative direction. Our work spans across film, television, branding, social media, and marketing platforms, delivering thought provoking and smile producing content.</p>
+                <div class="info-column info-column-left">
+                    <h2>Studio Dare</h2>
+                    <p>Studio Dare is the creative studio of Leanne Dare.</p>
+                    <p>We work in a multitude of disciplines including graphics, animation, live action direction, photography & creative direction.</p>
+                </div>
+                <div class="info-column info-column-right">
+                    <h3>Contact & Details</h3>
+                    <p>Our work spans across film, television, branding, social media, and marketing platforms, delivering thought provoking and smile producing content.</p>
+                    <p>Get in touch: <a href="mailto:example@studiodare.com">example@studiodare.com</a></p>
+                </div>
             </div>
         </div>
     `;
