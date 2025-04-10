@@ -1,4 +1,4 @@
-// js/core/scroll.js (Main Module - REORGANIZED, NO CONFIG)
+// js/core/scroll.js
 
 // --- Imports ---
 // Assuming utils, videoController, inputManager are in correct relative paths
@@ -99,7 +99,6 @@ export function initializeGsapScroll(videos) {
             video.togglePlayPause(button).catch(e => console.error("Error in toggle callback:", e));
         }
     };
-
 
     // Initialize Input Manager - Pass hardcoded values for now
     InputManager.initializeInput(

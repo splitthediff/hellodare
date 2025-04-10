@@ -1,396 +1,342 @@
-// scroll.js (REORGANIZED VERSION)
+/* ======================================== */
+/*            MAIN CSS                   */
+/* ======================================== */
 
-// ==================================================
-// IMPORTS (If any needed FROM other modules)
-// ==================================================
-// (Currently none needed)
-
-
-// ==================================================
-// MODULE STATE VARIABLES
-// ==================================================
-let currentIndex = 0;
-let scrollItems = []; // All scrollable DOM elements
-let videoTrack = null;
-let isAnimating = false;
-let controlledVideos = []; // Actual Video class instances
-let globalVolumeLevel = 0.0; // Start muted
-
-// Configuration (set during initialization)
-let animationDuration = 1.0; // Default values
-let throttleInterval = 200;  // Default values
-
-// --- Throttled Scroll Handler (declared here, defined in init) ---
-let scrollInputHandler = null; // Renamed for clarity
-
-
-// ==================================================
-// CORE SCROLL & ANIMATION LOGIC
-// ==================================================
-
-/**
- * Updates the 'active-scroll-item' class on scrollable items based on currentIndex.
- */
-function updateActiveClass() {
-     if (!scrollItems || scrollItems.length === 0) return;
-     scrollItems.forEach((item, i) => {
-        item?.classList.toggle('active-scroll-item', i === currentIndex);
-    });
+/* Universal reset for all elements */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/**
- * Main function to scroll to a specific index.
- * Handles animation, state flags, and triggers video control.
- * Exported for use by button listeners.
- * @param {number} index - The target index (0 to scrollItems.length - 1).
- * @param {boolean} [immediate=false] - If true, set position instantly.
- */
-export function goToIndex(index, immediate = false) {
-    // Boundary checks
-    if (!videoTrack || !scrollItems || scrollItems.length === 0) { console.error("goToIndex aborted: videoTrack or scrollItems missing."); return; }
-    if (index < 0 || index >= scrollItems.length) { console.warn(`goToIndex aborted: Index ${index} out of bounds (0-${scrollItems.length - 1}).`); return; }
-
-    // Prevent stacking animations
-    if (isAnimating && !immediate) { console.log(`goToIndex aborted: Animation already in progress.`); return; }
-
-    const previousIndex = currentIndex;
-    if (index === previousIndex && !immediate) { return; } // No change
-
-    // Update state
-    isAnimating = !immediate; // Set true only if animating
-    currentIndex = index;
-    console.log(`goToIndex: Updated currentIndex to ${currentIndex}. Previous was ${previousIndex}`);
-    updateActiveClass(); // Update visual indicator
-
-    // Trigger playback control attempt IMMEDIATELY
-    controlVideoPlayback(currentIndex, previousIndex).catch(err => {
-        console.error("[goToIndex Direct Call] Error controlling video playback:", err);
-    });
-
-    const targetYPercent = -currentIndex * 100;
-
-    // Perform Scroll Animation / Set
-    if (immediate) {
-        gsap.set(videoTrack, { yPercent: targetYPercent });
-        // isAnimating remains false
-        console.log(`[goToIndex Immediate Set] Target index: ${currentIndex}.`);
-    } else {
-        gsap.to(videoTrack, {
-            yPercent: targetYPercent,
-            duration: animationDuration,
-            ease: "back.out(.5)",
-            overwrite: "auto",
-            onComplete: () => {
-                // console.log(`[goToIndex Animation COMPLETE] Target index: ${currentIndex}.`);
-                isAnimating = false; // Reset flag only on completion
-            },
-            onInterrupt: () => {
-                 // console.warn(`[goToIndex Animation INTERRUPTED] Targeting index ${currentIndex}.`);
-                 isAnimating = false; // Ensure reset
-            }
-        });
-    }
+/* Body and html reset */
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden; /* Prevent browser scrollbars */
+  box-sizing: border-box;
+  background-color: var(--background-color);
+  color: var(--primary-font-color);
+  font-family: var(--primary-font-family);
 }
 
-
-// ==================================================
-// VIDEO PLAYBACK & VOLUME CONTROL
-// ==================================================
-
-/**
- * Controls play/pause/volume for videos based on scroll index activation.
- * Aware of the Info Section. Logic based on your working version.
- * @param {number} currentIdx - The index of the item to activate.
- * @param {number} previousIdx - The index of the item being deactivated.
- */
-async function controlVideoPlayback(currentIdx, previousIdx) {
-    if (!scrollItems || scrollItems.length === 0) return;
-    // console.log(`--- [Async Play Once Logic] Controlling Playback: Activate=${currentIdx} ---`);
-
-    // Iterate through actual video indices
-    for (let index = 0; index < controlledVideos.length; index++) {
-        const video = controlledVideos[index];
-        if (!video) continue;
-
-        const playPauseButton = document.getElementById(`playPauseButton-${video.id}`);
-        const soundButton = document.getElementById(`soundButton-${video.id}`);
-
-        // Action for the VIDEO AT INDEX 'index'
-        if (index === currentIdx) { // If this video is the one being activated
-            try {
-                const player = await video.initializePlayer();
-                // Check hasPlayedOnce logic (or justFinishedLoopLimit if using that)
-                if (video.hasPlayedOnce) { // Assuming this flag is correctly managed in Video.js
-                     console.log(`%c[ControlVid ${video.id}] Activate Play SKIPPED: hasPlayedOnce is TRUE. Ensuring pause.`, "color: blue; font-weight: bold;");
-                     if (playPauseButton) playPauseButton.innerText = 'Play';
-                     if (video.thumbnailElement) video.thumbnailElement.classList.remove('thumbnail-hidden');
-                     await player.pause().catch(e=>{/* ignore */}); // Ensure paused
-                } else {
-                    // Activate normally
-                    // console.log(`[ControlVid ${video.id}] Activating Video (Index ${index}). Setting volume & playing...`);
-                    await player.setVolume(globalVolumeLevel);
-                    await player.play();
-                    if (playPauseButton) playPauseButton.innerText = 'Pause';
-                }
-                 if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off'; // Always update sound btn
-            } catch (error) {
-                console.warn(`[ControlVid ${video?.id || 'N/A'}] Error activating video (Index ${index}): ${error.message}`);
-                if (playPauseButton) playPauseButton.innerText = 'Play';
-                if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
-            }
-        } else { // If this video index is NOT the one being activated
-             // Pause inactive videos
-             if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
-             if (video.player) {
-                try {
-                    video.player.pause().catch(e => {/* ignore non-critical pause error */});
-                    if (playPauseButton) playPauseButton.innerText = 'Play';
-                } catch (syncError) { if (playPauseButton) playPauseButton.innerText = 'Play'; }
-             } else {
-                 if (playPauseButton) playPauseButton.innerText = 'Play';
-             }
-        }
-    } // End video loop
-
-    // Handle Info Section Activation (ensure videos paused)
-    if (currentIdx >= controlledVideos.length) {
-         // console.log(`[ControlVid] Info Section Activated (Index ${currentIdx}). Ensuring all videos paused.`);
-         for (const vidToPause of controlledVideos) {
-             const btn = document.getElementById(`playPauseButton-${vidToPause?.id}`);
-             if (vidToPause && vidToPause.player) { vidToPause.player.pause().catch(e => {}); }
-             if(btn) btn.innerText = 'Play';
-         }
-    }
-    // console.log(`--- [Async Play Once Logic] Finished Controlling Playback ---`);
+/* Root variables for styling */
+:root {
+  --background-color: #FBF5E9;
+  --primary-font-color: #231F20;
+  --primary-font-color-overlap: var(--background-color);
+  --primary-font-family: serif, "neue-haas-unica", helvetica, sans-serif;
+  --primary-font-size: 1.1em;
+  --primary-font-weight: 400;
+  --primary-line-height: 2em;
+  --secondary-font-size: .9em;
+  --secondary-font-weight: 400;
+  --video-border-radius: 0em; /* Currently unused */
+  --h1-font-size: 1.1em;
+  --h1-font-weight: 400;
+  --h1-line-height: 2em;
 }
 
-/**
- * Helper function to apply the current globalVolumeLevel to all video players.
- */
-async function applyGlobalVolume() {
-     // console.log(`[Async] Applying global volume ${globalVolumeLevel.toFixed(2)}.`);
-     for (const video of controlledVideos) { // Only iterate actual videos
-         const soundButton = document.getElementById(`soundButton-${video.id}`);
-         try {
-             const player = await video.initializePlayer();
-             await player.setVolume(globalVolumeLevel);
-             if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
-         } catch (error) {
-             // console.warn(`[ApplyVol ${video.id}] Failed: ${error.message}`);
-             if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off'; // Update button anyway
-         }
-    }
+/* --- Page Container --- */
+.page-container {
+    display: flex;
+    height: 100dvh;
+    width: 100vw;
+  }
+
+.left-column,
+.right-column,
+.middle-column { 
+    opacity: 0;
+    transform: translateY(50px);
+    will-change: transform, opacity;
 }
 
-/**
- * Adjusts the global volume level and applies it.
- */
-async function adjustGlobalVolume(delta) {
-    const DEFAULT_UNMUTE_LEVEL = 0.6; // Keep constant here
-    let newVolume = globalVolumeLevel + delta;
-    newVolume = Math.max(0, Math.min(1, newVolume));
-    if (newVolume.toFixed(2) === globalVolumeLevel.toFixed(2)) return;
-    // console.log(`[Async] Adjusting global volume: ${globalVolumeLevel.toFixed(2)} -> ${newVolume.toFixed(2)}`);
-    globalVolumeLevel = newVolume;
-    await applyGlobalVolume(); // Use helper
+/* --- Columns --- */
+.left-column, .right-column {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    height: 100%;
+    position: relative; /* Needed for z-index stacking if content overlaps */
+    z-index: 20; /* Ensure columns are above the middle content */
+    color: var(--primary-font-color); /* Ensure text color */
+  }
+  
+  .middle-column {
+    flex: 3;
+    height: 100%;
+    overflow: hidden; /* CRUCIAL: Clips the translating video-track */
+    position: relative; /* Establishes positioning context */
+  }
+
+/* ========================================================================== */
+/*            SECTION 1 & 3 / LEFT & RIGHT (TOP & BOTTOM)                     */
+/* ========================================================================== */  
+
+/* TITLE / INFO text styling */
+.title {
+  font-size: var(--primary-font-size);
+  font-weight: var(--primary-font-weight);
+  background-color: transparent;
+  display: inline;
+  border: none;
+  padding: 0;
 }
 
-/**
- * Toggles the global volume between muted (0) and a default level.
- * EXPORTED for use by button listeners.
- */
-export async function toggleGlobalVolume() {
-    const DEFAULT_UNMUTE_LEVEL = 0.6; // Keep constant here
-    const newVolume = (globalVolumeLevel > 0) ? 0.0 : DEFAULT_UNMUTE_LEVEL;
-    // console.log(`[Async] Toggling global volume -> ${newVolume.toFixed(2)}`);
-    globalVolumeLevel = newVolume;
-    await applyGlobalVolume(); // Use helper
+.info {
+  font-size: var(--primary-font-size);
+  font-weight: var(--primary-font-weight);
+  background-color: transparent;
+  display: inline;
+  border: none;
+  padding: 0;
 }
 
-
-// ==================================================
-// INPUT EVENT HANDLERS & SETUP
-// ==================================================
-
-/** Handles keyboard events. */
-async function handleKeyDown(event) {
-    const targetTagName = event.target.tagName;
-    if (targetTagName === 'INPUT' || targetTagName === 'TEXTAREA' || event.target.isContentEditable) return;
-    if (!scrollItems || scrollItems.length === 0) return; // Use scrollItems for general check
-
-    const activeVideo = (currentIndex < controlledVideos.length) ? controlledVideos[currentIndex] : null;
-
-    switch (event.key) {
-        case ' ': case 'Spacebar':
-            event.preventDefault();
-            if (activeVideo) {
-                const btn = document.getElementById(`playPauseButton-${activeVideo.id}`);
-                if (btn) try { await activeVideo.togglePlayPause(btn); } catch (e) { console.error(e); }
-                else console.warn("Spacebar: Btn not found");
-            } else console.log("Spacebar ignored: Info section active.");
-            break;
-        case 'ArrowLeft': case 'ArrowUp':
-            event.preventDefault();
-            if (scrollInputHandler) scrollInputHandler(-1); // Use the handler variable
-            break;
-        case 'ArrowRight': case 'ArrowDown':
-            event.preventDefault();
-            if (scrollInputHandler) scrollInputHandler(1); // Use the handler variable
-            break;
-        case 'AudioVolumeUp': case '+': // Example key binding
-            event.preventDefault();
-            await adjustGlobalVolume(0.1);
-            break;
-        case 'AudioVolumeDown': case '-': // Example key binding
-            event.preventDefault();
-            await adjustGlobalVolume(-0.1);
-            break;
-    }
+/* Optional overlap styling for title */
+.intro-title.overlapped {
+  color: var(--primary-font-color-overlap);
+  opacity: 65%;
 }
 
-/** Handles wheel events. */
-function handleWheel(event) {
-    event.preventDefault();
-    if (scrollInputHandler) scrollInputHandler(event.deltaY); // Use the handler variable
+/* ========================================================================== */
+/*            SECTION 12 / MIDDLE                                             */
+/* ========================================================================== */  
+
+/* --- SCROLL ITEM (Common class for Videos and Info Section) --- */
+.scroll-item {
+    width: 100%;
+    height: 100%; /* Each item takes full viewport height */
+    position: relative; /* Keep in flow, allow absolute children */
+    overflow: hidden; /* Clip content within this item */
+    /*scroll-snap-align: start;*/ 
+  }
+
+/* --- Video Track --- */
+
+/* This element is animated by GSAP (yPercent) */
+.video-track {
+  width: 100%;
+  height: 100%; /* Track itself only needs to be height of container */
+  position: relative; /* Good practice for transformed elements */
+  will-change: transform; /* Hint for browser optimization */
 }
 
-/** Creates and returns touch event handlers using a closure. */
-function createTouchHandlers() {
-    let touchStartY = null, touchStartX = null;
-    const minSwipeDistanceY = 30, maxSwipeDistanceX = 100; // Adjust sensitivity
-
-    function onTouchStart(event) {
-        if (event.touches.length === 1) { touchStartY = event.touches[0].clientY; touchStartX = event.touches[0].clientX; }
-        else { touchStartY = null; touchStartX = null; }
-    }
-    function onTouchMove(event) {
-        if (touchStartY !== null) { const tX=event.touches[0].clientX; if (Math.abs(touchStartX-tX)<maxSwipeDistanceX) { event.preventDefault(); } }
-    }
-    function onTouchEnd(event) {
-        if (touchStartY === null) return;
-        const tY = event.changedTouches[0].clientY; const tX = event.changedTouches[0].clientX;
-        const dY = touchStartY - tY; const dX = Math.abs(touchStartX - tX);
-        if (Math.abs(dY) > minSwipeDistanceY && dX < maxSwipeDistanceX) {
-            if (scrollInputHandler) scrollInputHandler(dY); // Use the handler variable
-        }
-        touchStartY = null; touchStartX = null; // Reset
-    }
-    return { onTouchStart, onTouchMove, onTouchEnd };
+/* --- Video Item  --- */
+.video-item {
+  /* No specific styles needed here now, inherited from .scroll-item */
+  /* Centering is handled by the wrapper */
 }
 
-/** Creates and returns a resize handler using a closure for timeout. */
-function createResizeHandler() {
-    let resizeTimeout;
-    function onResize() {
-         clearTimeout(resizeTimeout);
-         resizeTimeout = setTimeout(() => {
-             // console.log("Resize handler: Repositioning.");
-             goToIndex(currentIndex, true); // Snap immediately
-         }, 250); // Debounce resize calls
-    }
-    return onResize;
+/* --- Aspect Wrapper (Contains video/thumbnail/controls) --- */
+/* Uses absolute positioning for better centering within scroll-item */
+.video-aspect-wrapper {
+  position: absolute; /* Position within the .scroll-item */
+  top: 50%;           /* Center vertically */
+  left: 50%;          /* Center horizontally */
+  transform: translate(-50%, -50%); /* Fine-tune centering */
+  width: 100%;        /* Use full width of parent */
+  /* Height is determined by aspect-ratio property set via JS */
+  max-height: 100%;   /* Prevent exceeding parent height */
+  overflow: hidden;   /* Clip contents */
+  background-color: var(--background-color);
 }
 
-/** Attaches all necessary global event listeners. */
-function attachEventListeners(touchHandlers, resizeHandler) {
-    // Detach existing listeners first to prevent duplicates
-    window.removeEventListener('keydown', handleKeyDown);
-    window.removeEventListener('wheel', handleWheel);
-    window.removeEventListener('touchstart', touchHandlers.onTouchStart);
-    window.removeEventListener('touchmove', touchHandlers.onTouchMove);
-    window.removeEventListener('touchend', touchHandlers.onTouchEnd);
-    window.removeEventListener('resize', resizeHandler);
-
-    // Attach new listeners
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    window.addEventListener('touchstart', touchHandlers.onTouchStart, { passive: true });
-    window.addEventListener('touchmove', touchHandlers.onTouchMove, { passive: false });
-    window.addEventListener('touchend', touchHandlers.onTouchEnd, { passive: true });
-    window.addEventListener('resize', resizeHandler);
+/* --- Thumbnail --- */
+.video-thumbnail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 2; /* Above iframe, below controls */
+  pointer-events: none;
+  opacity: 1;
+  visibility: visible;
+  border-radius: var(--video-border-radius);
+  /* Use step-end for visibility to ensure it's visible during fade-in */
+  transition: opacity 0.4s ease-in-out, visibility 0s linear 0s;
+  /* background-color: #ffd60a; */ /* Fallback BG */
 }
 
-
-// ==================================================
-// UTILITY FUNCTIONS
-// ==================================================
-
-/** Throttles a function execution. */
-function throttle(func, limit) {
-    let inThrottle;
-    return function() {
-        const args = arguments;
-        const context = this;
-        if (!inThrottle) {
-            func.apply(context, args);
-            inThrottle = true;
-            setTimeout(() => { inThrottle = false; }, limit);
-        }
-    }
+.video-thumbnail.thumbnail-hidden {
+  opacity: 0;
+  visibility: hidden;
+  /* Use step-end delay to hide visibility only *after* fade out completes */
+  transition: opacity 0.4s ease-in-out, visibility 0s linear 0.4s;
+  z-index: 0; /* Go behind iframe */
 }
 
-/** Detects touch capability. */
-function detectTouchDevice() {
-    let hasTouch = false; if ('maxTouchPoints' in navigator) hasTouch = navigator.maxTouchPoints > 0; else if ('ontouchstart' in window) hasTouch = true; else if ('msMaxTouchPoints' in navigator) hasTouch = navigator.msMaxTouchPoints > 0; return hasTouch;
+/* --- Iframe --- */
+/* Positioned absolutely within the aspect wrapper */
+.video-aspect-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block; /* Remove extra space below iframe */
+  border: none;
+  border-radius: var(--video-border-radius);
+  z-index: 1; /* Below thumbnail initially, above when thumb hidden */
+  pointer-events: none; /* Prevent direct interaction */
 }
 
+/* --- Video Controls --- */
+.video-controls {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0s linear 0.3s;
+  position: absolute;
+  bottom: 20px; /* Increased spacing */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5; /* Above thumbnail and iframe */
+  background: rgba(0, 0, 0, 0.5); /* Slightly less opaque */
+  padding: 8px 15px; /* More padding */
+  border-radius: 6px;
+  display: flex;
+  gap: 12px; /* More gap */
+  align-items: center;
+  pointer-events: none; /* Initially not interactive */
+}
 
-// ==================================================
-// INITIALIZATION FUNCTION (EXPORTED)
-// ==================================================
+/* Show controls on hover of the ASPECT WRAPPER */
+.video-aspect-wrapper:hover .video-controls {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto; /* Enable interaction */
+  /* Ensure visibility transition delay is 0 on hover */
+  transition-delay: 0s;
+}
 
-/**
- * Initializes GSAP scroll functionality, sets up state, and attaches listeners.
- * @param {Array<Video>} videos - The array of Video class instances.
- */
-export function initializeGsapScroll(videos) {
-    controlledVideos = videos; // Store video instances
+.controls-button { /* Simplified selector */
+  background: none;
+  border: none; /* Removed border for cleaner look */
+  color: white;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.9em; /* Adjust as needed */
+  transition: background-color 0.2s ease;
+}
 
-    // Find DOM Elements
-    videoTrack = document.querySelector(".js-video-track");
-    if (!videoTrack) { console.error("Scroll Init Failed: '.js-video-track' not found."); return; }
-    scrollItems = gsap.utils.toArray(videoTrack.children).filter(el => el.classList.contains('scroll-item'));
-    if (scrollItems.length === 0) { console.error("Scroll Init Failed: No '.scroll-item' children found."); return; }
-    console.log(`GSAP Scroll Initializing with ${controlledVideos.length} videos and ${scrollItems.length} total items.`);
+.controls-button:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 4px; /* Slight rounding on hover */
+}
 
-    // Determine Config
-    const isTouchDevice = detectTouchDevice();
-    const DESKTOP_ANIMATION_DURATION = 1.0;
-    const MOBILE_ANIMATION_DURATION = 0.7;
-    const DESKTOP_THROTTLE_INTERVAL = 200;
-    const MOBILE_THROTTLE_INTERVAL = 200;
-    animationDuration = isTouchDevice ? MOBILE_ANIMATION_DURATION : DESKTOP_ANIMATION_DURATION;
-    throttleInterval = isTouchDevice ? MOBILE_THROTTLE_INTERVAL : DESKTOP_THROTTLE_INTERVAL;
+.info-section {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    color: var(--primary-font-color);
+    background-color: var(--background-color); /* Use correct background */
+    box-sizing: border-box;
+    height: 100%; /* Ensure it takes full height from .scroll-item */
+    width: 100%;
+    position: relative; /* Should inherit this */
+    overflow: hidden;   /* Ensure this is set */
+}
 
-    // Define the core scroll input processing function
-    const processScrollInput = (delta) => {
-        let newIndex = currentIndex;
-        if (delta > 0 && currentIndex < scrollItems.length - 1) { newIndex++; }
-        else if (delta < 0 && currentIndex > 0) { newIndex--; }
-        else { return; } // No change or boundary
+.info-content {
+    display: flex;          
+    flex-direction: row;    
+    justify-content: flex-start;
+    gap: 2em;  
 
-        if (newIndex !== currentIndex) {
-            goToIndex(newIndex); // Call the main scroll function
-        }
-    };
+    width: 100%; /* Still allow it to use parent's padding */
+    max-width: 900px; /* Keep max-width */
+    box-sizing: border-box;
+    text-align: left;
 
-    // Create the throttled handler
-    scrollInputHandler = throttle(processScrollInput, throttleInterval);
+    transform: translateY(calc(50% - (var(--primary-font-size) * 0.5) ));
+}
 
-    // Reset State
-    currentIndex = 0;
-    isAnimating = false;
-    globalVolumeLevel = 0.0; // Start muted
+.info-column {
+    box-sizing: border-box;
+    text-align: left;
+    flex-basis: 0;
+    flex-shrink: 1;
+}
 
-    // Create handlers that manage their own state (like timeouts/touch coords)
-    const touchHandlers = createTouchHandlers();
-    const resizeHandler = createResizeHandler();
+.info-column-left {
+    flex-grow: 3;
+}
 
-    // Set Initial Position & State
-    goToIndex(0, true);
+.info-column-right {
+    flex-grow: 1;
+}
 
-    // Attach Global Event Listeners using the created handlers
-    attachEventListeners(touchHandlers, resizeHandler);
+.info-column h2,
+.info-column h3 { /* Adjust selector if using different headings */
+    font-size: var(--primary-font-size);
+    font-weight: var(--primary-font-weight);
+    margin-bottom: var(--primary-font-size);
+}
 
-    console.log("GSAP Scroll Initialization complete. Listeners active.");
-} // === END of initializeGsapScroll ===
+.info-column p {
+    font-size: var(--secondary-font-size);
+    font-weight: var(--secondary-font-weight);
+    line-height: var(--primary-line-height);
+}
+
+/* --- Active Scroll Item Style --- */
+.scroll-item.active-scroll-item {
+  /* Add visual indication if desired */
+  /* outline: 2px solid blue; */
+}
+
+/* --- Video Info Overlay --- */
+.video-info-overlay {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    z-index: 4; /* Above thumbnail/iframe, below controls if they overlap */
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent dark background */
+    padding: 8px 12px;
+    border-radius: 4px;
+    max-width: calc(100% - 30px); /* Prevent overlapping scrollbars if any */
+
+    /* Initial state: hidden */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px); /* Optional slide-up effect */
+    pointer-events: none; /* Not interactive */
+
+    /* Transition for fade and slide */
+    transition: opacity 0.3s ease-in-out, visibility 0.3s step-end, transform 0.3s ease-in-out;
+}
+
+.video-info-overlay .video-info-title {
+    font-size: 1em; /* Adjust as needed */
+    font-weight: 600; /* Bolder title */
+    margin: 0 0 4px 0; /* Spacing below title */
+    line-height: 1.2;
+    /* Ensure text doesn't wrap awkwardly if too long */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.video-info-overlay .video-info-year {
+    font-size: 0.85em; /* Smaller year */
+    font-weight: 400;
+    margin: 0;
+    line-height: 1;
+    opacity: 0.8; /* Slightly less prominent */
+}
+
+/* Show the overlay when hovering the WRAPPER */
+.video-aspect-wrapper:hover .video-info-overlay {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0); /* Slide up */
+    transition-delay: 0s, 0s, 0s; /* Ensure visibility transition is immediate */
+    /* pointer-events: auto; */ /* Only needed if overlay itself needs interaction */
+}

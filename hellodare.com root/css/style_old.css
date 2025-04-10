@@ -1,3 +1,7 @@
+/* ======================================== */
+/*            MAIN CSS                   */
+/* ======================================== */
+
 /* Universal reset for all elements */
 *,
 *::before,
@@ -11,203 +15,328 @@
 html, body {
   height: 100%;
   width: 100%;
+  overflow: hidden; /* Prevent browser scrollbars */
+  box-sizing: border-box;
   background-color: var(--background-color);
   color: var(--primary-font-color);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
+  font-family: var(--primary-font-family);
 }
 
 /* Root variables for styling */
 :root {
   --background-color: #FBF5E9;
-
-  /* Primary Font Settings */
   --primary-font-color: #231F20;
   --primary-font-color-overlap: var(--background-color);
-  --primary-font-family: "neue-haas-unica", helvetica, sans-serif;
-  --primary-font-size: 1.3em;
-  --primary-font-weight: 700;
-  --secondary-font-size: 1em;
+  --primary-font-family: serif, "neue-haas-unica", helvetica, sans-serif;
+  --primary-font-size: 1.1em;
+  --primary-font-weight: 400;
+  --primary-line-height: 2em;
+  --secondary-font-size: .9em;
   --secondary-font-weight: 400;
-
-  /* Video Settings */
-  --video-border-radius: 0em;
+  --video-border-radius: 0em; /* Currently unused */
+  --h1-font-size: 1.1em;
+  --h1-font-weight: 400;
+  --h1-line-height: 2em;
 }
 
-/* Page Container */
-/*
+/* --- Page Container --- */
 .page-container {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
+    display: flex;
+    height: 100dvh;
+    width: 100vw;
+  }
+
+.left-column,
+.right-column,
+.middle-column { 
+    opacity: 0;
+    transform: translateY(50px);
+    will-change: transform, opacity;
 }
 
-.left-column {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
+/* --- Columns --- */
+.left-column, .right-column {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    height: 100%;
+    position: relative; /* Needed for z-index stacking if content overlaps */
+    z-index: 20; /* Ensure columns are above the middle content */
+    color: var(--primary-font-color); /* Ensure text color */
+  }
+  
+  .middle-column {
+    flex: 3;
+    height: 100%;
+    overflow: hidden; /* CRUCIAL: Clips the translating video-track */
+    position: relative; /* Establishes positioning context */
+  }
 
-.middle-column {
-  flex: 3; 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden; 
-}
+/* ========================================================================== */
+/*            SECTION 1 & 3 / LEFT & RIGHT (TOP & BOTTOM)                     */
+/* ========================================================================== */  
 
-.middle-column > .video-track {
-  overflow-y: auto; 
-}
-
-.video-track {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.right-column {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}*/
-
-.info-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  display: none; /* Hidden by default */
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-/* Overlay Content */
-.info-content {
-  background: white;
-  color: black;
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 600px;
-}
-
-/* Close Button */
-.close-button {
-  background: black;
-  color: white;
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-}
-
-
-/* TITLE */
+/* TITLE / INFO text styling */
 .title {
-  font-family: var(--primary-font-family);
   font-size: var(--primary-font-size);
   font-weight: var(--primary-font-weight);
-  margin-bottom: 1em;
-  opacity: 0; /* Initially hidden */
-  transform: translateY(50px); /* Start below */
+  background-color: transparent;
+  display: inline;
+  border: none;
+  padding: 0;
 }
 
-.intro-title.overlapped,
-.menu.overlapped {
+.info {
+  font-size: var(--primary-font-size);
+  font-weight: var(--primary-font-weight);
+  background-color: transparent;
+  display: inline;
+  border: none;
+  padding: 0;
+}
+
+/* Optional overlap styling for title */
+.intro-title.overlapped {
   color: var(--primary-font-color-overlap);
   opacity: 65%;
 }
 
-/* VIDEO PORTFOLIO */
+/* ========================================================================== */
+/*            SECTION 12 / MIDDLE                                             */
+/* ========================================================================== */  
+
+/* --- SCROLL ITEM (Common class for Videos and Info Section) --- */
+.scroll-item {
+    width: 100%;
+    height: 100%; /* Each item takes full viewport height */
+    position: relative; /* Keep in flow, allow absolute children */
+    overflow: hidden; /* Clip content within this item */
+    /*scroll-snap-align: start;*/ 
+  }
+
+/* --- Video Track --- */
+
+/* This element is animated by GSAP (yPercent) */
 .video-track {
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  overflow-y: auto;
-  height: 100%;
-  width: 100%; 
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  width: 100%;
+  height: 100%; /* Track itself only needs to be height of container */
+  position: relative; /* Good practice for transformed elements */
+  will-change: transform; /* Hint for browser optimization */
 }
 
-.video-track::-webkit-scrollbar {
-  display: none;
+/* --- Video Item  --- */
+.video-item {
+  /* No specific styles needed here now, inherited from .scroll-item */
+  /* Centering is handled by the wrapper */
 }
 
-/* Video container */
-.video-container {
-  position: relative;
-  display: flex;
-  height: 100%;
-  width: 100%; 
-  align-items: center;
-  gap: 0em;
-  
+/* --- Aspect Wrapper (Contains video/thumbnail/controls) --- */
+/* Uses absolute positioning for better centering within scroll-item */
+.video-aspect-wrapper {
+  position: absolute; /* Position within the .scroll-item */
+  top: 50%;           /* Center vertically */
+  left: 50%;          /* Center horizontally */
+  transform: translate(-50%, -50%); /* Fine-tune centering */
+  width: 100%;        /* Use full width of parent */
+  /* Height is determined by aspect-ratio property set via JS */
+  max-height: 100%;   /* Prevent exceeding parent height */
+  overflow: hidden;   /* Clip contents */
+  background-color: var(--background-color);
 }
 
-.video-item iframe {
+/* --- Thumbnail --- */
+.video-thumbnail {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  z-index: 2; /* Above iframe, below controls */
+  pointer-events: none;
+  opacity: 1;
+  visibility: visible;
   border-radius: var(--video-border-radius);
-  background-color: aqua;
+  /* Use step-end for visibility to ensure it's visible during fade-in */
+  transition: opacity 0.4s ease-in-out, visibility 0s linear 0s;
+  /* background-color: #ffd60a; */ /* Fallback BG */
 }
 
-/* Video Controls */
-.video-controls {
+.video-thumbnail.thumbnail-hidden {
+  opacity: 0;
+  visibility: hidden;
+  /* Use step-end delay to hide visibility only *after* fade out completes */
+  transition: opacity 0.4s ease-in-out, visibility 0s linear 0.4s;
+  z-index: 0; /* Go behind iframe */
+}
+
+/* --- Iframe --- */
+/* Positioned absolutely within the aspect wrapper */
+.video-aspect-wrapper iframe {
   position: absolute;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  justify-content: space-between;
-  padding: .5em;
-  bottom: 0em;
-  z-index: 10; /* Ensure controls appear on top of the video */
-  mix-blend-mode: difference;
-  opacity: 90%;
-}
-
-/* Control Buttons */
-.controls-button {
-  padding: 10px 15px;
-  background-color: rgba(0, 0, 0, 0.0); /* Semi-transparent background */
-  color: white;
-  mix-blend-mode: difference;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block; /* Remove extra space below iframe */
   border: none;
-  cursor: pointer;
-  border-radius: 5px;
-  font-size: 14px;
-  transition: background-color 0.5s ease-in-out;
+  border-radius: var(--video-border-radius);
+  z-index: 1; /* Below thumbnail initially, above when thumb hidden */
+  pointer-events: none; /* Prevent direct interaction */
 }
 
-/* Volume Slider */
-.controls-volume {
-  width: 100px; /* Set width for volume slider */
-  height: 5px; /* Adjust slider thickness */
-  background: rgba(0, 0, 0, 0.3); /* Slightly transparent background */
-  border-radius: 5px;
+/* --- Video Controls --- */
+.video-controls {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0s linear 0.3s;
+  position: absolute;
+  bottom: 20px; /* Increased spacing */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5; /* Above thumbnail and iframe */
+  background: rgba(0, 0, 0, 0.5); /* Slightly less opaque */
+  padding: 8px 15px; /* More padding */
+  border-radius: 6px;
+  display: flex;
+  gap: 12px; /* More gap */
+  align-items: center;
+  pointer-events: none; /* Initially not interactive */
+}
+
+/* Show controls on hover of the ASPECT WRAPPER */
+.video-aspect-wrapper:hover .video-controls {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto; /* Enable interaction */
+  /* Ensure visibility transition delay is 0 on hover */
+  transition-delay: 0s;
+}
+
+.controls-button { /* Simplified selector */
+  background: none;
+  border: none; /* Removed border for cleaner look */
+  color: white;
+  padding: 6px 12px;
   cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
+  font-size: 0.9em; /* Adjust as needed */
+  transition: background-color 0.2s ease;
 }
 
 .controls-button:hover {
-  color: white
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 4px; /* Slight rounding on hover */
 }
 
-
-/* Sound On/Off Button */
-.sound-button {
-  color: white;
+.info-section {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    color: var(--primary-font-color);
+    background-color: var(--background-color); /* Use correct background */
+    box-sizing: border-box;
+    height: 100%; /* Ensure it takes full height from .scroll-item */
+    width: 100%;
+    position: relative; /* Should inherit this */
+    overflow: hidden;   /* Ensure this is set */
 }
 
-.sound-button.active {
-  background-color: rgba(0, 0, 0, 0.8); /* Darker when active */
+.info-content {
+    display: flex;          
+    flex-direction: row;    
+    justify-content: flex-start;
+    gap: 2em;  
+
+    width: 100%; /* Still allow it to use parent's padding */
+    max-width: 900px; /* Keep max-width */
+    box-sizing: border-box;
+    text-align: left;
+
+    transform: translateY(calc(50% - (var(--primary-font-size) * 0.5) ));
+}
+
+.info-column {
+    box-sizing: border-box;
+    text-align: left;
+    flex-basis: 0;
+    flex-shrink: 1;
+}
+
+.info-column-left {
+    flex-grow: 3;
+}
+
+.info-column-right {
+    flex-grow: 1;
+}
+
+.info-column h2,
+.info-column h3 { /* Adjust selector if using different headings */
+    font-size: var(--primary-font-size);
+    font-weight: var(--primary-font-weight);
+    margin-bottom: var(--primary-font-size);
+}
+
+.info-column p {
+    font-size: var(--secondary-font-size);
+    font-weight: var(--secondary-font-weight);
+    line-height: var(--primary-line-height);
+}
+
+/* --- Active Scroll Item Style --- */
+.scroll-item.active-scroll-item {
+  /* Add visual indication if desired */
+  /* outline: 2px solid blue; */
+}
+
+/* --- Video Info Overlay --- */
+.video-info-overlay {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    z-index: 4; /* Above thumbnail/iframe, below controls if they overlap */
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent dark background */
+    padding: 8px 12px;
+    border-radius: 4px;
+    max-width: calc(100% - 30px); /* Prevent overlapping scrollbars if any */
+
+    /* Initial state: hidden */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px); /* Optional slide-up effect */
+    pointer-events: none; /* Not interactive */
+
+    /* Transition for fade and slide */
+    transition: opacity 0.3s ease-in-out, visibility 0.3s step-end, transform 0.3s ease-in-out;
+}
+
+.video-info-overlay .video-info-title {
+    font-size: 1em; /* Adjust as needed */
+    font-weight: 600; /* Bolder title */
+    margin: 0 0 4px 0; /* Spacing below title */
+    line-height: 1.2;
+    /* Ensure text doesn't wrap awkwardly if too long */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.video-info-overlay .video-info-year {
+    font-size: 0.85em; /* Smaller year */
+    font-weight: 400;
+    margin: 0;
+    line-height: 1;
+    opacity: 0.8; /* Slightly less prominent */
+}
+
+/* Show the overlay when hovering the WRAPPER */
+.video-aspect-wrapper:hover .video-info-overlay {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0); /* Slide up */
+    transition-delay: 0s, 0s, 0s; /* Ensure visibility transition is immediate */
+    /* pointer-events: auto; */ /* Only needed if overlay itself needs interaction */
 }
