@@ -46,6 +46,14 @@ html, body {
     width: 100vw;
   }
 
+.left-column,
+.right-column,
+.middle-column { 
+    opacity: 0;
+    transform: translateY(50px);
+    will-change: transform, opacity;
+}
+
 /* --- Columns --- */
 .left-column, .right-column {
     flex: 1;
