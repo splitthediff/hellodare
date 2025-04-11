@@ -10,7 +10,9 @@
   
     /* === FONTS === */
     --font-family-primary: "neue-haas-unica", helvetica, sans-serif;
+    --font-family-secondary:"lemonde-journal", serif;
     --font-size-base: 1 em;          /* Base size used on body, title */
+    --font-size-med: calc(var(--font-size-base) * 10.0);  
     --font-size-small: 0.85em;         /* Smaller text like .info button, paragraph */
     --font-size-xsmall: 0.8em;   
     --font-size-xxsmall: 0.65em;     
@@ -27,10 +29,11 @@
     --font-weight-bold: 600; 
     --font-weight-heavy: 700;         
   
-    --line-height-base: 1.2;          
-    --line-height-heading: 1.2;       
-    --line-height-tight: 1.0;         
-    --line-height-info-p: 1.2em;       
+    --line-height-base: 1.2em;   
+    --line-height-big: 1.2em;      
+    --line-height-heading: 1.2em;       
+    --line-height-tight: 1.2em;         
+    --line-height-info-p: var(--line-height-tight);       
   
     /* === SPACING === */
     --space-unit: 1.0em;

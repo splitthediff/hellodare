@@ -16,7 +16,7 @@ const INFO_OVERLAY_SELECTOR = '.video-info-overlay';
 export async function renderPlaylist() {
     currentVideos = await initializeVideos();
     renderVideos(currentVideos);
-    positionVideoOverlays(); // Initial call
+    positionVideoOverlays(); // JS sets initial bottom/left/maxWidth based on screen size
     initializeGsapScroll(currentVideos);
 
     let resizeTimeout;
@@ -89,27 +89,27 @@ function renderVideos(videos) {
                         <h3>Recognition</h3>
 
                         <div class="recognition-item">
-                            <p class="recognition-award-name">Emmy Award - Outstanding Main Title Design</p>
+                            <p class="recognition-award-name">Emmy Award - Outstanding Motion Design</p>
                             <p class="recognition-details">Inside Bill's Brain: Decoding Bill Gates - Netflix - 2020</p>
                         </div>
 
                         <div class="recognition-item">
-                            <p class="recognition-award-name">SXSW Film Design Award - Excellence in Title Design</p>
-                            <p class="recognition-details">Special Jury Recognition - White Men Can't Jump - Hulu - 2023</p>
+                            <p class="recognition-award-name">Emmy Award - Outstanding Motion Design</p>
+                            <p class="recognition-details">13th - Netflix - 2017</p>
                         </div>
 
                         <div class="recognition-item">
-                            <p class="recognition-award-name">Clio Entertainment - Silver Winner</p>
-                            <p class="recognition-details">Television/Series: Title Sequence - Inside Bill's Brain - Netflix - 2020</p>
+                            <p class="recognition-award-name">Emmy Nomination - Outstanding Main Title Design </p>
+                            <p class="recognition-details">Masters of Sex - Showtime - 2012</p>
                         </div>
 
                     </div>
                 </div>
                 <div class="info-column info-column-right">
                     <h3>Contact</h3>
-                    <p><a href="mailto:studio@hellodare.com">studio@hellodare.com</a></p>
+                    <p><a href="mailto:studio@hellodare.com" class="email-link" target="_blank" rel="noopener noreferrer">studio@hellodare.com</a></p>
                     <h3>Links</h3>
-                    <p><a href="https://vimeo.com/hellodare">Vimeo</a></p>
+                    <p><a href="https://vimeo.com/hellodare" class="internal-link" target="_blank" rel="noopener noreferrer">Vimeo</a></p>
                 </div>
             </div>
         </div>
@@ -153,40 +153,51 @@ function getDynamicWidth() {
 function positionVideoOverlays() {
     // console.log("Repositioning video overlays...");
     const videoItems = document.querySelectorAll(`${config.selectors.scrollItem}.video-item`);
+    const isMobile = window.innerWidth <= config.breakpoints.mobileMaxWidth; // Check if mobile
 
     videoItems.forEach(item => {
         const wrapper = item.querySelector(VIDEO_WRAPPER_SELECTOR);
         const overlay = item.querySelector(INFO_OVERLAY_SELECTOR);
-        const scrollItem = item; // Parent for relative positioning
+        const scrollItem = item;
 
         if (!wrapper || !overlay || !scrollItem) { return; }
 
-        // --- Get Rects ---
         const scrollItemRect = scrollItem.getBoundingClientRect();
         const wrapperRect = wrapper.getBoundingClientRect();
 
-        // --- Calculate Bottom Position (relative to scrollItem bottom) ---
+        // --- Calculate Bottom Position (Same as before) ---
         const wrapperBottomRelativeToParent = wrapperRect.bottom - scrollItemRect.top;
         const spaceBelowWrapper = scrollItemRect.height - wrapperBottomRelativeToParent;
-        const overlayBottomPosition = spaceBelowWrapper - config.layout.overlayOffsetBottom; // Use config
+        const overlayBottomPosition = spaceBelowWrapper - config.layout.overlayOffsetBottom;
         overlay.style.bottom = `${overlayBottomPosition}px`;
 
-        // --- Calculate Left Position (relative to scrollItem left) ---
-        // This is simply the wrapper's left edge distance from the scroll item's left edge
-        const overlayLeftPosition = wrapperRect.left - scrollItemRect.left;
-        overlay.style.left = `${overlayLeftPosition}px`; // <<< SET LEFT STYLE
+        // --- Calculate and Apply Left Position CONDITIONALLY ---
+        if (isMobile) {
+            // MOBILE: Center the overlay (left: 50%, transform needed)
+            overlay.style.left = '50%';
+            // We also need the translateX transform for centering applied via CSS now
+            // Let's ensure the CSS handles the transform
 
-        // --- Adjust Max Width Dynamically (Optional but good) ---
-        // Set max width to match the actual rendered width of the wrapper
-        overlay.style.maxWidth = `${wrapperRect.width}px`;
-        overlay.style.width = 'auto'; // Let content determine width up to max
+            // Set max width based on wrapper
+            overlay.style.maxWidth = `${wrapperRect.width}px`;
+            overlay.style.width = 'auto'; // Ensure width doesn't conflict
+             // Ensure text-align if needed (or let CSS handle)
+            // overlay.style.textAlign = 'center';
 
-         // --- Debugging Logs ---
-         // console.log(`Video ${item.dataset.videoId}: Wrapper L: ${wrapperRect.left.toFixed(1)}, Item L: ${scrollItemRect.left.toFixed(1)}, Overlay Left Set: ${overlayLeftPosition.toFixed(1)}px`);
-         // console.log(`Video ${item.dataset.videoId}: Wrapper B: ${wrapperRect.bottom.toFixed(1)}, Item T: ${scrollItemRect.top.toFixed(1)}, Item H: ${scrollItemRect.height.toFixed(1)}, Space Below: ${spaceBelowWrapper.toFixed(1)}px, Offset: ${config.layout.overlayOffsetBottom}, Overlay Bottom Set: ${overlayBottomPosition.toFixed(1)}px`);
-         // console.log(`Video ${item.dataset.videoId}: Wrapper W: ${wrapperRect.width.toFixed(1)}px, Overlay MaxWidth Set: ${wrapperRect.width.toFixed(1)}px`);
+        } else {
+            // DESKTOP: Align flush left with wrapper
+            const overlayLeftPosition = wrapperRect.left - scrollItemRect.left;
+            overlay.style.left = `${overlayLeftPosition}px`;
+             // Reset transform if it was applied for mobile centering (better done in CSS)
+            // overlay.style.transform = 'translateY(10px)'; // Reset to initial vertical only
 
-
+            // Set desktop max width from config or keep auto
+             overlay.style.maxWidth = '60%'; // Example from CSS
+             overlay.style.width = 'auto';
+             // Ensure text-align if needed (or let CSS handle)
+             // overlay.style.textAlign = 'left';
+        }
+        // --- END CONDITIONAL LEFT POSITION ---
     });
 }
 
