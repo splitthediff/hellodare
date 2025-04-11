@@ -18,7 +18,7 @@ window.addEventListener('load', async () => {
         await renderPlaylist();
         console.log("Finished AWAITING renderPlaylist.");
 
-        // --- Attach listener for Info Button ---
+        /* // --- Attach listener for Info Button ---
         const infoButtonSelector = config?.selectors?.infoButtonId;
         const infoButton = infoButtonSelector ? document.querySelector(infoButtonSelector) : null;
 
@@ -61,7 +61,7 @@ window.addEventListener('load', async () => {
         } else {
             // Log the selector that failed if it was defined
             console.warn(`Main title ('${titleElementSelector || 'SELECTOR UNDEFINED'}') not found. Cannot attach listener.`);
-        }
+        }*/
 
         // --- GSAP INTRO ANIMATION ---
         console.log("Starting intro animation...");

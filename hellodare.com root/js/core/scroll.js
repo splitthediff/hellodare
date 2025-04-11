@@ -12,12 +12,14 @@ let currentIndex = 0;
 let scrollItems = [];
 let videoTrack = null;
 let isAnimating = false;
+let infoButtonElement = null; 
 
 // --- Config Variables ---
 let animationDuration = config.animation.desktopDuration;
 
+
 // ==================================================
-// CORE SCROLL & ANIMATION LOGIC
+// HELPER / STATE UPDATE FUNCTIONS
 // ==================================================
 function updateActiveClass() {
      if (!scrollItems || scrollItems.length === 0) return;
@@ -26,6 +28,25 @@ function updateActiveClass() {
     });
 }
 
+function updateInfoButtonState() {
+
+    if (!infoButtonElement || !scrollItems || scrollItems.length === 0) {
+        return;
+    }
+
+    const infoSectionIndex = scrollItems.length - 1;
+    const isOnInfoPage = currentIndex === infoSectionIndex;
+
+    infoButtonElement.innerText = isOnInfoPage ? "Work" : "Info";
+
+    // --- ADD/REMOVE MOBILE HIDE CLASS ---
+    infoButtonElement.classList.toggle('is-hidden-on-mobile', isOnInfoPage);
+
+}
+
+// ==================================================
+// CORE SCROLL & ANIMATION LOGIC
+// ==================================================
 export function goToIndex(index, immediate = false) {
     if (!videoTrack || !scrollItems || scrollItems.length === 0) return;
     if (index < 0 || index >= scrollItems.length) return;
@@ -37,6 +58,7 @@ export function goToIndex(index, immediate = false) {
     currentIndex = index;
     console.log(`goToIndex: Updated currentIndex to ${currentIndex}.`);
     updateActiveClass();
+    updateInfoButtonState();
 
     VideoController.controlVideoPlayback(currentIndex).catch(err => {
         console.error("[goToIndex Direct Call] Error controlling video playback:", err);
@@ -59,10 +81,75 @@ export function goToIndex(index, immediate = false) {
 }
 
 // ==================================================
+// INPUT HANDLING SETUP (Moved listener logic here)
+// ==================================================
+
+/** Attaches button listeners managed by scroll module */
+function attachButtonListeners() {
+    console.log("--- Running attachButtonListeners ---");
+    let currentInfoButton = document.querySelector(config.selectors.infoButtonId); // Check if it exists before cloning
+    let currentTitleElement = document.querySelector(config.selectors.titleElementId); // Check if it exists before cloning
+
+    // Remove previous listeners by cloning and replacing if elements exist
+    if (currentInfoButton) {
+        const infoButtonClone = currentInfoButton.cloneNode(true);
+        currentInfoButton.parentNode.replaceChild(infoButtonClone, currentInfoButton);
+        infoButtonElement = infoButtonClone; // Store reference to the NEW cloned element
+    } else {
+        infoButtonElement = null; // Ensure it's null if not found initially
+    }
+
+    if (currentTitleElement) {
+        const titleElementClone = currentTitleElement.cloneNode(true);
+        currentTitleElement.parentNode.replaceChild(titleElementClone, currentTitleElement);
+        // We select it again below for the listener attachment
+    }
+
+   // --- Info Button Listener ---
+   if (infoButtonElement) { // Check the potentially updated reference
+       infoButtonElement.style.cursor = 'pointer';
+       infoButtonElement.addEventListener('click', (event) => {
+           event.preventDefault();
+           if (!scrollItems || scrollItems.length === 0) return;
+
+           const infoSectionIndex = scrollItems.length - 1;
+           if (currentIndex === infoSectionIndex) {
+               console.log("Work button clicked! Scrolling to index 0.");
+               goToIndex(0);
+           } else {
+               console.log(`Info button clicked! Scrolling to index ${infoSectionIndex}`);
+               goToIndex(infoSectionIndex);
+           }
+       });
+       console.log("Dynamic Info/Work button listener attached.");
+   } else {
+       // Use the CORRECT config key in the log message
+       console.warn(`Info button ('${config.selectors.infoButtonId}') not found for dynamic listener.`);
+   }
+
+   // --- Title Listener ---
+   // Re-select the potentially cloned title element
+   const titleElementForListener = document.querySelector(config.selectors.titleElementId);
+    if (titleElementForListener) {
+        titleElementForListener.style.cursor = 'pointer';
+        titleElementForListener.addEventListener('click', (event) => {
+            event.preventDefault();
+            console.log("Title clicked! Scrolling to index 0.");
+            goToIndex(0);
+        });
+        console.log("Title click listener attached.");
+   } else {
+        // Use the CORRECT config key in the log message
+        console.warn(`Main title ('${config.selectors.titleElementId}') not found for listener.`);
+   }
+}
+
+// ==================================================
 // INITIALIZATION FUNCTION (EXPORTED)
 // ==================================================
 export function initializeGsapScroll(videos) {
     VideoController.setVideos(videos);
+
 
     // Find DOM Elements (Hardcoded selectors)
     videoTrack = document.querySelector(config.selectors.track);
@@ -70,6 +157,7 @@ export function initializeGsapScroll(videos) {
         console.error(`Scroll Init Failed: '${config.selectors.track}' not found.`); return; 
     }
     scrollItems = gsap.utils.toArray(videoTrack.children).filter(el => el.classList.contains(config.selectors.scrollItem.substring(1))); // Remove leading '.' for classList check
+    infoButtonElement = document.querySelector(config.selectors.infoButtonId);
     if (scrollItems.length === 0) { 
         console.error(`Scroll Init Failed: No '${config.selectors.scrollItem}' children found.`); return; 
     }
@@ -114,6 +202,9 @@ export function initializeGsapScroll(videos) {
 
     // Reset State & Set Initial Position
     currentIndex = 0; isAnimating = false; goToIndex(0, true);
+
+    updateInfoButtonState();
+    attachButtonListeners();
 
     console.log("GSAP Scroll Initialization complete.");
 }

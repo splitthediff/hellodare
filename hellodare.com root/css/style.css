@@ -184,6 +184,13 @@ html, body {
 /* ========================================================================== */
 /*            SECTION 2 / MIDDLE / INFO                                       */
 /* ========================================================================== */
+.info-section .info-content h2,
+.info-section .info-content h3,
+.info-section .info-content p {
+    opacity: 0;
+    transform: translateY(15px);
+    will-change: transform, opacity;
+}
 
 .info-section {
     display: flex; justify-content: flex-start; /* Keep your alignment */
@@ -326,7 +333,7 @@ html, body {
       flex: none; width: 100%; height: auto;
       padding: var(--space-l); /* Mobile padding */
   }
-  .left-column { order: 1; text-align: center; flex-shrink: 0; padding-top: 10vh; padding-bottom: 0; } /* Adjust padding */
+  .left-column { order: 1; text-align: center; flex-shrink: 0; padding-top: 5vh; padding-bottom: 5vh; } /* Adjust padding */
   .middle-column { order: 2; flex-grow: 1; padding: 0}
   .right-column { order: 3; text-align: center; flex-shrink: 0; padding-top: 0; padding-bottom: 15vh; } /* Adjust padding */
 
@@ -365,14 +372,18 @@ html, body {
     text-align: center; /* Center heading on mobile? */
   }
   .info-column .recognition-item {
-      margin-bottom: var(--space-m); /* Slightly less space */
+    margin-bottom: var(--space-m); /* Slightly less space */
   }
   .info-column .recognition-award-name {
-      /* Adjust font size? */
+    /* Adjust font size? */
   }
   .info-column .recognition-details {
-      /* Adjust font size? */
-      font-size: calc(var(--font-size-small, 0.9em) * 0.85);
+    /* Adjust font size? */
+    font-size: calc(var(--font-size-small, 0.9em) * 0.85);
+  }
+
+  #scroll-to-info-btn.is-hidden-on-mobile {
+    display: none;
   }
 
   /* Mobile Controls/ Overlay */
