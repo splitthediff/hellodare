@@ -3,7 +3,14 @@
 // --- Imports ---
 // Assuming utils, videoController, inputManager are in correct relative paths
 import { throttle, detectTouchDevice } from '../utils/utils.js';
-import * as VideoController from './videoController.js';
+import {
+    setVideos,
+    controlVideoPlayback,
+    adjustGlobalVolume,
+    toggleGlobalVolume,
+    animateInfoIn,  
+    resetInfoAnimation
+} from './videoController.js';
 import * as InputManager from '../modules/inputManager.js';
 import { config } from '../config.js';
 
@@ -48,34 +55,53 @@ function updateInfoButtonState() {
 // CORE SCROLL & ANIMATION LOGIC
 // ==================================================
 export function goToIndex(index, immediate = false) {
-    if (!videoTrack || !scrollItems || scrollItems.length === 0) return;
-    if (index < 0 || index >= scrollItems.length) return;
-    if (isAnimating && !immediate) return;
+    // Boundary checks
+    if (!videoTrack || !scrollItems || scrollItems.length === 0) { return; }
+    if (index < 0 || index >= scrollItems.length) { return; }
+    if (isAnimating && !immediate) { return; }
     const previousIndex = currentIndex;
-    if (index === previousIndex && !immediate) return;
+    if (index === previousIndex && !immediate) { return; }
 
+    // Update state
     isAnimating = !immediate;
     currentIndex = index;
-    console.log(`goToIndex: Updated currentIndex to ${currentIndex}.`);
+    console.log(`goToIndex: Updated currentIndex to ${currentIndex}. Previous=${previousIndex}`);
     updateActiveClass();
-    updateInfoButtonState();
 
-    VideoController.controlVideoPlayback(currentIndex).catch(err => {
-        console.error("[goToIndex Direct Call] Error controlling video playback:", err);
+    const infoSectionIndex = scrollItems.length - 1;
+    // Set callback ONLY if target is the info section
+    const scrollCompleteCallback = (index === infoSectionIndex) ? animateInfoIn : null; // Use imported function
+
+        controlVideoPlayback(currentIndex, previousIndex, scrollCompleteCallback).catch(err => {
+        console.error("[goToIndex] Error controlling video playback:", err);
     });
 
     const targetYPercent = -currentIndex * 100;
 
+    // Perform Scroll Animation / Set
     if (immediate) {
         gsap.set(videoTrack, { yPercent: targetYPercent });
+        isAnimating = false; // Ensure flag is false
+        // --- (2e) Manually trigger callback if immediate AND target is info ---
+        if (scrollCompleteCallback) {
+            console.log("[goToIndex Immediate] Triggering info animation immediately.");
+            scrollCompleteCallback(); // Call the callback directly
+        }
+        console.log(`[goToIndex Immediate Set] Target index: ${currentIndex}.`);
     } else {
         gsap.to(videoTrack, {
             yPercent: targetYPercent,
-            duration: animationDuration, // Uses variable set in init
-            ease: config.animation.ease, // Config animation ease
+            duration: animationDuration,
+            ease: config.animation.ease,
             overwrite: "auto",
-            onComplete: () => { isAnimating = false; },
-            onInterrupt: () => { isAnimating = false; }
+            onComplete: () => {
+                // console.log(`[goToIndex Animation COMPLETE] Target index: ${currentIndex}.`);
+                isAnimating = false;
+            },
+            onInterrupt: () => {
+                // console.warn(`[goToIndex Animation INTERRUPTED] Target index: ${currentIndex}.`);
+                isAnimating = false;
+            }
         });
     }
 }
@@ -148,7 +174,7 @@ function attachButtonListeners() {
 // INITIALIZATION FUNCTION (EXPORTED)
 // ==================================================
 export function initializeGsapScroll(videos) {
-    VideoController.setVideos(videos);
+    setVideos(videos);
 
 
     // Find DOM Elements (Hardcoded selectors)
@@ -192,7 +218,7 @@ export function initializeGsapScroll(videos) {
     InputManager.initializeInput(
         throttledScrollProcessor,
         resizeCallback,
-        VideoController.adjustGlobalVolume,
+        adjustGlobalVolume,
         getActiveVideoFn,
         togglePlayPauseFn,
         config.input.resizeDebounce,      // Pass config
@@ -210,4 +236,4 @@ export function initializeGsapScroll(videos) {
 }
 
 // --- Re-exports ---
-export const toggleGlobalVolume = VideoController.toggleGlobalVolume;
+export { toggleGlobalVolume };

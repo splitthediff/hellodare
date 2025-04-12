@@ -2,8 +2,8 @@
 
 // Adjust import paths based on your final structure
 import { renderPlaylist } from './core/playlistManager.js'; // Assuming playlistManager.js is in core/
-import { goToIndex } from './core/scroll.js';         // Assuming scroll.js is in core/
-import { config } from './config.js';             // Assuming config.js is in the same directory (js/)
+//import { goToIndex } from './core/scroll.js';         // Assuming scroll.js is in core/
+//import { config } from './config.js';             // Assuming config.js is in the same directory (js/)
 
 // import { initializeTitleCheck } from './interface.js'; // If you have this file
 
@@ -17,51 +17,6 @@ window.addEventListener('load', async () => {
         // Wait for HTML rendering and initial setup from playlistManager
         await renderPlaylist();
         console.log("Finished AWAITING renderPlaylist.");
-
-        /* // --- Attach listener for Info Button ---
-        const infoButtonSelector = config?.selectors?.infoButtonId;
-        const infoButton = infoButtonSelector ? document.querySelector(infoButtonSelector) : null;
-
-        if (infoButton) {
-            infoButton.style.cursor = 'pointer'; // Make it look clickable
-            infoButton.addEventListener('click', (event) => {
-                event.preventDefault(); // Prevent default link/button behavior
-                console.log("Info button clicked!");
-
-                // Find scroll items using config selectors
-                const currentScrollItems = document.querySelectorAll(`${config.selectors.track} ${config.selectors.scrollItem}`);
-
-                if (currentScrollItems && currentScrollItems.length > 0) {
-                    // Calculate index of the last item (info section)
-                    const infoSectionIndex = currentScrollItems.length - 1;
-                    console.log(`Attempting to scroll to info section index: ${infoSectionIndex}`);
-                    goToIndex(infoSectionIndex); // Call the imported scroll function
-                } else {
-                    console.warn("Could not find any scroll items when info button clicked.");
-                }
-            });
-            console.log("Info button event listener attached.");
-        } else {
-            // Log the selector that failed if it was defined
-            console.warn(`Info button ('${infoButtonSelector || 'SELECTOR UNDEFINED'}') not found. Cannot attach listener.`);
-        }
-
-        // --- Attach listener for Title ---
-        const titleElementSelector = config?.selectors?.titleElementId;
-        const titleElement = titleElementSelector ? document.querySelector(titleElementSelector) : null;
-
-        if (titleElement) {
-            titleElement.style.cursor = 'pointer'; // Make it look clickable
-            titleElement.addEventListener('click', (event) => {
-                event.preventDefault(); // Prevent default link/button behavior
-                console.log("Main title clicked! Scrolling to top (index 0).");
-                goToIndex(0); // Call the imported scroll function to go to the start
-            });
-            console.log("Main title click listener attached.");
-        } else {
-            // Log the selector that failed if it was defined
-            console.warn(`Main title ('${titleElementSelector || 'SELECTOR UNDEFINED'}') not found. Cannot attach listener.`);
-        }*/
 
         // --- GSAP INTRO ANIMATION ---
         console.log("Starting intro animation...");

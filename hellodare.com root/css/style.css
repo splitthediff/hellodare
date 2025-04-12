@@ -184,12 +184,18 @@ html, body {
 /* ========================================================================== */
 /*            SECTION 2 / MIDDLE / INFO                                       */
 /* ========================================================================== */
-.info-section .info-content h2,
+/*.info-section .info-content h2,
 .info-section .info-content h3,
 .info-section .info-content p {
     opacity: 0;
     transform: translateY(15px);
     will-change: transform, opacity;
+}*/
+
+.scroll-item.info-section .info-column .info-block {
+  opacity: 0;                  /* <<< Start invisible */
+  transform: translateY(20px); /* <<< Start 20px lower */
+  will-change: transform, opacity;
 }
 
 .info-section {

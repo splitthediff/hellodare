@@ -1,4 +1,4 @@
-// js/modules/inputManager.js (CORRECT REVERTED VERSION - NO CONFIG)
+// js/modules/inputManager.js
 
 // Assuming utils.js is in ../utils/ relative to this modules/ folder
 import { throttle } from '../utils/utils.js';

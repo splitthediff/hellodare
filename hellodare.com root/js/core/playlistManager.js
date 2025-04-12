@@ -1,4 +1,4 @@
-// js/playlistManager.js (REVERTED - NO CONFIG)
+// js/playlistManager.js
 
 // --- Imports ---
 // Adjust paths as needed
@@ -82,34 +82,41 @@ function renderVideos(videos) {
         <div class="${scrollItemClass} info-section" id="info-section">
             <div class="info-content">
                 <div class="info-column info-column-left">
-                    <h2>About</h2>
-                    <p>Studio Dare is the creative studio of Leanne Dare.<br>
-                    <p>We work in a multitude of disciplines including graphics, animation, live action direction, photography & creative direction.</p>
-                    <div class="recognition-list">
-                        <h3>Recognition</h3>
+                    <div class="info-block">
+                        <h2>About</h2>
+                        <p>Studio Dare is the creative studio of Leanne Dare.<br>
+                        <p>We work in a multitude of disciplines including graphics, animation, live action direction, photography & creative direction.</p>
+                    </div>   
+                    <div class="info-block">             
+                        <div class="recognition-list">
+                            <h3>Recognition</h3>
 
-                        <div class="recognition-item">
-                            <p class="recognition-award-name">Emmy Award - Outstanding Motion Design</p>
-                            <p class="recognition-details">Inside Bill's Brain: Decoding Bill Gates - Netflix - 2020</p>
+                            <div class="recognition-item">
+                                <p class="recognition-award-name">Emmy Award - Outstanding Motion Design</p>
+                                <p class="recognition-details">Inside Bill's Brain: Decoding Bill Gates - Netflix - 2020</p>
+                            </div>
+
+                            <div class="recognition-item">
+                                <p class="recognition-award-name">Emmy Award - Outstanding Motion Design</p>
+                                <p class="recognition-details">13th - Netflix - 2017</p>
+                            </div>
+
+                            <div class="recognition-item">
+                                <p class="recognition-award-name">Emmy Nomination - Outstanding Main Title Design </p>
+                                <p class="recognition-details">Masters of Sex - Showtime - 2012</p>
+                            </div>
                         </div>
-
-                        <div class="recognition-item">
-                            <p class="recognition-award-name">Emmy Award - Outstanding Motion Design</p>
-                            <p class="recognition-details">13th - Netflix - 2017</p>
-                        </div>
-
-                        <div class="recognition-item">
-                            <p class="recognition-award-name">Emmy Nomination - Outstanding Main Title Design </p>
-                            <p class="recognition-details">Masters of Sex - Showtime - 2012</p>
-                        </div>
-
                     </div>
                 </div>
                 <div class="info-column info-column-right">
-                    <h3>Contact</h3>
-                    <p><a href="mailto:studio@hellodare.com" class="email-link" target="_blank" rel="noopener noreferrer">studio@hellodare.com</a></p>
-                    <h3>Links</h3>
-                    <p><a href="https://vimeo.com/hellodare" class="internal-link" target="_blank" rel="noopener noreferrer">Vimeo</a></p>
+                    <div class="info-block">
+                        <h3>Contact</h3>
+                        <p><a href="mailto:studio@hellodare.com" class="email-link" target="_blank" rel="noopener noreferrer">studio@hellodare.com</a></p>
+                    </div>
+                    <div class="info-block">
+                        <h3>Links</h3>
+                        <p><a href="https://vimeo.com/hellodare" class="internal-link" target="_blank" rel="noopener noreferrer">Vimeo</a></p>
+                    </div>
                 </div>
             </div>
         </div>

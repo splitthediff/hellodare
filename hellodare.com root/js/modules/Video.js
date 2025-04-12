@@ -1,5 +1,4 @@
 // js/modules/Video.js - Defines the Video class
-
 // NOTE: Assumes Vimeo.Player is global
 
 import { config } from '../config.js';
