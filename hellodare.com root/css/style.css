@@ -78,17 +78,14 @@ html, body {
 
 /* --- Aspect Wrapper --- */
 .video-aspect-wrapper {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  position: absolute; top: 50%; left: 50%;
   width: 100%; max-height: 100%; overflow: hidden;
   background-color: var(--clr-background);
   border-radius: var(--radius-video); 
-}
+  /*transform: translate(-50%, -50%) translateY(20px);*/
  /* --- Animation Related --- */
-.video-aspect-wrapper {
   opacity: 0;
-  transform: translateY(20px); /* Start slightly lower */
   will-change: opacity, transform; /* Optimize animation */
-  /* Keep existing position/layout styles for these elements */
 }
 
 /* --- Thumbnail --- */

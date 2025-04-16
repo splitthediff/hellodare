@@ -33,17 +33,15 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
         return;
     }
 
-
     // console.log(`--- [VideoController w/ Fade] Playback: Prev=${previousIdx}, Current=${currentIdx}, InfoIdx=${infoSectionIndex} ---`);
 
     // --- Handle Info Section (Keep this logic) ---
     if (currentIdx === infoSectionIndex) {
         if (typeof onScrollCompleteCallback === 'function') { onScrollCompleteCallback(); }
-        else { /* animateInfoIn(); */ } // Note: animateInfoIn likely conflicts with the general fade below
+        else { animateInfoIn(); }
     } else if (previousIdx === infoSectionIndex && currentIdx !== previousIdx) {
         resetInfoAnimation();
     }
-    // ---
 
     // --- Loop through ALL scroll items to handle fade/reset ---
     for (let index = 0; index < scrollItems.length; index++) {
@@ -59,27 +57,27 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
             contentElement = scrollItemElement.querySelector('.video-aspect-wrapper');
         } else if (index === infoSectionIndex) { // Check if it's the info section index
             contentElement = scrollItemElement.querySelector('.info-content');
-            // Maybe target '.info-block' or '.info-column' if animating those instead
-            // contentElement = gsap.utils.toArray(scrollItemElement.querySelectorAll('.info-block'));
         }
         // --- End Find Content ---
 
+        const initialYOffset = 20;
 
         // --- Action for the CURRENT item being scrolled TO ---
         if (index === currentIdx) {
             // --- Animate Content In ---
             if (contentElement && typeof gsap !== 'undefined') {
                  // Check if we are animating info section blocks individually
-                 const isInfoBlocks = Array.isArray(contentElement); // Check if it's an array from toArray
+                 const isInfoBlocks = Array.isArray(contentElement);
 
                 gsap.to(contentElement, {
                     opacity: 1,
+                    xPercent: isVideoIndex ? -50 : 0, // Apply -50% only to video wrapper
+                    yPercent: isVideoIndex ? -50 : 0, // Apply -50% only to video wrapper
                     y: 0, // Animate back to original vertical position
-                    duration: 0.6, // Adjust duration
+                    duration: 0.5, // Adjust duration
                     delay: 0.1, // Slight delay after scroll stops/starts
                     ease: "power1.out",
                     overwrite: true,
-                    // Apply stagger only if animating multiple info blocks
                     stagger: isInfoBlocks ? 0.1 : 0 // No stagger for single elements
                 });
             }
@@ -124,9 +122,15 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
         else {
             // --- Reset Content Out ---
             if (contentElement && typeof gsap !== 'undefined') {
-                gsap.set(contentElement, { // Instantly reset to hidden state
+                gsap.to(contentElement, {
                     opacity: 0,
-                    y: 20 // Back to initial offset state
+                    y: initialYOffset, // Animate back to the offset position
+                    // Keep xPercent/yPercent for consistency if needed, though less critical when opacity is 0
+                    //xPercent: isVideoIndex ? -50 : 0,
+                    //yPercent: isVideoIndex ? -50 : 0,
+                    duration: 1.5, // Shorter duration for fade out (adjust as needed)
+                    ease: "power1.in", // Ease 'in' often feels good for disappearing elements
+                    overwrite: true, // Stop any incoming animation if user scrolls back quickly
                 });
             }
             // ------------------------
@@ -239,10 +243,10 @@ export function animateInfoIn() {
          gsap.to(infoBlocks, {
             opacity: 1,
             y: 0,
-            duration: 2,
+            duration: 1,
             ease: "power1.out",
             stagger: {
-                each: 2,
+                each: .5,
                 from: "start"
             },
             overwrite: true,
@@ -257,10 +261,16 @@ export function resetInfoAnimation() {
 
     const infoBlocks = gsap.utils.toArray(`${config.selectors.infoSectionId} .info-block`);
     if (infoBlocks.length > 0) {
-        // console.log("[VideoController] Resetting Info Section Animation");
-        gsap.set(infoBlocks, {
+        //console.log("[VideoController] Resetting Info Section Animation");
+        gsap.to(infoBlocks, {
             opacity: 0,
-            y: 20 // Reset to initial translateY offset (must match CSS)
+            y: 20, // Animate back to the offset position
+            // Keep xPercent/yPercent for consistency if needed, though less critical when opacity is 0
+            //xPercent: isVideoIndex ? -50 : 0,
+            //yPercent: isVideoIndex ? -50 : 0,
+            duration: 2, // Shorter duration for fade out (adjust as needed)
+            ease: "power1.in",
+            overwrite: true, // Stop any incoming animation if user scrolls back quickly
         });
     }
 }
