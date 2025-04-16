@@ -3,9 +3,9 @@
 export const config = {
     // Animation & Timing Settings
     animation: {
-        desktopDuration: 1.2,   // Duration of scroll animation on desktop (seconds)
+        desktopDuration: 1.3,   // Duration of scroll animation on desktop (seconds)
         mobileDuration: 0.7,    // Duration of scroll animation on mobile (seconds)
-        ease: "back.out(.5)"    // GSAP easing function for scroll animation
+        ease: "sine.inOut"    // GSAP easing function for scroll animation
     },
 
     // Input Handling Settings

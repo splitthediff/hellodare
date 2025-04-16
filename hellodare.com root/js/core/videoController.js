@@ -18,8 +18,136 @@ export function setVideos(videosArray) {
     resetInfoAnimation();
 }
 
-/** Controls play/pause/volume for videos based on scroll index activation. */
 export async function controlVideoPlayback(currentIdx, previousIdx, onScrollCompleteCallback = null) {
+    if (!controlledVideos) controlledVideos = [];
+    const videoCount = controlledVideos.length;
+    const infoSectionIndex = videoCount;
+
+    // We need access to the scrollItems elements here to find content
+    // Let's assume scrollItems is accessible or passed, otherwise this needs adjustment
+    // For now, let's query them directly (less ideal but works for demonstration)
+    const scrollItems = document.querySelectorAll(config.selectors.scrollItem); // Query within function
+
+    if (!scrollItems || scrollItems.length === 0) {
+        console.error("[VideoController] Cannot control playback/fade: scrollItems not found.");
+        return;
+    }
+
+
+    // console.log(`--- [VideoController w/ Fade] Playback: Prev=${previousIdx}, Current=${currentIdx}, InfoIdx=${infoSectionIndex} ---`);
+
+    // --- Handle Info Section (Keep this logic) ---
+    if (currentIdx === infoSectionIndex) {
+        if (typeof onScrollCompleteCallback === 'function') { onScrollCompleteCallback(); }
+        else { /* animateInfoIn(); */ } // Note: animateInfoIn likely conflicts with the general fade below
+    } else if (previousIdx === infoSectionIndex && currentIdx !== previousIdx) {
+        resetInfoAnimation();
+    }
+    // ---
+
+    // --- Loop through ALL scroll items to handle fade/reset ---
+    for (let index = 0; index < scrollItems.length; index++) {
+        const scrollItemElement = scrollItems[index];
+        if (!scrollItemElement) continue;
+
+        const isVideoIndex = index < videoCount;
+        const video = isVideoIndex ? controlledVideos[index] : null;
+
+        // --- Find the primary content element within this scrollItem ---
+        let contentElement = null;
+        if (isVideoIndex) {
+            contentElement = scrollItemElement.querySelector('.video-aspect-wrapper');
+        } else if (index === infoSectionIndex) { // Check if it's the info section index
+            contentElement = scrollItemElement.querySelector('.info-content');
+            // Maybe target '.info-block' or '.info-column' if animating those instead
+            // contentElement = gsap.utils.toArray(scrollItemElement.querySelectorAll('.info-block'));
+        }
+        // --- End Find Content ---
+
+
+        // --- Action for the CURRENT item being scrolled TO ---
+        if (index === currentIdx) {
+            // --- Animate Content In ---
+            if (contentElement && typeof gsap !== 'undefined') {
+                 // Check if we are animating info section blocks individually
+                 const isInfoBlocks = Array.isArray(contentElement); // Check if it's an array from toArray
+
+                gsap.to(contentElement, {
+                    opacity: 1,
+                    y: 0, // Animate back to original vertical position
+                    duration: 0.6, // Adjust duration
+                    delay: 0.1, // Slight delay after scroll stops/starts
+                    ease: "power1.out",
+                    overwrite: true,
+                    // Apply stagger only if animating multiple info blocks
+                    stagger: isInfoBlocks ? 0.1 : 0 // No stagger for single elements
+                });
+            }
+            // --------------------------
+
+            // --- Handle Video Playback (Only if it IS a video) ---
+            if (isVideoIndex && video) {
+                try {
+                    const player = await video.initializePlayer();
+                    const playPauseButton = document.getElementById(`playPauseButton-${video.id}`);
+                    const soundButton = document.getElementById(`soundButton-${video.id}`);
+
+                    if (video.justFinishedLoopLimit) { // Use correct loop flag
+                         console.log(`%c[VideoController ${video.id}] Activate Play SKIPPED: Loop limit. Ensuring pause.`, "color: orange;");
+                         try { await player.pause(); } catch(e){ /* handle */ }
+                         video.justFinishedLoopLimit = false;
+                         if (playPauseButton) playPauseButton.innerText = 'Play';
+                         await player.setVolume(globalVolumeLevel);
+                         if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
+                    } else {
+                        // console.log(`[VideoController ${video.id}] Activating Video ${index}...`);
+                        await player.setVolume(globalVolumeLevel);
+                        if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
+                        await player.play();
+                        if (playPauseButton) playPauseButton.innerText = 'Pause';
+                    }
+                } catch (error) {
+                    console.warn(`[VideoController ${video?.id || index}] Error activating video: ${error.message}`);
+                     // Reset buttons on error
+                     const playPauseButton = document.getElementById(`playPauseButton-${video?.id}`);
+                     const soundButton = document.getElementById(`soundButton-${video?.id}`);
+                     if (playPauseButton) playPauseButton.innerText = 'Play';
+                     if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
+                }
+            } else if (!isVideoIndex) { // It's the info section being activated
+                 console.log(`[VideoController] Info Section Activated (Index ${index}). Content faded in.`);
+                 // NOTE: The separate animateInfoIn might be redundant now,
+                 // unless it does more complex animations than the simple fade/slide here.
+            }
+        }
+        // --- Action for all OTHER items being scrolled AWAY FROM ---
+        else {
+            // --- Reset Content Out ---
+            if (contentElement && typeof gsap !== 'undefined') {
+                gsap.set(contentElement, { // Instantly reset to hidden state
+                    opacity: 0,
+                    y: 20 // Back to initial offset state
+                });
+            }
+            // ------------------------
+
+            // --- Pause Inactive Videos ---
+            if (isVideoIndex && video) {
+                const playPauseButton = document.getElementById(`playPauseButton-${video.id}`);
+                const soundButton = document.getElementById(`soundButton-${video.id}`);
+                if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
+                if (video.player) { // Only pause if player exists
+                    try { video.player.pause().catch(e => {}); } catch (e) {}
+                }
+                if (playPauseButton) playPauseButton.innerText = 'Play';
+            }
+        }
+    } // End for loop iterating scrollItems
+    // console.log(`--- [VideoController w/ Fade] Finished Controlling ---`);
+}
+
+/** Controls play/pause/volume for videos based on scroll index activation. */
+/*export async function controlVideoPlayback(currentIdx, previousIdx, onScrollCompleteCallback = null) {
     // Calculate counts and indices
     if (!controlledVideos) controlledVideos = []; // Ensure array exists
     const videoCount = controlledVideos.length;
@@ -75,7 +203,7 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
                 if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
                 if (video.player) { // Only try to pause if player instance exists
                     try {
-                        video.player.pause().catch(e => {/* ignore non-critical errors */});
+                        video.player.pause().catch(e => { ignore non-critical errors });
                         if (playPauseButton) playPauseButton.innerText = 'Play';
                     } catch (e) {
                         if (playPauseButton) playPauseButton.innerText = 'Play'; // Fallback
@@ -93,7 +221,7 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
         }
     } // End video loop
      console.log(`--- [VideoController] Finished Controlling Playback ---`);
-}
+}*/
 
 // ==================================================
 // ANIMATION HELPERS (Internal to this module)
@@ -114,7 +242,7 @@ export function animateInfoIn() {
             duration: 2,
             ease: "power1.out",
             stagger: {
-                each: .3,
+                each: 2,
                 from: "start"
             },
             overwrite: true,
