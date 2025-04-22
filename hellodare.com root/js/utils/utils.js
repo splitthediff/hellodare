@@ -39,3 +39,20 @@ export function formatTime(totalSeconds) {
     const paddedSeconds = seconds < 10 ? `0${seconds}` : seconds;
     return `${minutes}:${paddedSeconds}`;
 }
+
+/**
+ * Calculates the aspect ratio (width / height).
+ * Returns 16/9 as a fallback if width or height are invalid.
+ * @param {number} videoWidth - The width of the video.
+ * @param {number} videoHeight - The height of the video.
+ * @returns {number} The aspect ratio.
+ */
+export function getAspectRatio(videoWidth, videoHeight) {
+    // Check for positive numbers to avoid division by zero or NaN
+    if (videoWidth > 0 && videoHeight > 0) {
+        return videoWidth / videoHeight;
+    } else {
+        console.warn(`Invalid dimensions for getAspectRatio (${videoWidth}x${videoHeight}), defaulting to 16/9.`);
+        return 16 / 9; // Default fallback aspect ratio
+    }
+}
