@@ -33,6 +33,7 @@ function updateActiveClass() {
      scrollItems.forEach((item, i) => {
         item?.classList.toggle(config.selectors.activeScrollItemClass, i === currentIndex);
     });
+    updateInfoButtonState();
 }
 
 function updateInfoButtonState() {
@@ -168,6 +169,7 @@ function attachButtonListeners() {
         // Use the CORRECT config key in the log message
         console.warn(`Main title ('${config.selectors.titleElementId}') not found for listener.`);
    }
+
 }
 
 // ==================================================
