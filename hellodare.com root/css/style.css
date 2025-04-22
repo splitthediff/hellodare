@@ -166,8 +166,8 @@ html, body {
   bottom: 2px; 
   right: 10px;
   z-index: 6; /* Same level or slightly above progress bar container */
-  color: rgba(255, 255, 255, 0.7); 
-  font-size: 0.75em; /* Small text */
+  color: var(--clr-text-overlay); 
+  font-size: var(--font-size-xxsmall); /* Small text */
   font-family: monospace; /* Monospaced font looks good for time */
   pointer-events: none; /* Not interactive */
   background-color: rgba(0, 0, 0, 0.3); /* Optional subtle background */
