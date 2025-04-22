@@ -44,7 +44,7 @@
     --space-xl: calc(var(--space-unit) * 2.5); 
     --space-xxl: calc(var(--space-unit) * 5);  
   
-    --gap-controls: var(--space-m);      
+    --gap-controls: var(--space-s);      
     --gap-info-columns: var(--space-xxl);           
 
     --space-after-heading: var(--space-s);
@@ -53,8 +53,8 @@
   
     --padding-columns: var(--space-xl);  
     --padding-controls-y: var(--space-s); 
-    --padding-controls-x: var(--space-l); 
-    --padding-controls-button-y: 6px;     /* Specific button values */
+    --padding-controls-x: var(--space-s); 
+    --padding-controls-button-y: var(--space-xs);     /* Specific button values */
     --padding-controls-button-x: var(--space-m); 
     --padding-info-overlay-y: var(--space-s);  
     --padding-info-overlay-x: var(--space-m);  

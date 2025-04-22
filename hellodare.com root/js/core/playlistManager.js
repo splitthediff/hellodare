@@ -60,6 +60,14 @@ function renderVideos(videos) {
     videos.forEach((video) => {
         const src = video.iframeSrc;
         const thumbnailHTML = video.thumbnailUrl ? `<img src="${video.thumbnailUrl}" class="video-thumbnail" id="thumbnail-${video.id}" alt="${video.title || 'Video thumbnail'}">` : '';
+        
+        const progressBarHTML = `
+            <div class="progress-bar-container" id="progress-container-${video.id}">
+                <div class="progress-bar-fill" id="progress-fill-${video.id}"></div>
+            </div>
+            <div class="video-time-display" id="current-time-display-${video.id}">0:00</div>
+        `;
+        
         playlistHTML += `
             <div class="${scrollItemClass} video-item" data-video-id="${video.id}">
                 <div class="video-aspect-wrapper">
@@ -67,6 +75,7 @@ function renderVideos(videos) {
                     <iframe src="${src}" id="iframe-${video.id}" loading="lazy" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
                     <div class="video-controls">
                         <button class="controls-button play-pause-button" id="playPauseButton-${video.id}">Play</button>
+                        ${progressBarHTML} 
                         <button class="controls-button sound-button" id="soundButton-${video.id}">Sound Off</button>
                     </div>
                 </div>
@@ -207,5 +216,3 @@ function positionVideoOverlays() {
         // --- END CONDITIONAL LEFT POSITION ---
     });
 }
-
-// Button listeners are expected to be in main.js now

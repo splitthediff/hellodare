@@ -110,7 +110,7 @@ html, body {
 .video-controls {
   opacity: 0; visibility: hidden;
   transition: opacity var(--transition-duration) var(--transition-ease), visibility 0s linear var(--transition-duration);
-  position: absolute; bottom: var(--space-xl); 
+  position: absolute; bottom: var(--space-s); 
   left: 50%; transform: translateX(-50%);
   z-index: var(--z-index-controls);
   background: var(--clr-overlay-bg); 
@@ -118,6 +118,11 @@ html, body {
   border-radius: var(--radius-controls); 
   display: flex; gap: var(--gap-controls); 
   align-items: center; pointer-events: none;
+  display: flex;        /* Use Flexbox */
+  align-items: center;  /* Vertically align items in the controls bar */
+  gap: 5px;            /* Adjust gap as needed */
+  width: 95%;           /* Example: Make controls take up more width */
+  max-width: 1200px;
 }
 .video-aspect-wrapper:hover .video-controls { opacity: 1; visibility: visible; pointer-events: auto; transition-delay: 0s; }
 
@@ -126,8 +131,50 @@ html, body {
   padding: var(--padding-controls-button-y) var(--padding-controls-button-x); 
   cursor: pointer; font-size: var(--font-size-controls); 
   transition: background-color var(--transition-duration-fast) ease;
+  flex-shrink: 0;
 }
 .controls-button:hover { background-color: var(--clr-button-hover-bg); border-radius: var(--radius-button-hover); } 
+
+/* ======================================== */
+/*            PROGRESS BAR                  */
+/* ======================================== */
+.progress-bar-container {
+  flex-grow: 1; /* Allow the bar to take up available space */
+  height: 2px;  /* Adjust height of the bar */
+  background-color: rgba(255, 255, 255, 0.3); /* Dim background */
+  border-radius: 0px;
+  cursor: pointer; /* Indicate it's clickable */
+  overflow: hidden; /* Clip the fill element */
+  position: relative; /* Needed if fill uses absolute positioning (optional) */
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 0%; /* Start at 0 width */
+  background-color: #ffffff; /* White fill */
+  border-radius: 0px;
+  /* Add a subtle transition for smoother updates */
+  transition: width 0.1s linear;
+  /* Position absolute is an option, but width on block works fine too */
+   /* position: absolute; */
+   /* top: 0; */
+   /* left: 0; */
+}
+
+.video-time-display {
+  position: absolute;
+  bottom: 2px; 
+  right: 10px;
+  z-index: 6; /* Same level or slightly above progress bar container */
+  color: rgba(255, 255, 255, 0.7); 
+  font-size: 0.75em; /* Small text */
+  font-family: monospace; /* Monospaced font looks good for time */
+  pointer-events: none; /* Not interactive */
+  background-color: rgba(0, 0, 0, 0.3); /* Optional subtle background */
+  padding: 1px 4px;
+  border-radius: 2px;
+  line-height: 1;
+}
 
 /* --- Video Info Overlay --- */
 .video-info-overlay {

@@ -28,3 +28,14 @@ export function detectTouchDevice() {
     else if ('msMaxTouchPoints' in navigator) hasTouch = navigator.msMaxTouchPoints > 0;
     return hasTouch;
 }
+
+export function formatTime(totalSeconds) {
+    if (isNaN(totalSeconds) || totalSeconds < 0) {
+        return "0:00";
+    }
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = Math.floor(totalSeconds % 60);
+    // Pad seconds with a leading zero if needed
+    const paddedSeconds = seconds < 10 ? `0${seconds}` : seconds;
+    return `${minutes}:${paddedSeconds}`;
+}

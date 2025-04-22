@@ -2,6 +2,7 @@
 // NOTE: Assumes Vimeo.Player is global
 
 import { config } from '../config.js';
+import { formatTime } from '../utils/utils.js';
 
 export class Video {
     constructor(videoData) {
@@ -21,7 +22,12 @@ export class Video {
         this.duration = 0; // Video duration in seconds
         this.timeupdateThreshold = 0.75; // How close to end (in seconds) counts as "ended"
         this.isEnding = false; // Internal flag to prevent multiple triggers via timeupdate
-        // ----------------------------------------------------
+
+        // ---Progress Bar Element References ---
+        this.progressBarContainer = null;
+        this.progressBarFill = null;
+        this.currentTimeDisplayElement = null;
+        // --------------------------------------
 
         this.playerInitializationPromise = null;
         this.thumbnailElement = null;
@@ -79,38 +85,115 @@ export class Video {
                     }
                 };
 
+                // --- TimeUpdate handler for PROGRESS BAR ---
+                const handleProgressUpdate = (data) => {
+                    console.log(`[TimeUpdate ${this.id}] Event Fired. Data:`, data); // Log the whole data object
+                    if (!data) {
+                        console.warn(`[TimeUpdate ${this.id}] No data received in event.`);
+                        return;
+                    }
+                    if (this.progressBarFill && this.duration > 0) {
+                        const progressPercent = (data.percent * 100).toFixed(2); // Use percent from event data
+                        this.progressBarFill.style.width = `${progressPercent}%`;
+                    }
+                    /*
+                    if (this.currentTimeDisplayElement) {
+                        // Use the seconds value from the event data
+                        this.currentTimeDisplayElement.textContent = formatTime(data.seconds);
+                    }*/
+                        if (this.currentTimeDisplayElement) {
+                            const currentTimeSeconds = data.seconds; // Get seconds
+                            // console.log(`[TimeUpdate ${this.id}] Current Time (s): ${currentTimeSeconds}`); // Log seconds
+                            if (typeof formatTime === 'function') { // Check if function imported correctly
+                                 const formattedTime = formatTime(currentTimeSeconds);
+                                 // console.log(`[TimeUpdate ${this.id}] Formatted Time: ${formattedTime}`); // Log formatted time
+                                 this.currentTimeDisplayElement.textContent = formattedTime; // Update text
+                            } else {
+                                 console.error(`[TimeUpdate ${this.id}] formatTime function is not available!`); // Log error if import failed
+                            }
+                        } else {
+                             console.warn(`[TimeUpdate ${this.id}] currentTimeDisplayElement is null or undefined.`); // Log if element not found
+                        }
+                };
+
                 playerInstance.ready().then(async () => {
                     // console.log(`%c[Player Init ${this.id}] Ready.`, "color: green; font-weight: bold;");
                     this.player = playerInstance; this.isEnding = false;
                     try { this.duration = await this.player.getDuration() || 0; /* console.log(`Duration: ${this.duration}`); */ } catch (e) { this.duration = 0; }
+                    
+                    // --- Get Progress Bar Elements ---
+                    this.progressBarContainer = document.getElementById(`progress-container-${this.id}`);
+                    this.progressBarFill = document.getElementById(`progress-fill-${this.id}`);  
+                    this.currentTimeDisplayElement = document.getElementById(`current-time-display-${this.id}`);            
+                    // ---------------------------------
+
+                    // --- Reset Progress Bar and Current Time Display ---
+                    if (this.progressBarFill) this.progressBarFill.style.width = '0%';
+                    if (this.currentTimeDisplayElement) this.currentTimeDisplayElement.textContent = '0:00';
 
                     // --- Attach Listeners ---
-                    this.player.on('pause', () => {
-                        console.log(`[Player Event ${this.id}] Status: paused`);
-
-                        // Only show thumbnail if the video has reached its simulated end
-                        // We check the 'hasPlayedOnce' flag which is set by the timeupdate handler
+                    this.player.off('pause'); // Clear previous listeners to be safe
+                    this.player.on('pause', () => { 
+                        // console.log(`[Player Event ${this.id}] Status: paused`);
                         if (this.thumbnailElement && this.hasPlayedOnce) {
-                            console.log(`[Player Event ${this.id}] Showing thumbnail because hasPlayedOnce is true.`);
+                            // console.log(`[Player Event ${this.id}] Showing thumbnail because hasPlayedOnce is true.`);
                             this.thumbnailElement.classList.remove('thumbnail-hidden');
                         } else if (this.thumbnailElement) {
-                            // Otherwise (manual pause, scroll pause), keep it hidden or ensure it's hidden
-                            console.log(`[Player Event ${this.id}] Pause occurred, but hasPlayedOnce is false. Keeping/Making thumbnail hidden.`);
+                            // console.log(`[Player Event ${this.id}] Pause occurred, but hasPlayedOnce is false. Keeping/Making thumbnail hidden.`);
+                             this.thumbnailElement.classList.add('thumbnail-hidden'); // Ensure hidden on other pauses
                         }
                     });
-                    this.player.on('error', (error) => { console.error(`[Player ${this.id}] Error:`, error.name); });
 
+                    this.player.off('error'); // Clear previous
+                    this.player.on('error', (error) => { console.error(`[Player ${this.id}] Error:`, error.name, error.message); }); // Added message
+
+                    // Modify handlePlay slightly to ensure correct listeners attached
                     const handlePlay = () => {
                         // console.log(`[Player ${this.id}] played`);
                         if (this.thumbnailElement) this.thumbnailElement.classList.add('thumbnail-hidden');
-                        this.isEnding = false;
-                        if (this.player) { // Reattach timeupdate on play
-                            this.player.off('timeupdate', handleTimeUpdate);
-                            this.player.on('timeupdate', handleTimeUpdate);
+                        this.isEnding = false; // Reset ending flag
+                        // Ensure BOTH timeupdate listeners are correctly managed on play
+                        if (this.player) {
+                            this.player.off('timeupdate', handleTimeUpdate); // Detach old end simulation
+                            this.player.on('timeupdate', handleTimeUpdate);  // Re-attach end simulation
+                            // Keep progress listener attached (or re-attach if needed)
+                            this.player.off('timeupdate', handleProgressUpdate); // Detach old progress
+                            this.player.on('timeupdate', handleProgressUpdate); // Re-attach progress
+                            // console.log(`[Player Event ${this.id}] Re-attached timeupdate listeners.`);
                         }
                     };
+                    this.player.off('play'); // Clear previous
                     this.player.on('play', handlePlay);
-                    this.player.on('timeupdate', handleTimeUpdate); // Initial attach
+
+                    this.player.off('timeupdate'); // Clear any previous listeners comprehensively
+                    this.player.on('timeupdate', handleProgressUpdate); // Attach progress handler
+                    this.player.on('timeupdate', handleTimeUpdate);   // Attach end simulation 
+
+                    if (this.progressBarContainer && this.player) {
+                        // Simple way to handle potential re-initialization: store listener on element
+                        if (!this.progressBarContainer._seekListenerAttached) {
+                             const seekListener = (event) => {
+                                if (!this.duration || !this.player) return;
+                                const rect = this.progressBarContainer.getBoundingClientRect();
+                                const offsetX = event.clientX - rect.left;
+                                const barWidth = this.progressBarContainer.offsetWidth;
+                                if (barWidth > 0) {
+                                    const seekFraction = offsetX / barWidth;
+                                    const seekTime = this.duration * seekFraction;
+                                    const clampedTime = Math.max(0, Math.min(seekTime, this.duration));
+                                    this.player.setCurrentTime(clampedTime)
+                                        .then(() => { 
+                                            if (this.progressBarFill) this.progressBarFill.style.width = `${(seekFraction * 100).toFixed(2)}%`;
+                                            if (this.currentTimeDisplayElement) this.currentTimeDisplayElement.textContent = formatTime(clampedTime);
+                                        })
+                                        .catch(error => console.warn(`[Player ${this.id}] Seek failed: ${error.name}`));
+                                }
+                            };
+                            this.progressBarContainer.addEventListener('click', seekListener);
+                            this.progressBarContainer._seekListenerAttached = true; // Mark as attached
+                            // console.log(`[Player Init ${this.id}] Seek listener attached.`);
+                        }
+                    }
 
                     resolve(this.player);
                 }).catch((error) => { console.error(`[Player Init ${this.id}] Ready rejected:`, error); this.player = null; this.playerInitializationPromise = null; reject(error); });
@@ -137,8 +220,13 @@ export class Video {
             if (paused) {
                 this.hasPlayedOnce = false; this.isEnding = false; // Reset flags
                 // console.log(`[Toggle Play ${this.id}] Reset flags. Attempting play...`);
-                if (wasAtSimulatedEnd && this.duration > 0) { // Seek if needed
-                    try { await player.setCurrentTime(0); } catch (e) { console.warn(`Seek error: ${e.name}`); }
+                if (wasAtSimulatedEnd && this.duration > 0) {
+                    // console.log(`[Toggle Play ${this.id}] Video was at end, seeking to 0.`);
+                    try {
+                        await player.setCurrentTime(0);
+                        // Reset progress bar visually after seek
+                        if(this.progressBarFill) this.progressBarFill.style.width = '0%';
+                    } catch (e) { console.warn(`Seek error on manual play: ${e.name}`); }
                 }
                 await player.play();
                 if (playPauseButton) playPauseButton.innerText = 'Pause';
