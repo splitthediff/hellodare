@@ -3,6 +3,7 @@
 
 import { config } from '../config.js';
 import { formatTime, getAspectRatio } from '../utils/utils.js';
+import { positionSingleInfoOverlay } from '../core/playlistManager.js';
 
 export class Video {
     constructor(videoData) {
@@ -95,6 +96,15 @@ export class Video {
     
                         // Attach all event listeners
                         this._attachPlayerListeners();
+
+                        // --- CALL POSITIONING FUNCTION FOR THIS VIDEO ---
+                        console.log(`[Player Init ${this.id}] Player ready, calling positionSingleInfoOverlay.`);
+                        try {
+                            positionSingleInfoOverlay(this.id); // Call exported function
+                        } catch (posError) {
+                        console.error(`[Player Init ${this.id}] Error calling positionSingleInfoOverlay:`, posError);
+                        }
+                        // --- END POSITIONING CALL ---
     
                         resolve(this.player); // Resolve the main promise
                     }).catch((error) => {

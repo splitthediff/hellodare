@@ -80,17 +80,6 @@ html, body {
   padding: 0px; /* Add some padding around the content container */
 }
 
-/* NEW Flexbox Container */
-.item-content-container {
-  display: flex;
-  flex-direction: column; /* Stack wrapper and overlay vertically */
-  align-items: center; /* Center items horizontally within this container */
-  width: 100%; /* Take available width within parent's padding */
-  max-width: var(--content-max-width-middle); /* Example: Limit max width */
-  /* Optional: Add gap between video and overlay */
-  gap: var(--space-after-video); /* Adjust spacing as needed */
-}
-
 /* --- Video Track --- */
 .video-track { width: 100%; height: 100%; position: relative; will-change: transform; }
 
@@ -99,19 +88,14 @@ html, body {
 
 /* --- Aspect Wrapper --- */
 .video-aspect-wrapper {
-  /* REMOVE absolute positioning and transform */
-  /* position: absolute; */
-  /* top: 50%; left: 50%; transform: translate(-50%, -50%); */
-  position: relative; /* Needed for absolute children like controls/thumbnail */
-  width: 100%; /* Takes width of flex container */
-  /* max-height: 100%; */ /* Let aspect ratio control height */
-  overflow: hidden; /* <<< ALLOW OVERFLOW FOR CONTROLS/PROGRESS BAR maybe? Test this */
-  /* OR keep hidden and adjust control/progress bar positioning carefully */
-  /* overflow: hidden; */
-  background-color: var(--clr-background);
+  position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 100%; 
+  overflow: hidden;
+  /*background-color: var(--clr-background);*/
+  background-color: magenta;
   border-radius: var(--radius-video); 
-  flex-shrink: 0; /* Prevent shrinking if container space is tight */
-  /* aspect-ratio set by JS */
+  flex-shrink: 0; 
    /* --- Animation Related --- */
    opacity: 0;
    will-change: opacity, transform; /* Optimize animation */
@@ -208,8 +192,9 @@ html, body {
 
 /* --- Video Info Overlay --- */
 .video-info-overlay {
-  /*position: absolute;*/
+  position: absolute;
   /* placement set in playlistManager.js */
+  transform: translate(-50%, -50%);
   
   width: 100%;
   max-width: 60%;
@@ -238,14 +223,6 @@ html, body {
               left var(--transition-duration, 0.5s) var(--transition-ease, ease-in-out);
 }
 
-/* Hover effect - Target the PARENT .video-item */
-.video-item:hover .video-info-overlay {
-   opacity: 1;
-   visibility: visible;
-   transform: translateY(0);
-   transition-delay: 0.2s, 0.2s, 0.2s; /* Slight delay after video hover starts */
-}
-
 /* Text styling inside overlay */
 .video-info-overlay .video-info-title {
   font-size: var(--font-size-small, 1 em);
@@ -265,13 +242,12 @@ html, body {
 }
 
 /* --- Hover Effect --- */
-/*
 .video-aspect-wrapper:hover + .video-info-overlay {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
   transition-delay: 0s;
-}*/
+}
 
 /* ========================================================================== */
 /*            SECTION 2 / MIDDLE / INFO                                       */

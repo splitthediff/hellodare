@@ -13,6 +13,7 @@ const VIDEO_WRAPPER_SELECTOR = '.video-aspect-wrapper';
 const INFO_OVERLAY_SELECTOR = '.video-info-overlay';
 
 // --- Main Exported Function ---
+/*
 export async function renderPlaylist() {
     currentVideos = await initializeVideos();
     renderVideos(currentVideos);
@@ -26,6 +27,46 @@ export async function renderPlaylist() {
             updateDOMVideoSizes(currentVideos);
             //positionVideoOverlays(); // Re-call on resize
         }, config.input.resizeDebounce); // <<< Use config
+    });
+}*/
+
+export async function renderPlaylist() {
+    currentVideos = await initializeVideos();
+    renderVideos(currentVideos);
+
+    // Initialize Players (calls positionSingleInfoOverlay internally via Video.js)
+    console.log("--- Starting player init trigger ---");
+    if (currentVideos && currentVideos.length > 0) {
+        currentVideos.forEach(video => {
+            video.initializePlayer().catch(err => console.warn(`Init ${video.id} fail: ${err.message}`));
+        });
+        console.log("--- Finished player init trigger ---");
+    }
+
+    // --- NO Initial positioning call needed here ---
+    console.log("Initial overlay positioning skipped - will position on player ready.");
+
+    initializeGsapScroll(currentVideos);
+
+    // --- Resize Listener ---
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            console.log("Resize Trigger - Repositioning All Overlays");
+            updateDOMVideoSizes(currentVideos); // Update sizes first
+
+            // --- Call positioning for ALL items on resize ---
+            // Loop through videos and call positioning for each
+            if (currentVideos && currentVideos.length > 0) {
+                 currentVideos.forEach(video => {
+                    // Check if player is initialized before repositioning maybe? Or just call it.
+                    positionSingleInfoOverlay(video.id);
+                 });
+            }
+            // --- End resize positioning ---
+
+        }, config.input.resizeDebounce);
     });
 }
 
@@ -70,7 +111,6 @@ function renderVideos(videos) {
         
         playlistHTML += `
             <div class="${scrollItemClass} video-item" data-video-id="${video.id}">
-                <div class="item-content-container">
                     <div class="video-aspect-wrapper" id="video-wrapper-${video.id}">
                         ${thumbnailHTML}
                         <iframe src="${src}" id="iframe-${video.id}" ...></iframe>
@@ -80,12 +120,10 @@ function renderVideos(videos) {
                             <button ... id="soundButton-${video.id}">Sound Off</button>
                         </div>
                     </div>
-
                     <div class="video-info-overlay" id="video-info-${video.id}">
                         <h3 class="video-info-title">${video.title || 'Untitled'}</h3>
                         <p class="video-info-year">${video.year || ''}</p>
                     </div>
-                </div>
             </div>
         `;
     });
@@ -170,53 +208,57 @@ function getDynamicWidth() {
 }
 
 
-export function positionVideoOverlays() {
-    // console.log("Repositioning video overlays...");
-    const videoItems = document.querySelectorAll(`${config.selectors.scrollItem}.video-item`);
-    const isMobile = window.innerWidth <= config.breakpoints.mobileMaxWidth; // Check if mobile
+export function positionSingleInfoOverlay(videoId) {
+    // console.log(`Positioning single overlay for ${videoId} using GBCR logic...`);
+    const item = document.querySelector(`${config.selectors.scrollItem}.video-item[data-video-id="${videoId}"]`);
+    if (!item) { /* console.warn(`Item not found for positioning overlay ${videoId}`); */ return; }
 
-    videoItems.forEach(item => {
-        const wrapper = item.querySelector(VIDEO_WRAPPER_SELECTOR);
-        const overlay = item.querySelector(INFO_OVERLAY_SELECTOR);
-        const scrollItem = item;
+    const wrapper = item.querySelector('.video-aspect-wrapper');
+    const overlay = item.querySelector('.video-info-overlay'); // Overlay is sibling
+    const scrollItem = item;
 
-        if (!wrapper || !overlay || !scrollItem) { return; }
+    if (!wrapper || !overlay || !scrollItem) {
+        // console.warn(`[PositionOverlay ${videoId}] Missing elements.`);
+        return;
+    }
+     // Add check for item visibility/height before using getBoundingClientRect
+     if (item.offsetHeight === 0) {
+         // console.warn(`[PositionOverlay ${videoId}] Item height is 0. Cannot calculate reliably.`);
+         // Optional: Retry?
+         // setTimeout(() => positionSingleInfoOverlay(videoId), 50);
+         return;
+     }
 
-        const scrollItemRect = scrollItem.getBoundingClientRect();
-        const wrapperRect = wrapper.getBoundingClientRect();
+    const isMobile = window.innerWidth <= config.breakpoints.mobileMaxWidth;
 
-        // --- Calculate Bottom Position (Same as before) ---
-        const wrapperBottomRelativeToParent = wrapperRect.bottom - scrollItemRect.top;
-        const spaceBelowWrapper = scrollItemRect.height - wrapperBottomRelativeToParent;
-        const overlayBottomPosition = spaceBelowWrapper - config.layout.overlayOffsetBottom;
-        overlay.style.bottom = `${overlayBottomPosition}px`;
+    // --- USE getBoundingClientRect as in your original ---
+    const scrollItemRect = scrollItem.getBoundingClientRect();
+    const wrapperRect = wrapper.getBoundingClientRect();
+    // --- End GBCR ---
 
-        // --- Calculate and Apply Left Position CONDITIONALLY ---
-        if (isMobile) {
-            // MOBILE: Center the overlay (left: 50%, transform needed)
-            overlay.style.left = '50%';
-            // We also need the translateX transform for centering applied via CSS now
-            // Let's ensure the CSS handles the transform
+    // --- Calculate Bottom Position (Your original logic) ---
+    const wrapperBottomRelativeToParent = wrapperRect.bottom - scrollItemRect.top;
+    const spaceBelowWrapper = scrollItemRect.height - wrapperBottomRelativeToParent;
+    // Ensure bottom isn't negative, maybe add a minimum gap
+    const overlayBottomPosition = Math.max(5, spaceBelowWrapper - config.layout.overlayOffsetBottom); // Using Math.max(5, ...) as safety
+    // --- SET 'bottom' STYLE ---
+    overlay.style.bottom = `${overlayBottomPosition}px`;
+    // --- REMOVE 'top' STYLE ---
+    // overlay.style.top = `auto`; // Or remove it completely if set elsewhere
 
-            // Set max width based on wrapper
-            overlay.style.maxWidth = `${wrapperRect.width}px`;
-            overlay.style.width = 'auto'; // Ensure width doesn't conflict
-             // Ensure text-align if needed (or let CSS handle)
-            // overlay.style.textAlign = 'center';
+    // --- Calculate and Apply Left Position (Your original logic) ---
+    if (isMobile) {
+        overlay.style.left = '50%'; // CSS handles transform
+        overlay.style.maxWidth = `${wrapperRect.width * 0.9}px`; // Example width
+        overlay.style.width = 'auto';
+    } else {
+        const overlayLeftPosition = wrapperRect.left - scrollItemRect.left;
+        overlay.style.left = `${overlayLeftPosition}px`; // Align left
+        overlay.style.maxWidth = '60%'; // Example desktop width
+        overlay.style.width = 'auto';
+        // Ensure mobile centering transform is removed/overridden by CSS if needed
+    }
+    // --- End Left Position ---
 
-        } else {
-            // DESKTOP: Align flush left with wrapper
-            const overlayLeftPosition = wrapperRect.left - scrollItemRect.left;
-            overlay.style.left = `${overlayLeftPosition}px`;
-             // Reset transform if it was applied for mobile centering (better done in CSS)
-            // overlay.style.transform = 'translateY(10px)'; // Reset to initial vertical only
-
-            // Set desktop max width from config or keep auto
-             overlay.style.maxWidth = '60%'; // Example from CSS
-             overlay.style.width = 'auto';
-             // Ensure text-align if needed (or let CSS handle)
-             // overlay.style.textAlign = 'left';
-        }
-        // --- END CONDITIONAL LEFT POSITION ---
-    });
+    // console.log(`[PositionOverlay GBCR ${videoId}] Set: bottom=${overlay.style.bottom}, left=${overlay.style.left}`);
 }
