@@ -50,6 +50,9 @@
     --space-after-heading: var(--space-s);
     --space-between-paragraphs: var(--space-s);
     --space-paragraph-before-heading: var(--space-xl);
+    --space-after-video: var(--space-s);
+
+
   
     --padding-columns: var(--space-xl);  
     --padding-controls-y: var(--space-s); 
@@ -61,6 +64,7 @@
     --padding-info-section: var(--space-xxl); 
   
     /* === SIZING === */
+    --content-max-width-middle: 1500;
     --content-max-width-info: 900px;
     --content-max-width-info-wide: 1000px; /* For 2-column */
     --column-flex-side: 1;

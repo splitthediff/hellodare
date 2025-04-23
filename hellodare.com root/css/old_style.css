@@ -68,28 +68,7 @@ html, body {
 /* ========================================================================== */
 
 /* --- SCROLL ITEM --- */
-.scroll-item { /* Should contain .video-item */
-  width: 100%;
-  height: 100%; /* Or 100dvh */
-  position: relative;
-  overflow: hidden;
-  /* ADD FLEX TO CENTER THE CONTENT CONTAINER */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0px; /* Add some padding around the content container */
-}
-
-/* NEW Flexbox Container */
-.item-content-container {
-  display: flex;
-  flex-direction: column; /* Stack wrapper and overlay vertically */
-  align-items: center; /* Center items horizontally within this container */
-  width: 100%; /* Take available width within parent's padding */
-  max-width: var(--content-max-width-middle); /* Example: Limit max width */
-  /* Optional: Add gap between video and overlay */
-  gap: var(--space-after-video); /* Adjust spacing as needed */
-}
+.scroll-item { width: 100%; height: 100%; position: relative; overflow: hidden; }
 
 /* --- Video Track --- */
 .video-track { width: 100%; height: 100%; position: relative; will-change: transform; }
@@ -99,22 +78,14 @@ html, body {
 
 /* --- Aspect Wrapper --- */
 .video-aspect-wrapper {
-  /* REMOVE absolute positioning and transform */
-  /* position: absolute; */
-  /* top: 50%; left: 50%; transform: translate(-50%, -50%); */
-  position: relative; /* Needed for absolute children like controls/thumbnail */
-  width: 100%; /* Takes width of flex container */
-  /* max-height: 100%; */ /* Let aspect ratio control height */
-  overflow: hidden; /* <<< ALLOW OVERFLOW FOR CONTROLS/PROGRESS BAR maybe? Test this */
-  /* OR keep hidden and adjust control/progress bar positioning carefully */
-  /* overflow: hidden; */
+  position: absolute; top: 50%; left: 50%;
+  width: 100%; max-height: 100%; overflow: hidden;
   background-color: var(--clr-background);
   border-radius: var(--radius-video); 
-  flex-shrink: 0; /* Prevent shrinking if container space is tight */
-  /* aspect-ratio set by JS */
-   /* --- Animation Related --- */
-   opacity: 0;
-   will-change: opacity, transform; /* Optimize animation */
+  /*transform: translate(-50%, -50%) translateY(20px);*/
+ /* --- Animation Related --- */
+  opacity: 0;
+  will-change: opacity, transform; /* Optimize animation */
 }
 
 /* --- Thumbnail --- */
@@ -150,10 +121,9 @@ html, body {
   display: flex;        /* Use Flexbox */
   align-items: center;  /* Vertically align items in the controls bar */
   gap: 5px;            /* Adjust gap as needed */
-  width: calc(100% - var(--space-s)) ;           /* Example: Make controls take up more width */
+  width: 95%;           /* Example: Make controls take up more width */
   max-width: 1200px;
 }
-
 .video-aspect-wrapper:hover .video-controls { opacity: 1; visibility: visible; pointer-events: auto; transition-delay: 0s; }
 
 .controls-button {
@@ -168,7 +138,7 @@ html, body {
 /* ======================================== */
 /*            PROGRESS BAR                  */
 /* ======================================== */
-.video-controls .progress-bar-container {
+.progress-bar-container {
   flex-grow: 1; /* Allow the bar to take up available space */
   height: 2px;  /* Adjust height of the bar */
   background-color: rgba(255, 255, 255, 0.3); /* Dim background */
@@ -208,18 +178,16 @@ html, body {
 
 /* --- Video Info Overlay --- */
 .video-info-overlay {
-  /*position: absolute;*/
+  position: absolute;
   /* placement set in playlistManager.js */
   
-  width: 100%;
+  width: auto;
   max-width: 60%;
   box-sizing: border-box;
-  
 
   z-index: var(--z-index-info-overlay, 4);
   color: var(--clr-text-primary);
-  /*background-color: rgba(251, 245, 233, 0.7);*/
-  background-color: aquamarine;
+  background-color: rgba(251, 245, 233, 0.7);
   padding: 0;
   border-radius: none;
   text-align: left;
@@ -236,14 +204,6 @@ html, body {
               transform var(--transition-duration, 0.5s) var(--transition-ease, ease-in-out),
               bottom var(--transition-duration, 0.5s) var(--transition-ease, ease-in-out),
               left var(--transition-duration, 0.5s) var(--transition-ease, ease-in-out);
-}
-
-/* Hover effect - Target the PARENT .video-item */
-.video-item:hover .video-info-overlay {
-   opacity: 1;
-   visibility: visible;
-   transform: translateY(0);
-   transition-delay: 0.2s, 0.2s, 0.2s; /* Slight delay after video hover starts */
 }
 
 /* Text styling inside overlay */
@@ -265,13 +225,12 @@ html, body {
 }
 
 /* --- Hover Effect --- */
-/*
 .video-aspect-wrapper:hover + .video-info-overlay {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
+  transform: translateY(0); /* Slide up */
   transition-delay: 0s;
-}*/
+}
 
 /* ========================================================================== */
 /*            SECTION 2 / MIDDLE / INFO                                       */

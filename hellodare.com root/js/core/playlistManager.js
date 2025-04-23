@@ -16,7 +16,7 @@ const INFO_OVERLAY_SELECTOR = '.video-info-overlay';
 export async function renderPlaylist() {
     currentVideos = await initializeVideos();
     renderVideos(currentVideos);
-    positionVideoOverlays(); // JS sets initial bottom/left/maxWidth based on screen size
+    //positionVideoOverlays(); // JS sets initial bottom/left/maxWidth based on screen size
     initializeGsapScroll(currentVideos);
 
     let resizeTimeout;
@@ -24,7 +24,7 @@ export async function renderPlaylist() {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             updateDOMVideoSizes(currentVideos);
-            positionVideoOverlays(); // Re-call on resize
+            //positionVideoOverlays(); // Re-call on resize
         }, config.input.resizeDebounce); // <<< Use config
     });
 }
@@ -70,18 +70,21 @@ function renderVideos(videos) {
         
         playlistHTML += `
             <div class="${scrollItemClass} video-item" data-video-id="${video.id}">
-                <div class="video-aspect-wrapper">
-                    ${thumbnailHTML}
-                    <iframe src="${src}" id="iframe-${video.id}" loading="lazy" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
-                    <div class="video-controls">
-                        <button class="controls-button play-pause-button" id="playPauseButton-${video.id}">Play</button>
-                        ${progressBarHTML} 
-                        <button class="controls-button sound-button" id="soundButton-${video.id}">Sound Off</button>
+                <div class="item-content-container">
+                    <div class="video-aspect-wrapper" id="video-wrapper-${video.id}">
+                        ${thumbnailHTML}
+                        <iframe src="${src}" id="iframe-${video.id}" ...></iframe>
+                        <div class="video-controls">
+                            <button ... id="playPauseButton-${video.id}">Play</button>
+                            ${progressBarHTML}
+                            <button ... id="soundButton-${video.id}">Sound Off</button>
+                        </div>
                     </div>
-                </div>
-                <div class="video-info-overlay" id="video-info-${video.id}">
-                    <h3 class="video-info-title">${video.title || 'Untitled'}</h3>
-                    <p class="video-info-year">${video.year || ''}</p>
+
+                    <div class="video-info-overlay" id="video-info-${video.id}">
+                        <h3 class="video-info-title">${video.title || 'Untitled'}</h3>
+                        <p class="video-info-year">${video.year || ''}</p>
+                    </div>
                 </div>
             </div>
         `;
@@ -166,7 +169,8 @@ function getDynamicWidth() {
     return containerElement ? containerElement.clientWidth : window.innerWidth;
 }
 
-function positionVideoOverlays() {
+
+export function positionVideoOverlays() {
     // console.log("Repositioning video overlays...");
     const videoItems = document.querySelectorAll(`${config.selectors.scrollItem}.video-item`);
     const isMobile = window.innerWidth <= config.breakpoints.mobileMaxWidth; // Check if mobile
