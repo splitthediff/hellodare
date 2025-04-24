@@ -87,32 +87,66 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
             if (isVideoIndex && video) {
                 try {
                     const player = await video.initializePlayer();
-                    const playPauseButton = document.getElementById(`playPauseButton-${video.id}`);
+                    const playPauseButton = document.getElementById(`playPauseButton-${video.id}`); // Find button
                     const soundButton = document.getElementById(`soundButton-${video.id}`);
+                    const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper'); // Find icons
+                    const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
+                    const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
+                    const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
 
                     if (video.justFinishedLoopLimit) { // Use correct loop flag
                          console.log(`%c[VideoController ${video.id}] Activate Play SKIPPED: Loop limit. Ensuring pause.`, "color: orange;");
                          try { await player.pause(); } catch(e){ /* handle */ }
                          video.justFinishedLoopLimit = false;
-                         if (playPauseButton) playPauseButton.innerText = 'Play';
-                         await player.setVolume(globalVolumeLevel);
-                         if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
+                         if(playPauseButton && playWrapper && pauseWrapper) {
+                            playWrapper.classList.remove('is-hidden');
+                            pauseWrapper.classList.add('is-hidden');
+                            playPauseButton.setAttribute('aria-label', 'Play');
+                        }
+                        await player.setVolume(globalVolumeLevel);
+                         if (soundButton && volumeOnWrapper && volumeOffWrapper) {
+                            const isMuted = globalVolumeLevel === 0;
+                            volumeOffWrapper.classList.toggle('is-hidden', !isMuted);
+                            volumeOnWrapper.classList.toggle('is-hidden', isMuted);
+                            soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');
+                        }
                     } else {
                         // console.log(`[VideoController ${video.id}] Activating Video ${index}...`);
+                        // ... (Activate normally: set volume, play) ...
                         await player.setVolume(globalVolumeLevel);
-                        if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
                         await player.play();
-                        if (playPauseButton) playPauseButton.innerText = 'Pause';
+                         // --- Update Icons for Playing State ---
+                        if(playPauseButton && playWrapper && pauseWrapper) {
+                            playWrapper.classList.add('is-hidden');
+                            pauseWrapper.classList.remove('is-hidden');
+                            playPauseButton.setAttribute('aria-label', 'Pause');
+                        }
+                        if (soundButton && volumeOnWrapper && volumeOffWrapper) {
+                            const isMuted = globalVolumeLevel === 0;
+                            volumeOffWrapper.classList.toggle('is-hidden', !isMuted);
+                            volumeOnWrapper.classList.toggle('is-hidden', isMuted);
+                            soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');
+                        }
                     }
                 } catch (error) {
                     console.warn(`[VideoController ${video?.id || index}] Error activating video: ${error.message}`);
                      // Reset buttons on error
                      const playPauseButton = document.getElementById(`playPauseButton-${video?.id}`);
                      const soundButton = document.getElementById(`soundButton-${video?.id}`);
-                     if (playPauseButton) playPauseButton.innerText = 'Play';
-                     if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
-                }
-            } else if (!isVideoIndex) { // It's the info section being activated
+                     const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper');
+                     const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
+                      const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
+                     const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
+
+                     if(playPauseButton && playWrapper && pauseWrapper){ 
+                        playWrapper.classList.remove('is-hidden'); pauseWrapper.classList.add('is-hidden'); playPauseButton.setAttribute('aria-label', 'Play'); 
+                    }
+                     if (soundButton && volumeOnWrapper && volumeOffWrapper){ 
+                        const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); 
+                        volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');
+                     }
+                    }
+            } else if (!isVideoIndex) { // If INFO section
                  console.log(`[VideoController] Info Section Activated (Index ${index}). Content faded in.`);
                  // NOTE: The separate animateInfoIn might be redundant now,
                  // unless it does more complex animations than the simple fade/slide here.
@@ -139,14 +173,19 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
             if (isVideoIndex && video) {
                 const playPauseButton = document.getElementById(`playPauseButton-${video.id}`);
                 const soundButton = document.getElementById(`soundButton-${video.id}`);
-                if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
-                if (video.player) { // Only pause if player exists
-                    try { video.player.pause().catch(e => {}); } catch (e) {}
+                const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper');
+                const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
+                const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
+                const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
+
+               // --- Update Icons for Paused State ---
+                if (soundButton && volumeOnWrapper && volumeOffWrapper) { const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');
+                if (video.player) { try { video.player.pause().catch(e => {}); } catch (e) {} }
+                    if(playPauseButton && playWrapper && pauseWrapper){ playWrapper.classList.remove('is-hidden'); pauseWrapper.classList.add('is-hidden'); playPauseButton.setAttribute('aria-label', 'Play'); }
                 }
-                if (playPauseButton) playPauseButton.innerText = 'Play';
             }
-        }
-    } // End for loop iterating scrollItems
+        } // End for loop iterating scrollItems
+    }
 }
 
 // ==================================================
@@ -203,8 +242,22 @@ async function applyGlobalVolume() {
          const soundButton = document.getElementById(`soundButton-${video.id}`);
          try {
              const player = await video.initializePlayer(); await player.setVolume(globalVolumeLevel);
-             if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off';
-         } catch (error) { if (soundButton) soundButton.innerText = globalVolumeLevel > 0 ? 'Sound On' : 'Sound Off'; }
+             if (soundButton && volumeOnWrapper && volumeOffWrapper) { // Check elements exist
+                const isMuted = globalVolumeLevel === 0;
+                volumeOffWrapper.classList.toggle('is-hidden', !isMuted); // Show if muted
+                volumeOnWrapper.classList.toggle('is-hidden', isMuted);  // Hide if muted
+                soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute'); // Update label
+            }
+         } catch (error) {
+            console.warn(`[ApplyVol ${video.id}] Error: ${error.message}`);
+            // Update icons based on INTENDED state even if API fails
+            if (soundButton && volumeOnWrapper && volumeOffWrapper) {
+                const isMuted = globalVolumeLevel === 0;
+                volumeOffWrapper.classList.toggle('is-hidden', !isMuted);
+                volumeOnWrapper.classList.toggle('is-hidden', isMuted);
+                soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');
+            }
+        }
     }
 }
 

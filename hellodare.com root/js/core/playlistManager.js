@@ -86,6 +86,11 @@ function renderVideos(videos) {
         const src = video.iframeSrc;
         const thumbnailHTML = video.thumbnailUrl ? `<img src="${video.thumbnailUrl}" class="video-thumbnail" id="thumbnail-${video.id}" alt="${video.title || 'Video thumbnail'}">` : '';
         
+        const playIconRef = `<svg class="icon icon-play"><use xlink:href="#icon-play"></use></svg>`; 
+        const pauseIconRef = `<svg class="icon icon-pause"><use xlink:href="#icon-pause"></use></svg>`; 
+        const volumeOffIconRef = `<svg class="icon icon-volume-off"><use xlink:href="#icon-volume-off"></use></svg>`; 
+        const volumeOnIconRef = `<svg class="icon icon-volume-on"><use xlink:href="#icon-volume-on"></use></svg>`; 
+        
         const progressBarHTML = `
             <div class="progress-bar-container" id="progress-container-${video.id}">
                 <div class="progress-bar-fill" id="progress-fill-${video.id}"></div>
@@ -99,9 +104,15 @@ function renderVideos(videos) {
                         ${thumbnailHTML}
                         <iframe src="${src}" id="iframe-${video.id}" ...></iframe>
                         <div class="video-controls">
-                            <button ... id="playPauseButton-${video.id}">Play</button>
+                            <button class="controls-button play-pause-button" id="playPauseButton-${video.id}" aria-label="Play">
+                                <span class="button-icon-wrapper icon-play-wrapper">${playIconRef}</span>
+                                <span class="button-icon-wrapper icon-pause-wrapper is-hidden">${pauseIconRef}</span>
+                            </button>
                             ${progressBarHTML}
-                            <button ... id="soundButton-${video.id}">Sound Off</button>
+                            <button class="controls-button sound-button" id="soundButton-${video.id}" aria-label="Unmute">
+                                <span class="button-icon-wrapper icon-volume-off-wrapper">${volumeOffIconRef}</span>
+                                <span class="button-icon-wrapper icon-volume-on-wrapper is-hidden">${volumeOnIconRef}</span>
+                            </button>
                         </div>
                     </div>
                     <div class="video-info-overlay" id="video-info-${video.id}">

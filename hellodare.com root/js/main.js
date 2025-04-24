@@ -9,6 +9,7 @@ import { renderPlaylist } from './core/playlistManager.js'; // Assuming playlist
 
 window.addEventListener('load', async () => {
   console.log("Load event fired. Starting initializations...");
+  await loadAndInjectSVGSprite();
 
   // initializeTitleCheck?.(); // Optional: Call if it exists
 
@@ -49,3 +50,27 @@ window.addEventListener('load', async () => {
 
    console.log("All initializations in load handler complete.");
 });
+
+async function loadAndInjectSVGSprite() {
+    try {
+        const response = await fetch('images/icons.svg'); // Adjust path
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const svgText = await response.text();
+
+        // Create a temporary div to parse the SVG text
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = svgText;
+        const svgElement = tempDiv.querySelector('svg');
+
+        if (svgElement) {
+            svgElement.style.display = 'none'; // Ensure it's hidden
+            svgElement.setAttribute('aria-hidden', 'true'); // Hide from screen readers
+            document.body.insertAdjacentElement('afterbegin', svgElement); // Inject at start of body
+            console.log("SVG sprite injected into body.");
+        } else {
+             console.error("Could not find SVG element within fetched sprite file.");
+        }
+    } catch (error) {
+        console.error("Error loading or injecting SVG sprite:", error);
+    }
+}

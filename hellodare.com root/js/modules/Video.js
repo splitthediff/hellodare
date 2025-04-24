@@ -260,36 +260,50 @@ export class Video {
     async togglePlayPause(playPauseButton) {
         let player;
         try { player = await this.initializePlayer(); }
-        catch (error) { console.error(`[Toggle Play ${this.id}] Player init failed: ${error.message}`); if (playPauseButton) playPauseButton.innerText = 'Error'; return; }
+        catch (error) { console.error(`[Toggle Play ${this.id}] Player init failed: ${error.message}`); return; }
 
+        // Check active state
         const scrollItemElement = document.getElementById(`iframe-${this.id}`)?.closest(config.selectors.scrollItem);
         const isActive = scrollItemElement?.classList.contains(config.selectors.activeScrollItemClass);
         if (!isActive) { console.warn(`[Toggle Play ${this.id}] Ignoring click: Not active item.`); return; }
 
+        // Find icon wrappers using this.id
+        const buttonElement = document.getElementById(`playPauseButton-${this.id}`); // Get button for aria-label
+        const playWrapper = buttonElement?.querySelector('.icon-play-wrapper');
+        const pauseWrapper = buttonElement?.querySelector('.icon-pause-wrapper');
+
+        if (!buttonElement || !playWrapper || !pauseWrapper) {
+             console.error(`[Toggle Play ${this.id}] Button or Icon wrappers not found! Query: #playPauseButton-${this.id}`);
+             return;
+        }
+
         try {
             const paused = await player.getPaused();
-            const wasAtSimulatedEnd = this.isEnding || this.hasPlayedOnce; // Check state before reset
+            const wasAtSimulatedEnd = this.isEnding || this.hasPlayedOnce;
 
             if (paused) {
                 this.hasPlayedOnce = false; this.isEnding = false; // Reset flags
-                // console.log(`[Toggle Play ${this.id}] Reset flags. Attempting play...`);
                 if (wasAtSimulatedEnd && this.duration > 0) {
-                    // console.log(`[Toggle Play ${this.id}] Video was at end, seeking to 0.`);
-                    try {
-                        await player.setCurrentTime(0);
-                        // Reset progress bar visually after seek
-                        if(this.progressBarFill) this.progressBarFill.style.width = '0%';
-                    } catch (e) { console.warn(`Seek error on manual play: ${e.name}`); }
+                    try { await player.setCurrentTime(0); if(this.progressBarFill) this.progressBarFill.style.width = '0%'; } catch (e) { /* Warn */ }
                 }
                 await player.play();
-                if (playPauseButton) playPauseButton.innerText = 'Pause';
+                // Show Pause icon, hide Play icon
+                playWrapper.classList.add('is-hidden');
+                pauseWrapper.classList.remove('is-hidden');
+                buttonElement.setAttribute('aria-label', 'Pause'); // Update accessibility
             } else {
                 await player.pause();
-                if (playPauseButton) playPauseButton.innerText = 'Play';
+                // Show Play icon, hide Pause icon
+                playWrapper.classList.remove('is-hidden');
+                pauseWrapper.classList.add('is-hidden');
+                buttonElement.setAttribute('aria-label', 'Play'); // Update accessibility
             }
         } catch (error) {
              console.error(`[Toggle Play ${this.id}] API error:`, error.name);
-             try { if(playPauseButton) playPauseButton.innerText = await player.getPaused() ? 'Play' : 'Pause'; } catch (e) { if(playPauseButton) playPauseButton.innerText = 'Error';}
+             // Reset to Play icon on error?
+             playWrapper.classList.remove('is-hidden');
+             pauseWrapper.classList.add('is-hidden');
+             buttonElement.setAttribute('aria-label', 'Play');
         }
     }
 

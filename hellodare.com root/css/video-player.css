@@ -116,3 +116,56 @@
   opacity: 1; visibility: visible; transform: translateY(0);
   transition-delay: 0.2s, 0.2s, 0.2s;
 }
+
+/* === Icon and Button Styles === */
+
+.controls-button {
+  background: none;
+  border: none;
+  color: var(--clr-text-overlay, white); 
+  padding: 5px; 
+  cursor: pointer;
+  transition: background-color var(--transition-duration-fast, 0.2s) ease, transform 0.1s ease; 
+  line-height: 0; 
+  /*display: inline-flex;*/
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 4px; 
+}
+.controls-button:hover {
+    background-color: var(--clr-button-hover-bg, rgba(255, 255, 255, 0.15));
+}
+.controls-button:active {
+    transform: scale(0.95); /* Slight press effect */
+}
+
+/* Container for icons inside button */
+.button-icon-wrapper {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 0; /* Ensure wrapper doesn't add space */
+  background-color: aqua;
+}
+
+/* Style for the SVGs themselves */
+.icon {
+  width: 20px; /* Adjust default icon size */
+  height: 20px;
+  stroke: magenta; /* Inherit color from button */
+  stroke-width: 1.5; /* Adjust line thickness */
+  fill: none;
+  display: block;
+  pointer-events: none; /* Pass clicks to button */
+}
+
+/* Helper class to hide icons */
+.button-icon-wrapper.is-hidden {
+  display: none;
+}
+
+/* Optional: Specific size adjustments */
+/*
+.icon-play, .icon-pause { width: 18px; height: 18px; }
+.icon-volume-on, .icon-volume-off { width: 22px; height: 22px; }
+*/
