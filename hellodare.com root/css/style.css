@@ -30,6 +30,7 @@ html, body {
 .left-column, .right-column {
   flex: var(--column-flex-side);
   display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
   padding: var(--padding-columns);
   height: 100%; position: relative;
   z-index: var(--z-index-side-columns);
@@ -92,8 +93,7 @@ html, body {
   top: 50%; left: 50%; transform: translate(-50%, -50%);
   width: 100%; 
   overflow: hidden;
-  /*background-color: var(--clr-background);*/
-  background-color: magenta;
+  background-color: var(--clr-background);
   border-radius: var(--radius-video); 
   flex-shrink: 0; 
    /* --- Animation Related --- */
@@ -203,8 +203,7 @@ html, body {
 
   z-index: var(--z-index-info-overlay, 4);
   color: var(--clr-text-primary);
-  /*background-color: rgba(251, 245, 233, 0.7);*/
-  background-color: aquamarine;
+  background-color: rgba(251, 245, 233, 0.7);*/
   padding: 0;
   border-radius: none;
   text-align: left;
@@ -397,6 +396,70 @@ html, body {
 /* --- Active Scroll Item Style --- */
 .scroll-item.active-scroll-item { /* ... */ }
 
+/* ========================================================================== */
+/*            SECTION 3 / NAVIGATION MENU                                     */
+/* ========================================================================== */
+
+/* === ADD Navigation Menu Styles === */
+
+.navigation-menu {
+  margin-bottom: 30px; /* Space below Info button */
+  width: 100%;
+  text-align: left; /* Or left */
+}
+
+.nav-link-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0; /* Space below list */
+  max-height: 50vh; /* Limit height and allow scroll if too many items */
+  overflow-y: auto; /* Add scrollbar if needed */
+}
+
+.nav-link-list li {
+  margin-bottom: 8px; /* Spacing between links */
+}
+
+.nav-link {
+  font-family: var(--primary-font-family);
+  font-size: var(--font-size-xsmall); /* Or base size */
+  color: var(--primary-font-color);
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-block; /* Or block for full width */
+  transition: color 0.2s ease;
+  opacity: 0.6; /* Dim inactive links */
+}
+
+.nav-link:hover,
+.nav-link.active { /* Style for hover and active */
+  color: var(--primary-font-color); /* Or a highlight color */
+  opacity: 1.0; /* Fully opaque */
+  /* text-decoration: underline; */ /* Optional underline */
+}
+
+.nav-controls {
+  display: flex;
+  justify-content: center; /* Center buttons */
+  gap: 15px;
+}
+
+.nav-button {
+  font-family: var(--primary-font-family);
+  font-size: var(--font-size-xsmall);
+  background-color: transparent;
+  border: 1px solid var(--primary-font-color); /* Simple border */
+  color: var(--primary-font-color);
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  border-radius: 4px;
+}
+
+.nav-button:hover {
+  background-color: rgba(0, 0, 0, 0.05); /* Subtle hover */
+}
+
 /* ======================================== */
 /*            MOBILE LAYOUT STYLES          */
 /* ======================================== */
@@ -481,6 +544,16 @@ html, body {
       visibility: visible;
       transform: translateX(-50%); /* <<< Final transform includes centering */
       transition-delay: 0s;
+  }
+
+  .navigation-menu {
+    margin-top: 15px; /* Less margin */
+    padding-bottom: 15px; /* Add padding if needed */
+  }
+  .nav-link-list {
+      max-height: none; /* Remove height limit? */
+      overflow-y: visible;
+      margin-bottom: 15px;
   }
 
 }

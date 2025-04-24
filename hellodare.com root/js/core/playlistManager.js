@@ -2,7 +2,7 @@
 
 // --- Imports ---
 // Adjust paths as needed
-import { initializeGsapScroll, toggleGlobalVolume, goToIndex } from './scroll.js';
+import { initializeGsapScroll, toggleGlobalVolume, goToIndex, getCurrentIndex } from './scroll.js';
 import { playlist } from '../data/playlistData.js';
 import { Video } from '../modules/Video.js';
 import { config } from '../config.js';
@@ -13,26 +13,10 @@ const VIDEO_WRAPPER_SELECTOR = '.video-aspect-wrapper';
 const INFO_OVERLAY_SELECTOR = '.video-info-overlay';
 
 // --- Main Exported Function ---
-/*
 export async function renderPlaylist() {
     currentVideos = await initializeVideos();
     renderVideos(currentVideos);
-    //positionVideoOverlays(); // JS sets initial bottom/left/maxWidth based on screen size
-    initializeGsapScroll(currentVideos);
-
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            updateDOMVideoSizes(currentVideos);
-            //positionVideoOverlays(); // Re-call on resize
-        }, config.input.resizeDebounce); // <<< Use config
-    });
-}*/
-
-export async function renderPlaylist() {
-    currentVideos = await initializeVideos();
-    renderVideos(currentVideos);
+    renderNavigationMenu(playlist, "Info");
 
     // Initialize Players (calls positionSingleInfoOverlay internally via Video.js)
     console.log("--- Starting player init trigger ---");
@@ -207,7 +191,6 @@ function getDynamicWidth() {
     return containerElement ? containerElement.clientWidth : window.innerWidth;
 }
 
-
 export function positionSingleInfoOverlay(videoId) {
     // console.log(`Positioning single overlay for ${videoId} using GBCR logic...`);
     const item = document.querySelector(`${config.selectors.scrollItem}.video-item[data-video-id="${videoId}"]`);
@@ -231,22 +214,17 @@ export function positionSingleInfoOverlay(videoId) {
 
     const isMobile = window.innerWidth <= config.breakpoints.mobileMaxWidth;
 
-    // --- USE getBoundingClientRect as in your original ---
     const scrollItemRect = scrollItem.getBoundingClientRect();
     const wrapperRect = wrapper.getBoundingClientRect();
-    // --- End GBCR ---
 
-    // --- Calculate Bottom Position (Your original logic) ---
+    // --- Calculate Bottom Position ---
     const wrapperBottomRelativeToParent = wrapperRect.bottom - scrollItemRect.top;
     const spaceBelowWrapper = scrollItemRect.height - wrapperBottomRelativeToParent;
     // Ensure bottom isn't negative, maybe add a minimum gap
     const overlayBottomPosition = Math.max(5, spaceBelowWrapper - config.layout.overlayOffsetBottom); // Using Math.max(5, ...) as safety
     // --- SET 'bottom' STYLE ---
     overlay.style.bottom = `${overlayBottomPosition}px`;
-    // --- REMOVE 'top' STYLE ---
-    // overlay.style.top = `auto`; // Or remove it completely if set elsewhere
 
-    // --- Calculate and Apply Left Position (Your original logic) ---
     if (isMobile) {
         overlay.style.left = '50%'; // CSS handles transform
         overlay.style.maxWidth = `${wrapperRect.width * 0.9}px`; // Example width
@@ -261,4 +239,98 @@ export function positionSingleInfoOverlay(videoId) {
     // --- End Left Position ---
 
     // console.log(`[PositionOverlay GBCR ${videoId}] Set: bottom=${overlay.style.bottom}, left=${overlay.style.left}`);
+}
+
+function renderNavigationMenu(videoData, infoSectionName = "Info") {
+    console.log("--- Rendering Navigation Menu ---");
+    const navContainer = document.getElementById('main-navigation'); // Use ID from HTML
+    if (!navContainer) {
+        console.error("Navigation container #main-navigation not found.");
+        return;
+    }
+
+    let navHTML = '<ul class="nav-link-list">'; // Start list
+
+    // Add link for each video
+    videoData.forEach((video, index) => {
+        // Use data-index attribute to store the target scroll index
+        navHTML += `<li><a href="#" class="nav-link" data-index="${index}">${index}<span class="nav-space">${video.title || `Video ${index + 1}`}</a></li>`;
+    });
+
+    // Add link for the Info section
+    const infoIndex = videoData.length; // Index after the last video
+    navHTML += `<li><a href="#" class="nav-link" data-index="${infoIndex}">${infoSectionName}</a></li>`;
+
+    navHTML += '</ul>'; // End list
+
+    // Add Prev/Next Buttons
+    navHTML += `
+        <div class="nav-controls">
+            <button class="nav-button nav-button-prev" id="nav-prev-btn" aria-label="Previous Section"><</button>
+            <button class="nav-button nav-button-next" id="nav-next-btn" aria-label="Next Section">></button>
+        </div>
+    `;
+
+    navContainer.innerHTML = navHTML;
+    console.log("Navigation menu HTML rendered.");
+
+    // --- Attach Event Listeners AFTER rendering ---
+    attachNavigationListeners(navContainer, infoIndex); // Pass infoIndex for boundary checks
+}
+
+function attachNavigationListeners(navContainer, lastItemIndex) {
+    const linkList = navContainer.querySelector('.nav-link-list');
+    const prevButton = navContainer.querySelector('#nav-prev-btn');
+    const nextButton = navContainer.querySelector('#nav-next-btn');
+
+    // Listener for Links (using event delegation)
+    if (linkList) {
+        linkList.addEventListener('click', (event) => {
+            event.preventDefault();
+            const targetLink = event.target.closest('.nav-link'); // Find clicked link
+            if (targetLink && targetLink.dataset.index !== undefined) {
+                const targetIndex = parseInt(targetLink.dataset.index, 10);
+                if (!isNaN(targetIndex) && typeof goToIndex === 'function') {
+                    console.log(`Nav link clicked: Scrolling to index ${targetIndex}`);
+                    goToIndex(targetIndex);
+                }
+            }
+        });
+        console.log("Navigation link listener attached.");
+    }
+
+    // Listener for Prev Button
+    if (prevButton) {
+        prevButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            if (typeof getCurrentIndex === 'function' && typeof goToIndex === 'function') {
+                const currentIdx = getCurrentIndex();
+                if (currentIdx > 0) {
+                    console.log("Nav Prev clicked: Scrolling to index", currentIdx - 1);
+                    goToIndex(currentIdx - 1);
+                } else {
+                     console.log("Nav Prev clicked: Already at first item.");
+                }
+            }
+        });
+         console.log("Navigation Prev button listener attached.");
+    }
+
+    // Listener for Next Button
+    if (nextButton) {
+        nextButton.addEventListener('click', (event) => {
+            event.preventDefault();
+             if (typeof getCurrentIndex === 'function' && typeof goToIndex === 'function') {
+                const currentIdx = getCurrentIndex();
+                // Use lastItemIndex passed in (which includes the info section)
+                if (currentIdx < lastItemIndex) {
+                    console.log("Nav Next clicked: Scrolling to index", currentIdx + 1);
+                    goToIndex(currentIdx + 1);
+                } else {
+                     console.log("Nav Next clicked: Already at last item.");
+                }
+            }
+        });
+         console.log("Navigation Next button listener attached.");
+    }
 }

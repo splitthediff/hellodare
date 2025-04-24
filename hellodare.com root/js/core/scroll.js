@@ -29,10 +29,24 @@ let animationDuration = config.animation.desktopDuration;
 // HELPER / STATE UPDATE FUNCTIONS
 // ==================================================
 function updateActiveClass() {
-     if (!scrollItems || scrollItems.length === 0) return;
-     scrollItems.forEach((item, i) => {
+    if (!scrollItems || scrollItems.length === 0) return;
+    scrollItems.forEach((item, i) => {
         item?.classList.toggle(config.selectors.activeScrollItemClass, i === currentIndex);
     });
+
+    const navLinks = document.querySelectorAll('#main-navigation .nav-link'); // Select all nav links
+    if (navLinks.length > 0) {
+        navLinks.forEach(link => {
+            const linkIndex = parseInt(link.dataset.index, 10);
+            // Remove active class from all first (safer)
+            link.classList.remove('active');
+            // Add active class if index matches current scroll index
+            if (!isNaN(linkIndex) && linkIndex === currentIndex) {
+                link.classList.add('active');
+            }
+        });
+    }
+
     updateInfoButtonState();
 }
 
@@ -105,6 +119,10 @@ export function goToIndex(index, immediate = false) {
             }
         });
     }
+}
+
+export function getCurrentIndex() {
+    return currentIndex;
 }
 
 // ==================================================
