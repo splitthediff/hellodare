@@ -25,12 +25,12 @@ export const playlist = [{
     year: '2018'
 }, {
     vimeoid: "535413159",
-    title: `Icarus / Main on End`,
+    title: `13th / GFX Reel`,
     client: 'Netflix',
     year: '2018'
 }, {
     vimeoid: "432305926",
-    title: `Icarus / Main on End`,
+    title: `Inside Bill's Brain / GFX Reel`,
     client: 'Netflix',
     year: '2018'
 }];
