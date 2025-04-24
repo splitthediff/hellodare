@@ -1,0 +1,27 @@
+/* ======================================== */
+/*             BASE & GLOBAL                */
+/* ======================================== */
+
+/* Universal reset */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* Body and html reset */
+html, body {
+  height: 100%; width: 100%; overflow: hidden;
+  background-color: var(--clr-background);
+  color: var(--clr-text-primary);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  font-weight: var(--font-weight-regular);
+}
+
+/* Basic Link Styling (if needed globally) */
+a {
+  color: var(--clr-text-primary); /* Or a specific link color variable */
+  text-decoration: none; /* Example: remove default underline */
+}
+a:hover {
+  /* Define a subtle global hover if desired */
+  /* text-decoration: underline; */
+}

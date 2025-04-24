@@ -1,0 +1,51 @@
+/* ======================================== */
+/*           SIDE COLUMN CONTENT            */
+/* ======================================== */
+
+/* --- Title (Left Column) --- */
+.title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    background-color: transparent; display: inline; border: none; padding: 0;
+    cursor: pointer;
+  }
+  .intro-title.overlapped {
+    color: var(--clr-text-overlap); opacity: 0.65;
+  }
+  
+  /* --- Info Button (Right Column) --- */
+  .info { /* Specific button/link */
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-regular);
+    background-color: transparent; display: inline; border: none; padding: 0;
+    cursor: pointer;
+    margin-bottom: 30px; /* Space above nav menu */
+  }
+  .info:hover { text-decoration: underline; }
+  
+  /* --- Navigation Menu (Right Column) --- */
+  .navigation-menu {
+    width: 100%;
+    text-align: left; /* Or center */
+    margin-top: 30px; /* Spacing below Info button */
+  }
+  .nav-link-list {
+    list-style: none; padding: 0; margin: 0 0 20px 0;
+    max-height: 50vh; overflow-y: auto;
+  }
+  .nav-link-list li { margin-bottom: 8px; }
+  .nav-link {
+    font-family: var(--font-family-primary); font-size: var(--font-size-xsmall);
+    color: var(--clr-text-primary); text-decoration: none; cursor: pointer;
+    display: inline-block; transition: color 0.2s ease; opacity: 0.6;
+  }
+  .nav-link:hover,
+  .nav-link.active { color: var(--clr-text-primary); opacity: 1.0; }
+  .nav-controls { display: flex; justify-content: center; gap: 15px; }
+  .nav-button {
+    font-family: var(--font-family-primary); font-size: var(--font-size-xsmall);
+    background-color: transparent; border: 1px solid var(--clr-text-primary);
+    color: var(--clr-text-primary); padding: 5px 10px; cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease; border-radius: 4px;
+  }
+  .nav-button:hover { background-color: rgba(0, 0, 0, 0.05); }

@@ -1,0 +1,71 @@
+/* ======================================== */
+/*             INFO SECTION STYLES          */
+/* ======================================== */
+
+/* --- Initial state for animation --- */
+.scroll-item.info-section .info-block { /* Target info blocks directly */
+    opacity: 0; transform: translateY(20px); will-change: transform, opacity;
+  }
+  
+  /* --- Layout --- */
+  .info-section { /* Is also .scroll-item */
+    display: flex; justify-content: center; align-items: center;
+    color: var(--clr-text-primary); background-color: var(--clr-background);
+    padding: var(--space-xxl); /* Overall padding */
+  }
+  .info-content {
+    display: flex; flex-direction: row; justify-content: flex-start;
+    gap: var(--gap-info-columns); width: 100%;
+    max-width: var(--content-max-width-info-wide); text-align: left;
+  }
+  .info-column {
+    box-sizing: border-box; text-align: left; flex-basis: 0; flex-shrink: 1;
+  }
+  .info-column-left { flex-grow: var(--info-column-left-grow); }
+  .info-column-right { flex-grow: var(--info-column-right-grow); }
+  
+  /* --- Text Styling --- */
+  .info-column h2, .info-column h3 {
+    font-size: var(--font-size-xxsmall); font-weight: var(--font-weight-bold);
+    margin-bottom: var(--space-after-heading); text-transform: uppercase; letter-spacing: .05em;
+  }
+  .info-column p {
+    font-size: var(--font-size-info-p); font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-info-p); margin-bottom: var(--space-between-paragraphs);
+  }
+  /* Spacing between paragraph and next heading */
+  .info-column .info-block:not(:first-child) h2,
+  .info-column .info-block:not(:first-child) h3 {
+      margin-top: var(--space-paragraph-before-heading);
+  }
+  /* Remove margin from last paragraph in a block */
+  .info-column .info-block p:last-child {
+      margin-bottom: 0;
+  }
+  /* Remove margin from very last block */
+  .info-column > .info-block:last-child { margin-bottom: 0; }
+  
+  /* --- Recognition List --- */
+  .info-column .recognition-list { margin-top: var(--space-xl); }
+  .info-column .recognition-list h4 { /* Style if using h4 */ }
+  .info-column .recognition-item { margin-bottom: var(--space-m); }
+  .info-column .recognition-list .recognition-item:last-child { margin-bottom: 0; }
+  .info-column .recognition-award-name {
+    font-size: var(--font-size-xsmall); font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-heading); color: var(--clr-text-primary); margin: 0;
+  }
+  .info-column .recognition-details {
+    font-family: var(--font-family-secondary); font-style: italic; letter-spacing: 0.02em;
+    font-size: calc(var(--font-size-xsmall) * 0.9); font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-tight); color: var(--clr-text-primary); opacity: 0.7; margin: 0;
+  }
+  
+  /* --- Links --- */
+  .info-column a {
+    color: var(--clr-text-primary); background-color: transparent; text-decoration: none;
+    transition: color var(--transition-duration-fast) ease; cursor: pointer;
+  }
+  .info-column a:hover,
+  .info-column a:focus { color: var(--clr-link-hover); outline: none; }
+  .info-column a.email-link { /* Optional specific styles */ }
+  .info-column a.internal-link { /* Optional specific styles */ }

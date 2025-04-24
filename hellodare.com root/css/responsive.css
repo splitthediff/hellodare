@@ -1,0 +1,84 @@
+/* ======================================== */
+/*            MOBILE LAYOUT STYLES          */
+/* ======================================== */
+@media (max-width: 768px) { /* Use config value eventually */
+
+    .page-container { flex-direction: column; }
+  
+    /* --- Columns --- */
+    .left-column, .right-column, .middle-column {
+        flex: none; width: 100%; height: auto;
+        padding: var(--space-l); /* Mobile padding */
+    }
+    .left-column { order: 1; text-align: center; flex-shrink: 0; padding: 5vh var(--space-l); }
+    .middle-column { order: 2; flex-grow: 1; padding: 0; }
+    .right-column { order: 3; text-align: center; flex-shrink: 0; padding: 0 var(--space-l) 5vh; }
+  
+    /* --- Video Item --- */
+    .scroll-item.video-item {
+        padding: 10px; /* Add back padding around wrapper on mobile */
+    }
+    .video-aspect-wrapper {
+        width: 100%; /* Let it fill padded parent */
+    }
+  
+    /* --- Controls & Overlays --- */
+    .video-controls {
+        bottom: var(--space-m); padding: var(--space-s) var(--space-m); gap: var(--space-s);
+        width: calc(100% - var(--space-m) * 2) ; /* Adjust width based on padding */
+    }
+    .controls-button { padding: var(--space-s) var(--space-m); font-size: 0.8em; }
+  
+    /* Video Info Overlay */
+    .video-info-overlay {
+        /* JS sets top/bottom */
+        left: 50%; /* Center using transform */
+        transform: translateX(-50%) translateY(15px); /* Initial state */
+        max-width: 90%;
+        text-align: center;
+    }
+    .video-item:hover .video-info-overlay {
+         transform: translateX(-50%) translateY(0); /* Hover state */
+     }
+    .video-info-overlay .video-info-title { font-size: 0.9em; }
+    .video-info-overlay .video-info-year { font-size: 0.75em; }
+  
+  
+    /* --- Info Section --- */
+    .scroll-item.info-section {
+      padding: 20px; align-items: flex-start; overflow-y: auto;
+    }
+    .info-content {
+      flex-direction: column; gap: 30px; width: 100%; max-width: 100%;
+      transform: none; text-align: center;
+    }
+    .info-column {
+        width: 100%; text-align: center; flex-grow: 0; flex-basis: auto; flex-shrink: 1;
+    }
+    .info-column-left, .info-column-right { /* No specific flex needed */ }
+  
+    /* Mobile Font Sizes */
+    .info-column h2, .info-column h3 { font-size: var(--font-size-mobile-xsmall);}
+    .info-column p { font-size: var(--font-size-mobile-xsmall); line-height: var(--line-height-base); }
+  
+    /* Recognition */
+    .info-column .recognition-list { margin-top: var(--space-l); }
+    .info-column .recognition-list h4 { text-align: center; }
+    .info-column .recognition-item { margin-bottom: var(--space-m); }
+    .info-column .recognition-details { font-size: calc(var(--font-size-small) * 0.85); }
+  
+  
+    /* --- Navigation Menu --- */
+    .navigation-menu {
+      margin-top: 15px; padding-bottom: 15px; text-align: center;
+    }
+    .nav-link-list { max-height: none; overflow-y: visible; margin-bottom: 15px; }
+     .nav-link { font-size: var(--font-size-xsmall); }
+     .nav-button { font-size: var(--font-size-xsmall); }
+  
+     /* Hide Info button when on info page */
+    #scroll-to-info-btn.is-hidden-on-mobile { /* Assuming ID from HTML */
+      display: none;
+    }
+  
+  } /* End Mobile Media Query */

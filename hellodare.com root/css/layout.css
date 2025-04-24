@@ -1,0 +1,52 @@
+/* ======================================== */
+/*               PAGE LAYOUT                */
+/* ======================================== */
+
+/* --- Page Container --- */
+.page-container {
+    display: flex;
+    height: 100dvh;
+    width: 100vw;
+  }
+  
+  /* --- Columns --- */
+  .left-column, .right-column, .middle-column {
+    /* Initial animation state */
+    opacity: 0;
+    transform: translateY(50px);
+    will-change: transform, opacity;
+    /* Layout */
+    height: 100%;
+    position: relative; /* For z-index */
+  }
+  .left-column, .right-column {
+    flex: var(--column-flex-side);
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center;
+    justify-content: center;
+    padding: var(--padding-columns);
+    z-index: var(--z-index-side-columns);
+    color: var(--clr-text-primary);
+  }
+  .middle-column {
+    flex: var(--column-flex-middle);
+    overflow: hidden; /* Clip video track */
+  }
+  
+  /* --- Video Track (inside Middle Column) --- */
+  .video-track {
+    width: 100%; height: 100%; position: relative; will-change: transform;
+  }
+  
+  /* --- Base Scroll Item --- */
+  .scroll-item {
+    width: 100%; height: 100%; position: relative; overflow: hidden;
+    display: flex; justify-content: center; align-items: center; padding: 0px;
+  }
+  
+  /* --- Active Scroll Item --- */
+  .scroll-item.active-scroll-item {
+    /* Add indicator styles if desired */
+    /* outline: 2px solid red; */
+  }
