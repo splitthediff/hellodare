@@ -246,37 +246,6 @@ export class Video {
                     this.isEnding = false; // Reset if time moves away
             }
         }; // End _handleSimulatedEnd
-
- /*
-        _handleSimulatedEnd = (data) => {
-            if (!data || !this.duration) return;
-            const currentTime = data.seconds;
-            const endTimeTarget = this.duration - this.timeupdateThreshold;
-
-            if (currentTime >= endTimeTarget && !this.isEnding) {
-                    console.log(`%c[EndCheck ${this.id}] CONDITION MET! Setting flags & pausing. (Using innerText for button)`, "color: red; font-weight: bold;");
-                    this.isEnding = true; this.hasPlayedOnce = true;
-
-                    if (this.player) {
-                        this.player.off('timeupdate', this._handleSimulatedEnd);
-                        console.log(`[EndCheck ${this.id}] Calling pause...`);
-                        this.player.pause().catch(e => console.warn(`Pause error on timeupdate: ${e.name}`));
-                    }
-
-                    // --- TEMPORARILY REVERT TO INNERTEXT ---
-                    const btn = document.getElementById(`playPauseButton-${this.id}`);
-                    if (btn) {
-                        btn.innerText = 'Play'; // Use text instead of icons
-                    } else {
-                         console.warn(`[Player ${this.id}] Could not find button to update on simulated end.`);
-                    }
-                    // --- END REVERT ---
-
-            } else if (this.isEnding && currentTime < (endTimeTarget - 0.1)) {
-                    this.isEnding = false;
-            }
-        };
-*/
      
         _handleSeekClick = (event) => {
             // console.log(`[Seek Click ${this.id}]`);

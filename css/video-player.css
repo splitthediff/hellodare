@@ -9,7 +9,7 @@
 .video-aspect-wrapper {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
   width: 100%; overflow: hidden;
-  background-color: #111; /* Background during load */
+  background-color: transparent; /* Background during load */
   border-radius: var(--radius-video); flex-shrink: 0;
   /* Animation */
   opacity: 0; will-change: opacity, transform;
@@ -39,10 +39,10 @@
 .video-controls {
   opacity: 0; visibility: hidden;
   transition: opacity var(--transition-duration) var(--transition-ease), visibility 0s linear var(--transition-duration);
-  position: absolute; bottom: var(--space-s);
+  position: absolute; bottom: var(--space-xs);
   left: 50%; transform: translateX(-50%);
   z-index: var(--z-index-controls);
-  background: var(--clr-overlay-bg);
+  background: transparent;
   padding: var(--padding-controls-y) var(--padding-controls-x);
   border-radius: var(--radius-controls);
   display: flex; align-items: center;
@@ -73,14 +73,15 @@
   border-radius: 0px; cursor: pointer; overflow: hidden; position: relative;
   margin: 0 5px; /* Added margin */
 }
+
 .progress-bar-fill {
   height: 100%; width: 0%; background-color: var(--clr-text-overlay);
   border-radius: 0px; transition: width 0.1s linear;
 }
 .video-time-display {
   color: var(--clr-text-overlay); font-size: var(--font-size-xxsmall);
-  font-family: monospace; pointer-events: none;
-  background-color: rgba(0, 0, 0, 0.3); padding: 1px 4px;
+  pointer-events: none;
+  background-color: transparent; padding: var(--space-xs);
   border-radius: 2px; line-height: 1; flex-shrink: 0;
 }
 
@@ -93,7 +94,7 @@
   color: var(--clr-text-primary);
   padding: 0; text-align: left;
   /* Initial state */
-  opacity: 0; visibility: hidden; transform: translateY(15px); pointer-events: none;
+  opacity: 0; visibility: hidden; transform: translateY(10px); pointer-events: none;
   /* Transition */
   transition: opacity var(--transition-duration) var(--transition-ease),
               visibility 0s linear var(--transition-duration),
@@ -127,14 +128,14 @@
   cursor: pointer;
   transition: background-color var(--transition-duration-fast, 0.2s) ease, transform 0.1s ease; 
   line-height: 0; 
-  /*display: inline-flex;*/
+  /*display: inline-flex;*/ /* this messes up the alignment */
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
   border-radius: 4px; 
 }
 .controls-button:hover {
-    background-color: var(--clr-button-hover-bg, rgba(255, 255, 255, 0.15));
+    background-color: transparent;
 }
 .controls-button:active {
     transform: scale(0.95); /* Slight press effect */
@@ -150,8 +151,8 @@
 
 /* Style for the SVGs themselves */
 .icon {
-  width: 20px;        /* Adjust default icon size as needed */
-  height: 20px;       /* Adjust default icon size as needed */
+  width: 18px;        /* Adjust default icon size as needed */
+  height: 18px;       /* Adjust default icon size as needed */
 
   fill: currentColor;   /* <<< Use the text color of the parent button */
   stroke: none;         /* <<< Explicitly remove any stroke */
