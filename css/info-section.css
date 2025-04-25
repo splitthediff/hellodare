@@ -29,6 +29,12 @@
     font-size: var(--font-size-xxsmall); font-weight: var(--font-weight-bold);
     margin-bottom: var(--space-after-heading); text-transform: uppercase; letter-spacing: .05em;
   }
+
+  .info-column .info-header h2{
+    font-size: var(--font-size-small); font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-heading); margin-bottom: var(--space-after-heading);
+  }
+  
   .info-column p {
     font-size: var(--font-size-info-p); font-weight: var(--font-weight-regular);
     line-height: var(--line-height-info-p); margin-bottom: var(--space-between-paragraphs);
@@ -55,9 +61,9 @@
     line-height: var(--line-height-heading); color: var(--clr-text-primary); margin: 0;
   }
   .info-column .recognition-details {
-    font-family: var(--font-family-secondary); font-style: italic; letter-spacing: 0.02em;
+    font-family: var(--font-family-primary);
     font-size: calc(var(--font-size-xsmall) * 0.9); font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-tight); color: var(--clr-text-primary); opacity: 0.7; margin: 0;
+    line-height: var(--line-height-tight); color: var(--clr-text-primary); opacity: 0.6; margin: 0;
   }
   
   /* --- Links --- */

@@ -128,10 +128,14 @@ function renderVideos(videos) {
             <div class="info-content">
                 <div class="info-column info-column-left">
                     <div class="info-block">
+                        <div class="info-header">
+                            <h2>AT STUDIO DARE<br>WE MAKE FUN AND THOUGHTFUL THINGS<br>AND WE LIKE HAIKUS</h2>
+                        </div>
+                    </div>
+                    <div class="info-block">
                         <h2>About</h2>
-                        <p>Studio Dare is the creative studio of Leanne Dare.<br>
-                        <p>We work in a multitude of disciplines including graphics, animation, live action direction, photography & creative direction.</p>
-                    </div>   
+                        <p>Our expertise spans design, animation, live action direction, photography, and creative direction for film, television, commercials, branding, and social media. We believe design and storytelling can make the world a better place, and we will always give our absolute best shot whenever we have the chance to prove it.</p>
+                    </div>     
                     <div class="info-block">             
                         <div class="recognition-list">
                             <h3>Recognition</h3>
