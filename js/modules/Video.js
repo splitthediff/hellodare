@@ -205,14 +205,17 @@ export class Video {
                 } else { console.error(`[TimeUpdate ${this.id}] formatTime function is not available!`); }
             }
         }
-    
+
         _handleSimulatedEnd = (data) => {
             // console.log(`[TimeUpdate ${this.id}] End Simulation Check. Time: ${data?.seconds}`);
-            if (!data) return;
+            if (!data || !this.duration) return; // Add duration check
             const currentTime = data.seconds;
-            
-            if (this.duration > 0 && currentTime >= (this.duration - this.timeupdateThreshold) && !this.isEnding) {
-                    this.isEnding = true; this.hasPlayedOnce = true;
+            // Define endTimeTarget locally for clarity
+            const endTimeTarget = this.duration - this.timeupdateThreshold;
+
+            if (currentTime >= endTimeTarget && !this.isEnding) {
+                    this.isEnding = true;
+                    this.hasPlayedOnce = true;
                     console.log(`%c[Player ${this.id}] TIMEUPDATE near end. Pausing & Updating Button Icon.`, "color: purple;");
 
                     // Find button and icon wrappers
@@ -221,24 +224,59 @@ export class Video {
                     const pauseWrapper = btn?.querySelector('.icon-pause-wrapper');
 
                     if (this.player) {
-                        this.player.off('timeupdate', handleTimeUpdate); // Detach this listener
+                        // --- CORRECTED: Detach itself ---
+                        this.player.off('timeupdate', this._handleSimulatedEnd);
+                        console.log(`[Player Event ${this.id}] Detached _handleSimulatedEnd listener.`);
+                        // --- END CORRECTION ---
+
                         this.player.pause().catch(e => console.warn(`Pause error on timeupdate: ${e.name}`));
                     }
 
-                    // --- Toggle Icons INSTEAD of innerText ---
+                    // Toggle Icons
                     if (btn && playWrapper && pauseWrapper) {
-                        playWrapper.classList.remove('is-hidden'); // Show Play Icon
-                        pauseWrapper.classList.add('is-hidden');    // Hide Pause Icon
-                        btn.setAttribute('aria-label', 'Play');     // Update accessibility label
+                        playWrapper.classList.remove('is-hidden');
+                        pauseWrapper.classList.add('is-hidden');
+                        btn.setAttribute('aria-label', 'Play');
                     } else {
-                        console.warn(`[Player ${this.id}] Could not find button/icons to update on simulated end.`);
+                        console.warn(`[Player ${this.id}] Could not find button/icons on simulated end.`);
                     }
-                    // --- End Icon Toggle ---
 
-            } else if (this.isEnding && this.duration > 0 && currentTime < (this.duration - this.timeupdateThreshold - 0.1)) {
+            } else if (this.isEnding && this.duration > 0 && currentTime < (endTimeTarget - 0.1)) {
+                    // console.log(`[Player ${this.id}] Time moved away, resetting isEnding.`);
                     this.isEnding = false; // Reset if time moves away
             }
+        }; // End _handleSimulatedEnd
+
+ /*
+        _handleSimulatedEnd = (data) => {
+            if (!data || !this.duration) return;
+            const currentTime = data.seconds;
+            const endTimeTarget = this.duration - this.timeupdateThreshold;
+
+            if (currentTime >= endTimeTarget && !this.isEnding) {
+                    console.log(`%c[EndCheck ${this.id}] CONDITION MET! Setting flags & pausing. (Using innerText for button)`, "color: red; font-weight: bold;");
+                    this.isEnding = true; this.hasPlayedOnce = true;
+
+                    if (this.player) {
+                        this.player.off('timeupdate', this._handleSimulatedEnd);
+                        console.log(`[EndCheck ${this.id}] Calling pause...`);
+                        this.player.pause().catch(e => console.warn(`Pause error on timeupdate: ${e.name}`));
+                    }
+
+                    // --- TEMPORARILY REVERT TO INNERTEXT ---
+                    const btn = document.getElementById(`playPauseButton-${this.id}`);
+                    if (btn) {
+                        btn.innerText = 'Play'; // Use text instead of icons
+                    } else {
+                         console.warn(`[Player ${this.id}] Could not find button to update on simulated end.`);
+                    }
+                    // --- END REVERT ---
+
+            } else if (this.isEnding && currentTime < (endTimeTarget - 0.1)) {
+                    this.isEnding = false;
+            }
         };
+*/
      
         _handleSeekClick = (event) => {
             // console.log(`[Seek Click ${this.id}]`);
