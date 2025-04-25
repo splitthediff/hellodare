@@ -239,10 +239,18 @@ export function resetInfoAnimation() {
 /** Helper function to apply volume */
 async function applyGlobalVolume() {
      for (const video of controlledVideos) {
-         const soundButton = document.getElementById(`soundButton-${video.id}`);
+        const soundButton = document.getElementById(`soundButton-${video.id}`);
+        let volumeOnWrapper = null;
+        let volumeOffWrapper = null;
+
+        if (soundButton) {
+            volumeOnWrapper = soundButton.querySelector('.icon-volume-on-wrapper');
+            volumeOffWrapper = soundButton.querySelector('.icon-volume-off-wrapper');
+        }
+
          try {
-             const player = await video.initializePlayer(); await player.setVolume(globalVolumeLevel);
-             if (soundButton && volumeOnWrapper && volumeOffWrapper) { // Check elements exist
+            const player = await video.initializePlayer(); await player.setVolume(globalVolumeLevel);
+            if (soundButton && volumeOnWrapper && volumeOffWrapper) { // Check elements exist
                 const isMuted = globalVolumeLevel === 0;
                 volumeOffWrapper.classList.toggle('is-hidden', !isMuted); // Show if muted
                 volumeOnWrapper.classList.toggle('is-hidden', isMuted);  // Hide if muted

@@ -53,7 +53,7 @@ window.addEventListener('load', async () => {
 
 async function loadAndInjectSVGSprite() {
     try {
-        const response = await fetch('images/icons.svg'); // Adjust path
+        const response = await fetch('assets/images/icons.svg');
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const svgText = await response.text();
 
