@@ -19,7 +19,7 @@
     height: 100%;
     position: relative; /* For z-index */
   }
-  .left-column, .right-column {
+ .right-column {
     flex: var(--column-flex-side);
     display: flex;
     flex-direction: column; /* Stack items vertically */
@@ -29,6 +29,18 @@
     z-index: var(--z-index-side-columns);
     color: var(--clr-text-primary);
   }
+  .left-column{
+    flex: var(--column-flex-side);
+    display: flex;            /* Use flex for nav alignment */
+    flex-direction: column;   /* Stack potential items below title */
+    align-items: center;      /* Center nav horizontally */
+    padding: var(--padding-columns);
+    height: 100%;
+    position: relative;       /* <<< REQUIRED for absolute title */
+    z-index: var(--z-index-side-columns);
+    color: var(--clr-text-primary);
+  }
+
   .middle-column {
     flex: var(--column-flex-middle);
     overflow: hidden; /* Clip video track */

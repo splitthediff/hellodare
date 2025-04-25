@@ -40,6 +40,13 @@ export function formatTime(totalSeconds) {
     return `${minutes}:${paddedSeconds}`;
 }
 
+export function paddedNumber(number) {
+    if (isNaN(number)) {
+        return number;
+    }
+    return number < 10 ? `0${number}` : number;
+}
+
 /**
  * Calculates the aspect ratio (width / height).
  * Returns 16/9 as a fallback if width or height are invalid.

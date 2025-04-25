@@ -6,6 +6,7 @@ import { initializeGsapScroll, toggleGlobalVolume, goToIndex, getCurrentIndex } 
 import { playlist } from '../data/playlistData.js';
 import { Video } from '../modules/Video.js';
 import { config } from '../config.js';
+import { paddedNumber } from '../utils/utils.js';
 
 // --- Global Variable ---
 let currentVideos = [];
@@ -269,7 +270,7 @@ function renderNavigationMenu(videoData, infoSectionName = "Info") {
     // Add link for each video
     videoData.forEach((video, index) => {
         // Use data-index attribute to store the target scroll index
-        navHTML += `<li><a href="#" class="nav-link" data-index="${index}">${index}<span class="nav-space">${video.title || `Video ${index + 1}`}</a></li>`;
+        navHTML += `<li><a href="#" class="nav-link" data-index="${index}">${paddedNumber(index)}<span class="nav-space"></span>${video.title || `Video ${index + 1}`}</a></li>`;
     });
 
     // Add link for the Info section

@@ -8,6 +8,15 @@
     font-weight: var(--font-weight-bold);
     background-color: transparent; display: inline; border: none; padding: 0;
     cursor: pointer;
+    position: absolute;       /* <<< Absolute positioning */
+    top: 50%;                 /* <<< Vertical center */
+    left: 50%;                /* <<< Horizontal center */
+    transform: translate(-50, -50%); /* <<< Fine-tune centering */
+    width: auto;              /* Fit content width */
+    max-width: 90%;           /* Prevent overflow */
+    text-align: left;
+    margin: 0;
+    padding: 0;
   }
   .intro-title.overlapped {
     color: var(--clr-text-overlap); opacity: 0.65;
@@ -26,8 +35,21 @@
   /* --- Navigation Menu (Right Column) --- */
   .navigation-menu {
     width: 100%;
-    text-align: left; /* Or center */
-    margin-top: 30px; /* Spacing below Info button */
+    max-width: 250px;
+    text-align: left;
+    flex-shrink: 0;
+    /* --- Use margin-top to push below centered title --- */
+    /* Estimate distance needed based on title height + desired gap */
+    /* This might need tweaking or JS calculation if title height varies wildly */
+    margin-top: calc(50vh + var(--space-m)); /* Example: 50vh (center) + 40px gap below title */
+    /* --- OR --- */
+    /* position: relative; */ /* If needed */
+    /* top: 40px; */ /* Position 40px below where title *would* be */
+  }
+
+  .nav-space {
+    width: var(--space-m);
+    display: inline-block;
   }
   .nav-link-list {
     list-style: none; padding: 0; margin: 0 0 20px 0;
