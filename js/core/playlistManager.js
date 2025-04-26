@@ -279,13 +279,13 @@ function renderNavigationMenu(videoData, infoSectionName = "Info") {
 
     navHTML += '</ul>'; // End list
 
-    // Add Prev/Next Buttons
+    /*
     navHTML += `
         <div class="nav-controls">
             <button class="nav-button nav-button-prev" id="nav-prev-btn" aria-label="Previous Section"><</button>
             <button class="nav-button nav-button-next" id="nav-next-btn" aria-label="Next Section">></button>
         </div>
-    `;
+    `;*/
 
     navContainer.innerHTML = navHTML;
     console.log("Navigation menu HTML rendered.");
