@@ -45,6 +45,22 @@
     /* --- OR --- */
     /* position: relative; */ /* If needed */
     /* top: 40px; */ /* Position 40px below where title *would* be */
+
+    opacity: 0;
+    visibility: hidden;
+    height: 0; /* Collapse height */
+    overflow: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease-in-out, visibility 0.3s step-end, transform 0.3s ease-in-out, height 0.3s ease-in-out;
+  }
+
+  .navigation-menu.is-visible {
+    opacity: 1;
+    visibility: visible;
+    height: auto; /* Allow content to determine height */
+    transform: translateY(0);
+    overflow: visible; /* Show scrollbar if needed */
+    transition-delay: 0s;
   }
 
   .nav-space {
@@ -71,3 +87,18 @@
     transition: background-color 0.2s ease, color 0.2s ease; border-radius: 4px;
   }
   .nav-button:hover { background-color: rgba(0, 0, 0, 0.05); }
+
+  /* --- Menu Toggle Button --- */
+.menu-toggle-button {
+  background: none;
+  border: none;
+  padding: 5px;
+  margin: 0;
+  cursor: pointer;
+  color: var(--clr-text-primary, aqua); /* Use theme color */
+  display: inline-block; /* Or block if needed */
+  line-height: 0;
+  margin-bottom: var(--space-m, 15px); /* Space below button */
+  
+  /*order: 1; */ /* Optional: If needed relative to title/nav */
+}

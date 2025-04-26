@@ -144,27 +144,6 @@
     transform: scale(0.95); /* Slight press effect */
 }
 
-/* Container for icons inside button */
-.button-icon-wrapper {
-  display: inline-block;
-  vertical-align: middle;
-  line-height: 0; /* Ensure wrapper doesn't add space */
-  background-color: transparent;
-}
-
-/* Style for the SVGs themselves */
-.icon {
-  width: 18px;        /* Adjust default icon size as needed */
-  height: 18px;       /* Adjust default icon size as needed */
-
-  fill: currentColor;   /* <<< Use the text color of the parent button */
-  stroke: none;         /* <<< Explicitly remove any stroke */
-  stroke-width: 0;    /* <<< Set stroke width to 0 */
-
-  display: block;     /* Prevents extra space below */
-  pointer-events: none; /* Clicks go to the button */
-}
-
 /* Helper class to hide icons */
 .button-icon-wrapper.is-hidden {
   display: none;
