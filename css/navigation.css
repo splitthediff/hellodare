@@ -48,19 +48,27 @@
 
     opacity: 0;
     visibility: hidden;
-    height: 0; /* Collapse height */
-    overflow: hidden;
-    transform: translateY(-10px);
-    transition: opacity 0.3s ease-in-out, visibility 0.3s step-end, transform 0.3s ease-in-out, height 0.3s ease-in-out;
+    height: 0;                /* Collapse height when hidden */
+    overflow: hidden;         /* Hide content when collapsed */
+    transform: translateY(-10px); /* Start slightly up */
+    transition: opacity 0.3s ease-in-out,
+                visibility 0.3s step-end, /* Use step-end for immediate hide */
+                transform 0.3s ease-in-out,
+                height 0.3s ease-in-out, /* Animate height */
+                margin-top 0.3s ease-in-out, /* Also transition margin/padding */
+                padding-top 0.3s ease-in-out;
   }
 
   .navigation-menu.is-visible {
     opacity: 1;
     visibility: visible;
-    height: auto; /* Allow content to determine height */
-    transform: translateY(0);
-    overflow: visible; /* Show scrollbar if needed */
-    transition-delay: 0s;
+    height: auto;             /* Allow content to determine height */
+    transform: translateY(0); /* Slide into place */
+    overflow: visible;        /* Allow content/scrollbar to show */
+    /* Add back top margin/padding when visible if needed */
+    margin-top: var(--space-m);
+    padding-top: var(--space-m);
+    transition-delay: 0s; /* Ensure transitions apply immediately when class added */
   }
 
   .nav-space {
