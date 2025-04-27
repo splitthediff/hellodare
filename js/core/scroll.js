@@ -131,62 +131,103 @@ export function getCurrentIndex() {
 
 /** Attaches button listeners managed by scroll module */
 function attachButtonListeners() {
-    console.log("--- Running attachButtonListeners ---");
-    let currentInfoButton = document.querySelector(config.selectors.infoButtonId); // Check if it exists before cloning
-    let currentTitleElement = document.querySelector(config.selectors.titleElementId); // Check if it exists before cloning
+    console.log("--- Running attachButtonListeners from scroll.js ---");
 
-    // Remove previous listeners by cloning and replacing if elements exist
-    if (currentInfoButton) {
-        const infoButtonClone = currentInfoButton.cloneNode(true);
-        currentInfoButton.parentNode.replaceChild(infoButtonClone, currentInfoButton);
-        infoButtonElement = infoButtonClone; // Store reference to the NEW cloned element
+    // --- Info Button Listener ---
+    console.log("ABL: Attempting getElementById for Info Button:", config.selectors.infoButtonId);
+    // --- RESTORE ORIGINAL VARIABLE NAME ---
+    let infoButtonElement = document.getElementById(config.selectors.infoButtonId); // Use config ID (no #)
+    // --- END RESTORE ---
+
+    if (infoButtonElement) { // Check the variable reference
+         console.log("ABL: Found Info Button.", infoButtonElement);
+        if (!infoButtonElement._listenerAttachedClick) { // Check flag on the element
+            infoButtonElement.style.cursor = 'pointer';
+            infoButtonElement.addEventListener('click', (event) => {
+                event.preventDefault();
+                if (!scrollItems || scrollItems.length === 0) return;
+                const infoSectionIndex = scrollItems.length - 1;
+                const currentIdx = getCurrentIndex();
+                goToIndex(currentIdx === infoSectionIndex ? 0 : infoSectionIndex);
+            });
+            infoButtonElement._listenerAttachedClick = true; // Set flag on the element
+            console.log("Dynamic Info/Work button listener attached.");
+        }
     } else {
-        infoButtonElement = null; // Ensure it's null if not found initially
+        console.warn(`ABL: Info button ('#${config.selectors.infoButtonId}') not found.`); // Use config ID
     }
 
-    if (currentTitleElement) {
-        const titleElementClone = currentTitleElement.cloneNode(true);
-        currentTitleElement.parentNode.replaceChild(titleElementClone, currentTitleElement);
-        // We select it again below for the listener attachment
+    // --- Title Listener ---
+    console.log("ABL: Attempting getElementById for Title:", config.selectors.titleElementId);
+    // --- RESTORE ORIGINAL VARIABLE NAME ---
+    const titleElementForListener = document.getElementById(config.selectors.titleElementId); // Use config ID (no #)
+    // --- END RESTORE ---
+
+    if (titleElementForListener) { // Check the variable reference
+        console.log("ABL: Found Title Element.", titleElementForListener);
+         if (!titleElementForListener._listenerAttachedClick) { // Check flag on the element
+            titleElementForListener.style.cursor = 'pointer';
+            titleElementForListener.addEventListener('click', (event) => {
+                event.preventDefault();
+                goToIndex(0); // Call goToIndex directly
+            });
+            titleElementForListener._listenerAttachedClick = true; // Set flag on the element
+            console.log("Title click listener attached.");
+        }
+    } else {
+        console.warn(`ABL: Main title ('#${config.selectors.titleElementId}') not found.`); // Use config ID
     }
 
-   // --- Info Button Listener ---
-   if (infoButtonElement) { // Check the potentially updated reference
-       infoButtonElement.style.cursor = 'pointer';
-       infoButtonElement.addEventListener('click', (event) => {
-           event.preventDefault();
-           if (!scrollItems || scrollItems.length === 0) return;
 
-           const infoSectionIndex = scrollItems.length - 1;
-           if (currentIndex === infoSectionIndex) {
-               console.log("Work button clicked! Scrolling to index 0.");
-               goToIndex(0);
-           } else {
-               console.log(`Info button clicked! Scrolling to index ${infoSectionIndex}`);
-               goToIndex(infoSectionIndex);
-           }
-       });
-       console.log("Dynamic Info/Work button listener attached.");
-   } else {
-       // Use the CORRECT config key in the log message
-       console.warn(`Info button ('${config.selectors.infoButtonId}') not found for dynamic listener.`);
-   }
+    // --- Menu Toggle Button Listener ---
+    console.log("ABL: Attempting getElementById for Menu Button:", config.selectors.menuToggleButtonId);
+    const menuToggleButton = document.getElementById(config.selectors.menuToggleButtonId); // Use config ID (no #)
 
-   // --- Title Listener ---
-   // Re-select the potentially cloned title element
-   const titleElementForListener = document.querySelector(config.selectors.titleElementId);
-    if (titleElementForListener) {
-        titleElementForListener.style.cursor = 'pointer';
-        titleElementForListener.addEventListener('click', (event) => {
-            event.preventDefault();
-            console.log("Title clicked! Scrolling to index 0.");
-            goToIndex(0);
-        });
-        console.log("Title click listener attached.");
-   } else {
-        // Use the CORRECT config key in the log message
-        console.warn(`Main title ('${config.selectors.titleElementId}') not found for listener.`);
-   }
+    console.log("ABL: Attempting getElementById for Nav Menu:", config.selectors.navigationContainerId);
+    const navMenu = document.getElementById(config.selectors.navigationContainerId); // Use config ID (no #)
+
+    console.log("ABL: Attempting querySelector for Menu Icon Wrapper:", '.icon-menu-wrapper', 'relative to button:', !!menuToggleButton);
+    const menuIconWrapper = menuToggleButton?.querySelector('.icon-menu-wrapper'); // Use class selectors
+
+    console.log("ABL: Attempting querySelector for Close Icon Wrapper:", '.icon-close-wrapper', 'relative to button:', !!menuToggleButton);
+    const closeIconWrapper = menuToggleButton?.querySelector('.icon-close-wrapper'); // Use class selectors
+
+
+    // Check if all required elements exist for the Menu Toggle
+    if (menuToggleButton && navMenu && menuIconWrapper && closeIconWrapper) {
+         console.log("ABL: Found ALL Menu Toggle/Nav Elements.", { menuToggleButton, navMenu, menuIconWrapper, closeIconWrapper });
+         // Check flag before adding listener
+         if (!menuToggleButton._listenerAttachedClick) {
+            console.log("ABL: Attaching Menu Toggle listener NOW."); // <-- This log should appear if condition is met
+            menuToggleButton.addEventListener('click', () => {
+                // 1. Toggle menu visibility class
+                const isVisible = navMenu.classList.toggle('is-visible'); // Use string class name
+
+                // 2. Toggle icon visibility classes
+                menuIconWrapper.classList.toggle('is-hidden', isVisible);    // Use string class name
+                closeIconWrapper.classList.toggle('is-hidden', !isVisible); // Use string class name
+
+                // 3. Update accessibility state
+                menuToggleButton.setAttribute('aria-expanded', isVisible);
+                menuToggleButton.setAttribute('aria-label', isVisible ? 'Close Navigation Menu' : 'Open Navigation Menu');
+            });
+            menuToggleButton._listenerAttachedClick = true; // Set flag
+            console.log("ABL: Menu toggle button listener attached.");
+        } else {
+             console.log("ABL: Menu toggle listener ALREADY attached."); // <-- This log should appear if flag was true
+        }
+    } else {
+        // Log specifics if something is missing
+        console.log("ABL: Menu Toggle Condition Failed.");
+        if (!menuToggleButton) console.warn(`ABL: Menu toggle button ('#${config.selectors.menuToggleButtonId}') not found.`);
+        if (!navMenu) console.warn(`ABL: Navigation menu ('#${config.selectors.navigationContainerId}') not found.`);
+        if (!menuIconWrapper) console.warn("ABL: Menu icon wrapper not found inside toggle button.");
+        if (!closeIconWrapper) console.warn("ABL: Close icon wrapper not found inside toggle button.");
+        // --- END Log specifics ---
+    }
+    // --- ADD LOG ---
+    console.log("--- attachButtonListeners finished running ---");
+    // --- END LOG ---
 
 }
 

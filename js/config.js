@@ -33,11 +33,11 @@ export const config = {
         scrollItem: ".scroll-item",
         middleColumn: ".middle-column", // Used by getDynamicWidth
         // IDs (use # for querySelector, or just name for getElementById)
-        infoButtonId: "#scroll-to-info-btn", // ID for the button itself
-        titleElementId: "#main-page-title",  // ID for the clickable title
+        infoButtonId: "scroll-to-info-btn", // ID for the button itself
+        titleElementId: "main-page-title",  // ID for the clickable title
         infoSectionId: "#info-section",      // ID for the info section scroll item
-        menuToggleButtonId: "#menu-toggle-btn",      // <<< ADDED
-        navigationContainerId: "#main-navigation", // <<< ADDED
+        menuToggleButtonId: "menu-toggle-btn",      // <<< ADDED
+        navigationContainerId: "main-navigation", // <<< ADDED
 
         
         // Class Names (just the name, no dot)
