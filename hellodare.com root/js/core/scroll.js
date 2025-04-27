@@ -25,7 +25,7 @@ let infoButtonElement = null;
 let animationDuration = config.animation.desktopDuration;
 
 
-// ==================================================
+// ================================================== s
 // HELPER / STATE UPDATE FUNCTIONS
 // ==================================================
 function updateActiveClass() {
@@ -111,9 +111,9 @@ export function goToIndex(index, immediate = false) {
 // INPUT HANDLING SETUP (Moved listener logic here)
 // ==================================================
 
-/** Attaches button listeners managed by scroll module */
+/** Attaches button listeners managed by scroll module *//*
 function attachButtonListeners() {
-    console.log("--- Running attachButtonListeners ---");
+    console.log("SCROLL: attachButtonListeners RUNNING");
     let currentInfoButton = document.querySelector(config.selectors.infoButtonId); // Check if it exists before cloning
     let currentTitleElement = document.querySelector(config.selectors.titleElementId); // Check if it exists before cloning
 
@@ -170,14 +170,117 @@ function attachButtonListeners() {
         console.warn(`Main title ('${config.selectors.titleElementId}') not found for listener.`);
    }
 
+   // --- Menu Toggle Button Listener ---
+    // Use config for IDs
+    const menuToggleButton = document.getElementById(config.selectors.menuToggleButtonId);
+    const navMenu = document.getElementById(config.selectors.navigationContainerId);
+    // Keep using class selectors for icon wrappers within the button
+    const menuIconWrapper = menuToggleButton?.querySelector('.icon-menu-wrapper');
+    const closeIconWrapper = menuToggleButton?.querySelector('.icon-close-wrapper');
+
+    if (menuToggleButton && navMenu && menuIconWrapper && closeIconWrapper) {
+        console.log("SCROLL: Menu toggle elements FOUND.");
+        if (!menuToggleButton._listenerAttachedClick) {
+            console.log("SCROLL: Attaching menu toggle listener NOW.");
+            menuToggleButton.addEventListener('click', () => {
+                // Use config for class names if you added them, otherwise use strings
+                const isVisible = navMenu.classList.toggle('is-visible');
+                menuIconWrapper.classList.toggle('is-hidden', isVisible);
+                closeIconWrapper.classList.toggle('is-hidden', !isVisible);
+                menuToggleButton.setAttribute('aria-expanded', isVisible);
+                menuToggleButton.setAttribute('aria-label', isVisible ? 'Close Navigation Menu' : 'Open Navigation Menu');
+            });
+            menuToggleButton._listenerAttachedClick = true;
+            console.log("SCROLL: Menu toggle listener attached & flag set.");
+        } else {
+            console.log("SCROLL: Menu toggle listener ALREADY attached (flag was true)."); // Log 15
+        }
+    } else {
+        // Use config in warnings
+        if (!menuToggleButton) console.warn(`Menu toggle button ('${config.selectors.menuToggleButtonId}') not found.`);
+        if (!navMenu) console.warn(`Navigation menu ('${config.selectors.navigationContainerId}') not found.`);
+        if (!menuIconWrapper) console.warn("Menu icon wrapper not found.");
+        if (!closeIconWrapper) console.warn("Close icon wrapper not found.");
+    }
+    // --- END MENU TOGGLE LISTENER ---
+
+}*/
+
+function attachButtonListeners() {
+    console.log("--- Running attachButtonListeners from scroll.js ---");
+    console.log("kjfdhlaflfhdighadfi ohv;ohgihghdlgdfhl");
+
+    // --- Info Button Listener ---
+    console.log("ABL: Attempting getElementById for Info Button:", config.selectors.infoButtonId);
+    const infoButton = document.getElementById(config.selectors.infoButtonId); // Use config ID (no #)
+    if (infoButton) {
+        // ... (Info button listener logic) ...
+         console.log("ABL: Found Info Button.", infoButton);
+         if (!infoButton._listenerAttachedClick) { /* ... add listener ... */ infoButton._listenerAttachedClick = true; console.log("Dynamic Info/Work button listener attached."); }
+    } else {
+        console.warn(`ABL: Info button ('${config.selectors.infoButtonId}') not found.`); // Use config ID
+    }
+
+    // --- Title Listener ---
+    console.log("ABL: Attempting getElementById for Title:", config.selectors.titleElementId);
+    const titleElement = document.getElementById(config.selectors.titleElementId); // Use config ID (no #)
+    if (titleElement) {
+        // ... (Title listener logic) ...
+        console.log("ABL: Found Title Element.", titleElement);
+         if (!titleElement._listenerAttachedClick) { /* ... add listener ... */ titleElement._listenerAttachedClick = true; console.log("Title click listener attached."); }
+    } else {
+        console.warn(`ABL: Main title ('${config.selectors.titleElementId}') not found.`); // Use config ID
+    }
+
+
+    // --- Menu Toggle Button Listener ---
+    console.log("ABL: Attempting getElementById for Menu Button:", config.selectors.menuToggleButtonId);
+    const menuToggleButton = document.getElementById(config.selectors.menuToggleButtonId); // Use config ID (no #)
+
+    console.log("ABL: Attempting getElementById for Nav Menu:", config.selectors.navigationContainerId);
+    const navMenu = document.getElementById(config.selectors.navigationContainerId); // Use config ID (no #)
+
+    console.log("ABL: Attempting querySelector for Menu Icon Wrapper:", '.icon-menu-wrapper', 'relative to button:', !!menuToggleButton);
+    const menuIconWrapper = menuToggleButton?.querySelector('.icon-menu-wrapper'); // Use class selectors
+
+    console.log("ABL: Attempting querySelector for Close Icon Wrapper:", '.icon-close-wrapper', 'relative to button:', !!menuToggleButton);
+    const closeIconWrapper = menuToggleButton?.querySelector('.icon-close-wrapper'); // Use class selectors
+
+
+    // Check if all required elements exist
+    if (menuToggleButton && navMenu && menuIconWrapper && closeIconWrapper) {
+         console.log("ABL: Found ALL Menu Toggle/Nav Elements.", { menuToggleButton, navMenu, menuIconWrapper, closeIconWrapper });
+         // Check flag before adding listener
+         if (!menuToggleButton._listenerAttachedClick) {
+            console.log("ABL: Attaching Menu Toggle listener NOW."); // <-- This log should appear if condition is met
+            menuToggleButton.addEventListener('click', () => {
+                // ... toggle classes ...
+            });
+            menuToggleButton._listenerAttachedClick = true; // Set flag
+            console.log("ABL: Menu toggle button listener attached.");
+        } else {
+            console.log("ABL: Menu toggle listener ALREADY attached.");
+        }
+    } else {
+        // --- Log specifics if something is missing ---
+        console.log("ABL: Menu Toggle Condition Failed.");
+        if (!menuToggleButton) console.warn(`ABL: Menu toggle button ('${config.selectors.menuToggleButtonId}') not found.`);
+        if (!navMenu) console.warn(`ABL: Navigation menu ('#${config.selectors.navigationContainerId}') not found.`);
+        if (!menuIconWrapper) console.warn("ABL: Menu icon wrapper not found inside toggle button.");
+        if (!closeIconWrapper) console.warn("ABL: Close icon wrapper not found inside toggle button.");
+        // --- END Log specifics ---
+    }
+    // --- END MENU TOGGLE LISTENER ---
+
+    console.log("--- attachButtonListeners finished running ---");
 }
 
 // ==================================================
 // INITIALIZATION FUNCTION (EXPORTED)
 // ==================================================
 export function initializeGsapScroll(videos) {
+    console.log("SCROLL: initializeGsapScroll START");
     setVideos(videos);
-
 
     // Find DOM Elements (Hardcoded selectors)
     videoTrack = document.querySelector(config.selectors.track);
@@ -232,6 +335,7 @@ export function initializeGsapScroll(videos) {
     currentIndex = 0; isAnimating = false; goToIndex(0, true);
 
     updateInfoButtonState();
+    console.log("SCROLL: Calling attachButtonListeners");
     attachButtonListeners();
 
     console.log("GSAP Scroll Initialization complete.");

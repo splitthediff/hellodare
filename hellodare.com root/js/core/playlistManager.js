@@ -14,9 +14,11 @@ const INFO_OVERLAY_SELECTOR = '.video-info-overlay';
 
 // --- Main Exported Function ---
 export async function renderPlaylist() {
+    console.log("PM: renderPlaylist START");
     currentVideos = await initializeVideos();
     renderVideos(currentVideos);
     positionVideoOverlays(); // JS sets initial bottom/left/maxWidth based on screen size
+    console.log("PM: Calling initializeGsapScroll");
     initializeGsapScroll(currentVideos);
 
     let resizeTimeout;
@@ -27,6 +29,7 @@ export async function renderPlaylist() {
             positionVideoOverlays(); // Re-call on resize
         }, config.input.resizeDebounce); // <<< Use config
     });
+    console.log("PM: renderPlaylist END");
 }
 
 // --- Helper Functions ---

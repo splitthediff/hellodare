@@ -15,7 +15,7 @@ window.addEventListener('load', async () => {
 
   console.log("Running and AWAITING renderPlaylist...");
   try {
-        // Wait for HTML rendering and initial setup from playlistManager
+        console.log("MAIN: Calling renderPlaylist");
         await renderPlaylist();
         console.log("Finished AWAITING renderPlaylist.");
 
