@@ -8,12 +8,16 @@
     font-weight: var(--font-weight-bold);
     background-color: transparent; display: inline; border: none; padding: 0;
     cursor: pointer;
-    position: relative;       /* <<< Absolute positioning */
+    /*position: relative;       /* <<< Absolute positioning */
+    
+    position: absolute; 
     top: 50%;                 /* <<< Vertical center */
     /*left: 50%;     */           /* <<< Horizontal center */
     transform: translateY(-50%); /* <<< Fine-tune centering */
-    width: 90%;              /* Fit content width */
+    /*width: 90%;              /* Fit content width */
+    width: auto; 
     /*max-width: 90%;           /* Prevent overflow */
+    left: var(--padding-columns, 20px);
     text-align: left;
     margin: 0;
     padding: 0;
@@ -35,16 +39,20 @@
   /* --- Navigation Menu (Right Column) --- */
   .navigation-menu {
     width: 90%;
-    /*max-width: 250px;*/
+    max-width: 400px;
     text-align: left;
     flex-shrink: 0;
     /* --- Use margin-top to push below centered title --- */
     /* Estimate distance needed based on title height + desired gap */
-    /* This might need tweaking or JS calculation if title height varies wildly */
-    margin-top: calc(50vh); /* Example: 50vh (center) + 40px gap below title */
+    /*margin-top: calc(50vh); /* Example: 50vh (center) + 40px gap below title */
     /* --- OR --- */
     /* position: relative; */ /* If needed */
     /* top: 40px; */ /* Position 40px below where title *would* be */
+
+    position: absolute;
+    left: var(--padding-columns, 20px);
+    top: calc(50% + 40px);
+    z-index: 1; 
 
     opacity: 0;
     visibility: hidden;
@@ -107,6 +115,15 @@
   display: inline-block; /* Or block if needed */
   line-height: 0;
   margin-bottom: var(--space-m, 15px); /* Space below button */
+  position: absolute; /* <<< Position absolute */
+  left: var(--padding-columns, 20px); /* <<< Align with parent padding */
+  /* Calculate top based on Title's vertical center + half title height + gap */
+  /* Estimate title height + gap = 40px (ADJUST THIS VALUE) */
+  top: calc(50% + 40px); /* <<< Adjust the '40px' gap */
+
+  z-index: 1; /* Above other static content, below title */
+  /* Remove margin-bottom if positioning absolute */
+  /* margin-bottom: var(--space-m, 15px); */
   
-  /*order: 1; */ /* Optional: If needed relative to title/nav */
+  /*order: 1; /* Optional: If needed relative to title/nav */
 }
