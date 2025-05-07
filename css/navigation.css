@@ -11,12 +11,10 @@
     /*position: relative;       /* <<< Absolute positioning */
     
     position: absolute; 
-    top: 50%;                 /* <<< Vertical center */
-    /*left: 50%;     */           /* <<< Horizontal center */
-    transform: translateY(-50%); /* <<< Fine-tune centering */
-    /*width: 90%;              /* Fit content width */
+    top: 50%;                
+    transform: translateY(-50%); 
     width: auto; 
-    /*max-width: 90%;           /* Prevent overflow */
+    max-width: 90%; 
     left: var(--padding-columns, 20px);
     text-align: left;
     margin: 0;
@@ -42,42 +40,46 @@
     max-width: 400px;
     text-align: left;
     flex-shrink: 0;
-    /* --- Use margin-top to push below centered title --- */
-    /* Estimate distance needed based on title height + desired gap */
-    /*margin-top: calc(50vh); /* Example: 50vh (center) + 40px gap below title */
-    /* --- OR --- */
-    /* position: relative; */ /* If needed */
-    /* top: 40px; */ /* Position 40px below where title *would* be */
 
-    position: absolute;
-    left: var(--padding-columns, 20px);
-    top: calc(50% + 40px);
-    z-index: 1; 
+    position: fixed; /* Correctly set to fixed */
+    bottom: calc(var(--padding-columns) + 2*var(--space-m)); /* Sets distance from bottom edge */
+    left: var(--padding-columns, 20px);    /* Sets distance from left edge */
+    padding-top: 0; // These will be animated via .is-visible
+    padding-left: 0; // These will be animated via .is-visible
+    z-index: 99;  /* High z-index */
 
     opacity: 0;
     visibility: hidden;
-    height: 0;                /* Collapse height when hidden */
-    overflow: hidden;         /* Hide content when collapsed */
-    transform: translateY(-10px); /* Start slightly up */
-    transition: opacity 0.3s ease-in-out,
-                visibility 0.3s step-end, /* Use step-end for immediate hide */
-                transform 0.3s ease-in-out,
-                height 0.3s ease-in-out, /* Animate height */
-                margin-top 0.3s ease-in-out, /* Also transition margin/padding */
-                padding-top 0.3s ease-in-out;
-  }
+    height: 0;
+    overflow: hidden;
+    transform: translateY(20px); /* Start slightly up */
+
+    /* --- SIMPLIFIED TRANSITIONS --- */
+    transition-property: opacity, visibility, transform;
+    transition-duration: 0.7s; /* Adjust as needed */
+    transition-timing-function: ease-in-out;
+    transition-delay: 0s, 0.5s, 0s; /* Hide visibility AFTER opacity/transform finishes */
+    /* REMOVE height, margin-top, padding-top from transition-property */
+    /* transition: opacity 0.3s ease-in-out, visibility 0.3s step-end, transform 0.3s ease-in-out; */ /* Even simpler */
+
+}
 
   .navigation-menu.is-visible {
     opacity: 1;
     visibility: visible;
-    height: auto;             /* Allow content to determine height */
-    transform: translateY(0); /* Slide into place */
-    overflow: visible;        /* Allow content/scrollbar to show */
-    /* Add back top margin/padding when visible if needed */
-    margin-top: var(--space-m);
+    transform: translateY(0); /* Slide into final position */
+
+    /* --- Set size/overflow INSTANTLY --- */
+    /* These properties do NOT need to be in the transition property list */
+    height: auto;
+    overflow: visible;
+    margin-top: var(--space-m); /* Example: Add margin/padding when visible */
     padding-top: var(--space-m);
-    transition-delay: 0s; /* Ensure transitions apply immediately when class added */
-  }
+    /* --- End Instant Set --- */
+
+    /* Ensure transition delay is 0 */
+    transition-delay: 0s;
+}
 
   .nav-space {
     width: var(--space-m);
@@ -115,15 +117,9 @@
   display: inline-block; /* Or block if needed */
   line-height: 0;
   margin-bottom: var(--space-m, 15px); /* Space below button */
-  position: absolute; /* <<< Position absolute */
-  left: var(--padding-columns, 20px); /* <<< Align with parent padding */
-  /* Calculate top based on Title's vertical center + half title height + gap */
-  /* Estimate title height + gap = 40px (ADJUST THIS VALUE) */
-  top: calc(50% + 40px); /* <<< Adjust the '40px' gap */
+  position: fixed; 
+  left: var(--padding-columns, 20px); 
+  bottom: var(--padding-columns, 20px); */
 
-  z-index: 1; /* Above other static content, below title */
-  /* Remove margin-bottom if positioning absolute */
-  /* margin-bottom: var(--space-m, 15px); */
-  
-  /*order: 1; /* Optional: If needed relative to title/nav */
+  z-index: 100;
 }

@@ -29,18 +29,7 @@
     z-index: var(--z-index-side-columns);
     color: var(--clr-text-primary);
   }
-  
-  /*.left-column{
-    flex: var(--column-flex-side);
-    display: flex;            
-    flex-direction: column;   
-    align-items: center;      
-    padding: var(--padding-columns);
-    height: 100%;
-    position: relative;      
-    z-index: var(--z-index-side-columns);
-    color: var(--clr-text-primary);
-  }*/
+
 
   .left-column{
     flex: var(--column-flex-side);
