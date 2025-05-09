@@ -180,18 +180,10 @@ function attachButtonListeners() {
 
 
     // --- Menu Toggle Button Listener ---
-    console.log("ABL: Attempting getElementById for Menu Button:", config.selectors.menuToggleButtonId);
     const menuToggleButton = document.getElementById(config.selectors.menuToggleButtonId); // Use config ID (no #)
-
-    console.log("ABL: Attempting getElementById for Nav Menu:", config.selectors.navigationContainerId);
     const navMenu = document.getElementById(config.selectors.navigationContainerId); // Use config ID (no #)
-
-    console.log("ABL: Attempting querySelector for Menu Icon Wrapper:", '.icon-menu-wrapper', 'relative to button:', !!menuToggleButton);
     const menuIconWrapper = menuToggleButton?.querySelector('.icon-menu-wrapper'); // Use class selectors
-
-    console.log("ABL: Attempting querySelector for Close Icon Wrapper:", '.icon-close-wrapper', 'relative to button:', !!menuToggleButton);
     const closeIconWrapper = menuToggleButton?.querySelector('.icon-close-wrapper'); // Use class selectors
-
 
     // Check if all required elements exist for the Menu Toggle
     if (menuToggleButton && navMenu && menuIconWrapper && closeIconWrapper) {
@@ -210,6 +202,41 @@ function attachButtonListeners() {
                 // 3. Update accessibility state
                 menuToggleButton.setAttribute('aria-expanded', isVisible);
                 menuToggleButton.setAttribute('aria-label', isVisible ? 'Close Navigation Menu' : 'Open Navigation Menu');
+
+                // --- ADD GSAP Stagger Animation Logic ---
+                const navLinks = navMenu.querySelectorAll('.nav-link'); // Find links *inside* the menu
+
+                if (navLinks.length > 0) {
+                    if (isVisible) { // If menu just became visible
+                         console.log("SCROLL: Animating nav links IN (staggered)");
+                         // Ensure links are set to their *starting* animation state instantly first
+                         // This handles cases where they might be visible or in wrong position
+                         gsap.set(navLinks, { opacity: 0, y: 10 }); // <<< Force starting state
+
+                         // Now animate them in
+                         gsap.to(navLinks, {
+                            opacity: 1,              // Fade in
+                            y: 0,                    // Slide up to original position
+                            duration: 0.4,           // Duration for *each* link's animation
+                            ease: "power1.out",
+                            stagger: 0.08,           // <<< Stagger delay between links (adjust this value!)
+                            delay: 0.1,              // <<< Delay before the *first* link starts (adjust this value!)
+                            overwrite: true          // Stop any conflicting animations
+                        });
+
+                    } else { // If menu just became hidden
+                         console.log("SCROLL: Resetting nav links state (instant)");
+                         // Instantly reset links back to initial hidden state
+                         gsap.set(navLinks, {
+                             opacity: 0,
+                             y: 10, // Reset to initial offset
+                         });
+                         // The container hiding transition (opacity, height, etc. in CSS) handles the rest
+                    }
+                } else {
+                    console.warn("SCROLL: No nav links found inside menu for animation.");
+                }
+                // --- End Handle Animations ---
             });
             menuToggleButton._listenerAttachedClick = true; // Set flag
             console.log("ABL: Menu toggle button listener attached.");
