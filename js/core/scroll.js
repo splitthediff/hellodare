@@ -211,7 +211,7 @@ function attachButtonListeners() {
                          console.log("SCROLL: Animating nav links IN (staggered)");
                          // Ensure links are set to their *starting* animation state instantly first
                          // This handles cases where they might be visible or in wrong position
-                         gsap.set(navLinks, { opacity: 0, y: 10 }); // <<< Force starting state
+                         gsap.set(navLinks, { opacity: 0, y: 20 }); // <<< Force starting state
 
                          // Now animate them in
                          gsap.to(navLinks, {
@@ -229,7 +229,7 @@ function attachButtonListeners() {
                          // Instantly reset links back to initial hidden state
                          gsap.set(navLinks, {
                              opacity: 0,
-                             y: 10, // Reset to initial offset
+                             y: 20, // Reset to initial offset
                          });
                          // The container hiding transition (opacity, height, etc. in CSS) handles the rest
                     }

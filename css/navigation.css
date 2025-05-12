@@ -41,44 +41,76 @@
     text-align: left;
     flex-shrink: 0;
 
-    position: fixed; /* Correctly set to fixed */
-    bottom: calc(var(--padding-columns) + 2*var(--space-m)); /* Sets distance from bottom edge */
-    left: var(--padding-columns, 20px);    /* Sets distance from left edge */
-    padding-top: 0; // These will be animated via .is-visible
-    padding-left: 0; // These will be animated via .is-visible
-    z-index: 99;  /* High z-index */
+    position: fixed;
+    bottom: calc(var(--padding-columns) + 2 * var(--space-m));
+    left: var(--padding-columns, 20px);
+    padding-top: 0;
+    padding-left: 0;
+    z-index: 99;
 
     opacity: 0;
     visibility: hidden;
-    height: 0;
-    overflow: hidden;
+    max-height: 0;
+    overflow: hidden; /* Keep hidden in base */
     transform: translateY(20px); /* Start slightly up */
 
-    /* --- SIMPLIFIED TRANSITIONS --- */
-    transition-property: opacity, visibility, transform;
-    transition-duration: 0.7s; /* Adjust as needed */
+    /* --- Transitions (REMOVE overflow from list, adjust delay) --- */
+    transition-property: opacity, visibility, transform, max-height; /* <<< REMOVED overflow */
+    transition-duration: 0.5s; /* <<< Use your actual duration (0.5s based on your rule) */
     transition-timing-function: ease-in-out;
-    transition-delay: 0s, 0.5s, 0s; /* Hide visibility AFTER opacity/transform finishes */
-    /* REMOVE height, margin-top, padding-top from transition-property */
-    /* transition: opacity 0.3s ease-in-out, visibility 0.3s step-end, transform 0.3s ease-in-out; */ /* Even simpler */
-
+    transition-delay: 0s, 0.5s, 0s, 0s; /* <<< REMOVED delay for overflow (match property count) */
+    /* End delay for other properties */
 }
 
-  .navigation-menu.is-visible {
+.navigation-menu.is-visible {
     opacity: 1;
     visibility: visible;
     transform: translateY(0); /* Slide into final position */
 
-    /* --- Set size/overflow INSTANTLY --- */
-    /* These properties do NOT need to be in the transition property list */
-    height: auto;
-    overflow: visible;
+    max-height: 600px; /* <<< Use a large value (your value) */
+    overflow: auto; /* <<< Allow scrollbar */
+    /* Keep overflow-y: auto; overflow-x: hidden; if needed */
+
     margin-top: var(--space-m); /* Example: Add margin/padding when visible */
     padding-top: var(--space-m);
-    /* --- End Instant Set --- */
 
-    /* Ensure transition delay is 0 */
+    /* Ensure transition starts immediately */
     transition-delay: 0s;
+
+    /* --- ADD THE CSS KEYFRAME HACK --- */
+    /* Duration must match your transition-duration (0.5s) */
+    animation: hide-scroll .5s backwards; /* <<< Add animation */
+    /* Use 'backwards' to apply 'from' state immediately */
+    /* --- END KEYFRAME HACK --- */
+}
+
+/* --- DEFINE THE KEYFRAMES --- */
+@keyframes hide-scroll {
+  from, to { overflow: hidden; }
+}
+
+/* --- Target the scrollbar TRACK in Webkit browsers (Chrome, Safari, Edge) --- */
+.navigation-menu::-webkit-scrollbar {
+  display: none; /* Hide the scrollbar */
+  width: 0;      /* Optional: Also set width to 0 */
+  background: transparent; /* Optional: Hide track background */
+}
+
+/* --- Target the scrollbar THUMB (the draggable part) in Webkit --- */
+/* This is often included with the track hiding rule */
+.navigation-menu::-webkit-scrollbar-thumb {
+  display: none; /* Hide the thumb */
+  background: transparent; /* Optional: Hide thumb background */
+}
+
+/* --- For Firefox - Standard property --- */
+.navigation-menu {
+  scrollbar-width: none; /* Hide the scrollbar */
+}
+
+/* --- For Internet Explorer and older Edge - Vendor prefix --- */
+.navigation-menu {
+  -ms-overflow-style: none; /* Hide the scrollbar */
 }
 
   .nav-space {
