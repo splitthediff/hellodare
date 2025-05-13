@@ -223,7 +223,6 @@ export function positionSingleInfoOverlay(videoId) {
      // Add check for item visibility/height before using getBoundingClientRect
      if (item.offsetHeight === 0) {
          // console.warn(`[PositionOverlay ${videoId}] Item height is 0. Cannot calculate reliably.`);
-         // Optional: Retry?
          // setTimeout(() => positionSingleInfoOverlay(videoId), 50);
          return;
      }
@@ -270,12 +269,12 @@ function renderNavigationMenu(videoData, infoSectionName = "Info") {
     // Add link for each video
     videoData.forEach((video, index) => {
         // Use data-index attribute to store the target scroll index
-        navHTML += `<li><a href="#" class="nav-link" data-index="${index}">${paddedNumber(index)}<span class="nav-space"></span>${video.title || `Video ${index + 1}`}</a></li>`;
+        navHTML += `<li><a href="#" class="nav-link" data-index="${index}">${paddedNumber(index)}<span class="nav-space"></span>${video.titleShortName || `Video ${index + 1}`}</a></li>`;
     });
 
     // Add link for the Info section
     const infoIndex = videoData.length; // Index after the last video
-    navHTML += `<li><a href="#" class="nav-link" data-index="${infoIndex}">${infoSectionName}</a></li>`;
+    //navHTML += `<li><a href="#" class="nav-link" data-index="${infoIndex}">${infoSectionName}</a></li>`;
 
     navHTML += '</ul>'; // End list
 

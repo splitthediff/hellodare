@@ -309,7 +309,7 @@ export function initializeGsapScroll(videos) {
         adjustGlobalVolume,
         getActiveVideoFn,
         togglePlayPauseFn,
-        config.input.resizeDebounce,      // Pass config
+        config.input.resizeDebounce,     // Pass config
         config.input.touchSensitivityY,  // Pass config
         config.input.touchSensitivityX   // Pass config
     );

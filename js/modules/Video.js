@@ -9,16 +9,21 @@ export class Video {
     constructor(videoData) {
         this.id = videoData.vimeoid;
         this.title = videoData.title;
-        this.titleShort = videoData.titleShortName || videoData.title || ''; // Fallback to title if short name is not provided
+        this.titleShortName = videoData.titleShortName || videoData.title || ''; // Fallback to title if short name is not provided
         this.year = videoData.year;
         this.client = videoData.client;
+
         this.thumbnailUrl = '';
-        this.thumbnailFilename = videoData.thumbnailFilename || null; // Store the filename
+        this.thumbnailFilename = videoData.thumbnailFilename || null; 
         this.iframeSrc = '';
+        this.thumbnailWidth = videoData.thumbnailWidth || 0; 
+        this.thumbnailHeight = videoData.thumbnailHeight || 0;
+
         this.player = null;
-        this.nativeWidth = 16;
-        this.nativeHeight = 9;
-        this.aspectRatio = 16 / 9;
+        // --- Initialize native dimensions from thumbnail data ---
+        this.nativeWidth = this.thumbnailWidth > 0 ? this.thumbnailWidth : 16;
+        this.nativeHeight = this.thumbnailHeight > 0 ? this.thumbnailHeight : 9;
+        this.aspectRatio = getAspectRatio(this.nativeWidth, this.nativeHeight); 
 
         // --- State for Play Once & Time Update Workaround ---
         this.hasPlayedOnce = false; // Flag indicating the video reached its simulated end via timeupdate
@@ -40,8 +45,8 @@ export class Video {
      * Fetches video metadata (dimensions, thumbnail) from Vimeo oEmbed API.
      * Must be called before player can be initialized correctly.
      */
-    async initialize() {
-        // console.log(`[Video ${this.id}] Starting initialize...`);
+    async initialize() { /*
+        // No longer need to get aspect ratio from oEmbed data, using thumbnail data instead
         try {
             const data = await this.fetchVimeoData(this.id);
             if (data && data.width > 0 && data.height > 0 && data.thumbnail_url) {
@@ -67,8 +72,18 @@ export class Video {
                this.thumbnailUrl = ''; // No thumbnail URL
                console.warn(`[Video ${this.id}] No thumbnail filename provided in playlist data.`);
             }
+        }*/
+        // Construct Local Thumbnail URL
+        if (this.thumbnailFilename) {
+            this.thumbnailUrl = `${config.video.localThumbnailBasePath || LOCAL_THUMBNAIL_BASE_PATH}${this.thumbnailFilename}`; // Use config or local constant
+            // console.log(`[Video ${this.id}] Constructed local thumbnail URL: ${this.thumbnailUrl}`);
+        } else {
+            this.thumbnailUrl = '';
+            console.warn(`[Video ${this.id}] No thumbnail filename provided.`);
         }
-        // console.log(`[Video ${this.id}] Finished initialize.`);
+
+        // Always set iframe src
+        this.iframeSrc = `https://player.vimeo.com/video/${this.id}?${config.video.vimeoParams}&quality=${config.video.vimeoQuality}`;
     }
 
     /**
@@ -362,6 +377,7 @@ export class Video {
         }
     }
 
+    // No longer needed, but Keep if need to fetch oEmbed data
     async fetchVimeoData(id) {
         const videoUrl = `https://vimeo.com/${id}`; const oEmbedUrl = `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(videoUrl)}`;
         try { const response = await fetch(oEmbedUrl); if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`); const contentType = response.headers.get("content-type"); if (!contentType || !contentType.includes("application/json")) throw new Error(`Expected JSON response, got ${contentType}`); const data = await response.json(); return data;
