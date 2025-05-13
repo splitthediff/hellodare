@@ -9,6 +9,7 @@ export class Video {
     constructor(videoData) {
         this.id = videoData.vimeoid;
         this.title = videoData.title;
+        this.titleShort = videoData.titleShortName || videoData.title || ''; // Fallback to title if short name is not provided
         this.year = videoData.year;
         this.client = videoData.client;
         this.thumbnailUrl = '';

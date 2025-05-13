@@ -79,9 +79,9 @@
     --radius-button-hover: 4px;
   
     /* === TRANSITIONS === */
-    --transition-duration: 0.3s;
-    --transition-duration-fast: 0.2s;
-    --transition-duration-slow: 0.4s;
+    --transition-duration: 1s;
+    --transition-duration-fast: 0.4s;
+    --transition-duration-slow: 2.5s;
     --transition-ease: ease-in-out;
     --transition-ease-power: power2.out; /* Example for GSAP consistency */
   

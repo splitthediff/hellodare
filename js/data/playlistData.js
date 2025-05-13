@@ -1,12 +1,5 @@
 export const playlist = [
 {
-    vimeoid: "535350266",
-    title: `Icarus / Main Title`,
-    titleShortName: 'Icarus MT',
-    client: 'Netflix',
-    year: '2017',
-    thumbnailFilename: "535350266_Icarus_MT.jpg"
-}, {
     vimeoid: "367537828",
     title: `Inside Bill's Brain / Main Title Sequence`,
     titleShortName:'Inside Bill\'s Brain MT',
@@ -21,19 +14,19 @@ export const playlist = [
     year: '2018',
     thumbnailFilename: "535413159_13th_GFX.jpg"
 },{
-    vimeoid: "535136384",
-    title: `Amanda Knox / Main Title`,
-    titleShortName: 'Amanda Knox MT',
-    client: 'Netflix',
-    year: '2016',
-    thumbnailFilename: "535136384_Amanda_Knox_MT.jpg"
-}, {
     vimeoid: "535355395",
     title: `Icarus / Main on End`,
     titleShortName: 'Icarus MOE',
     client: 'Netflix',
     year: '2018',
     thumbnailFilename: "535355395_Icarus_MOE.jpg"
+}, {
+    vimeoid: "535136384",
+    title: `Amanda Knox / Main Title`,
+    titleShortName: 'Amanda Knox MT',
+    client: 'Netflix',
+    year: '2016',
+    thumbnailFilename: "535136384_Amanda_Knox_MT.jpg"
 }, {
     vimeoid: "423363148",
     title: `Trial by Media / Main Title`,
@@ -62,13 +55,6 @@ export const playlist = [
     client: 'Netflix',
     year: '2018',
     thumbnailFilename: "432305926_Inside_Bills_Brain_GFX.jpg"
-}, {
-    vimeoid: "535138216",
-    title: `Dave Chappelle: Deep in the Heart of Texas / Main Title`,
-    titleShortName: 'Dave Chappelle MT',
-    client: 'Disney+',
-    year: '2017',
-    thumbnailFilename: "535138216_Dave_Chappelle_MT.jpg"
 },{
     vimeoid: "1059557536",
     title: `Willow / Book Opening - Episdoe 1`,
@@ -76,13 +62,6 @@ export const playlist = [
     client: 'Disney+',
     year: '2023',
     thumbnailFilename: "1059557536_Willow_Opening.jpg"
-}, {
-    vimeoid: "423373315",
-    title: `Trial by Media / GFX Reel`,
-    titleShortName: 'Trial by Media GFX',
-    client: 'Netflix',
-    year: '2020',
-    thumbnailFilename: "423373315_Trial_by_Media_GFX.jpg"
 },{
     vimeoid: "535137022",
     title: `Amanda Knox / GFX Reel`,
@@ -100,3 +79,22 @@ export const playlist = [
 }
 
 ];
+
+export const playlistStandbu = [
+   {
+        vimeoid: "535138216",
+        title: `Dave Chappelle: Deep in the Heart of Texas / Main Title`,
+        titleShortName: 'Dave Chappelle MT',
+        client: 'Disney+',
+        year: '2017',
+        thumbnailFilename: "535138216_Dave_Chappelle_MT.jpg"
+    },{
+        vimeoid: "423373315",
+        title: `Trial by Media / GFX Reel`,
+        titleShortName: 'Trial by Media GFX',
+        client: 'Netflix',
+        year: '2020',
+        thumbnailFilename: "423373315_Trial_by_Media_GFX.jpg"
+    },
+    
+    ];
