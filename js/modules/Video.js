@@ -12,6 +12,7 @@ export class Video {
         this.year = videoData.year;
         this.client = videoData.client;
         this.thumbnailUrl = '';
+        this.thumbnailFilename = videoData.thumbnailFilename || null; // Store the filename
         this.iframeSrc = '';
         this.player = null;
         this.nativeWidth = 16;
@@ -56,6 +57,15 @@ export class Video {
         } finally {
             // Always set iframe src, even on error (using hardcoded params)
             this.iframeSrc = `https://player.vimeo.com/video/${this.id}?${config.video.vimeoParams}&quality=${config.video.vimeoQuality}`;
+            
+            if (this.thumbnailFilename) {
+                this.thumbnailUrl = `${config.video.localThumbnailBasePath}${this.thumbnailFilename}`;
+                // console.log(`[Video ${this.id}] Constructed local thumbnail URL: ${this.thumbnailUrl}`);
+            } else {
+               // Handle case where no filename is provided in playlist data
+               this.thumbnailUrl = ''; // No thumbnail URL
+               console.warn(`[Video ${this.id}] No thumbnail filename provided in playlist data.`);
+            }
         }
         // console.log(`[Video ${this.id}] Finished initialize.`);
     }

@@ -23,7 +23,8 @@ export const config = {
         loopLimit: 2,           // Total number of plays allowed (initial + loops)
         vimeoQuality: "1080p",  // Preferred Vimeo quality
         vimeoParams: "muted=1&controls=0", // Default Vimeo iframe params (excluding quality)
-        timeupdateEndThreshold: 0.75
+        timeupdateEndThreshold: 0.75,
+        localThumbnailBasePath: "assets/images/thumbnails/"
     },
 
     // DOM Selectors & Class Names

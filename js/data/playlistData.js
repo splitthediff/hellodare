@@ -77,12 +77,12 @@ export const playlist = [
     year: '2023',
     thumbnailFilename: "1059557536_Willow_Opening.jpg"
 }, {
-    vimeoid: "4423373315",
+    vimeoid: "423373315",
     title: `Trial by Media / GFX Reel`,
     titleShortName: 'Trial by Media GFX',
     client: 'Netflix',
     year: '2020',
-    thumbnailFilename: "4423373315_Trial_by_Media_GFX.jpg"
+    thumbnailFilename: "423373315_Trial_by_Media_GFX.jpg"
 },{
     vimeoid: "535137022",
     title: `Amanda Knox / GFX Reel`,
