@@ -69,17 +69,31 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
                  // Check if we are animating info section blocks individually
                  const isInfoBlocks = Array.isArray(contentElement);
 
+                // --- Force Set Initial GSAP State ---
+                // Explicitly set X and Y pixel offsets and percentages to known start points
+                // This ensures GSAP starts from a clean slate relative to the CSS positioning
+                gsap.set(contentElement, {
+                    x: 0, // <<< ADD: Ensure pixel X starts at 0
+                    y: initialYOffset, // Ensure pixel Y starts at the offset
+                    xPercent: isVideoIndex ? -50 : 0, // Ensure X% starts correctly
+                    yPercent: isVideoIndex ? -50 : 0, // Ensure Y% starts correctly
+                    opacity: 0, // Ensure opacity starts at 0
+                    // clearProps: "transform" // Optional: Can try clearing all GSAP transforms first
+                });
+                // --- END Force Set ---
+
+                // --- Animate IN: Animate ONLY opacity, transform (y), and max-height ---
                 gsap.to(contentElement, {
                     opacity: 1,
-                    xPercent: isVideoIndex ? -50 : 0, // Apply -50% only to video wrapper
-                    yPercent: isVideoIndex ? -50 : 0, // Apply -50% only to video wrapper
-                    y: 0, // Animate back to original vertical position
-                    duration: 0.5, // Adjust duration
-                    delay: 0.1, // Slight delay after scroll stops/starts
+                    y: 0, // Animate pixel Y offset to 0
+                    // Do NOT animate x, xPercent, yPercent here - they are set instantly above
+                    duration: 0.6, // Adjust duration
+                    delay: 0.1, // Adjust delay
                     ease: "power1.out",
                     overwrite: true,
-                    stagger: isInfoBlocks ? 0.1 : 0 // No stagger for single elements
+                    stagger: isInfoBlocks ? 0.1 : 0
                 });
+                // --- END GSAP TO ---
             }
             // --------------------------
 
@@ -156,16 +170,16 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
         else {
             // --- Reset Content Out ---
             if (contentElement && typeof gsap !== 'undefined') {
-                gsap.to(contentElement, {
-                    opacity: 0,
-                    y: initialYOffset, // Animate back to the offset position
-                    // Keep xPercent/yPercent for consistency if needed, though less critical when opacity is 0
-                    //xPercent: isVideoIndex ? -50 : 0,
-                    //yPercent: isVideoIndex ? -50 : 0,
-                    duration: 1.5, // Shorter duration for fade out (adjust as needed)
-                    ease: "power1.in", // Ease 'in' often feels good for disappearing elements
-                    overwrite: true, // Stop any incoming animation if user scrolls back quickly
-                });
+                if (contentElement && typeof gsap !== 'undefined') {
+                    // --- Reset OUT: Explicitly set ALL transform components ---
+                    gsap.set(contentElement, {
+                       opacity: 0, // Set opacity to 0
+                       x: 0, // <<< ADD: Ensure pixel X is 0
+                       y: initialYOffset, // Set pixel Y offset
+                       xPercent: isVideoIndex ? -50 : 0, // Set X%
+                       yPercent: isVideoIndex ? -50 : 0 // Set Y%
+                   });
+               }
             }
             // ------------------------
 
