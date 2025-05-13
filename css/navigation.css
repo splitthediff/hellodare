@@ -8,14 +8,13 @@
     font-weight: var(--font-weight-bold);
     background-color: transparent; display: inline; border: none; padding: 0;
     cursor: pointer;
-    /*position: relative;       /* <<< Absolute positioning */
     
     position: absolute; 
     top: 50%;                
     transform: translateY(-50%); 
     width: auto; 
     max-width: 90%; 
-    left: var(--padding-columns, 20px);
+    /*left: var(--padding-columns, 20px);*/
     text-align: left;
     margin: 0;
     padding: 0;
@@ -30,128 +29,129 @@
     font-weight: var(--font-weight-regular);
     background-color: transparent; display: inline; border: none; padding: 0;
     cursor: pointer;
-    margin-bottom: 30px; /* Space above nav menu */
   }
   .info:hover { text-decoration: underline; }
   
-  /* --- Navigation Menu (Right Column) --- */
-  .navigation-menu {
-    width: 90%;
-    max-width: 400px;
-    text-align: left;
-    flex-shrink: 0;
+/* --- Navigation Menu (Right Column) --- */
+.navigation-menu {
+  width: 90%;
+  max-width: 400px;
+  text-align: left;
+  flex-shrink: 0;
 
-    position: fixed;
-    bottom: calc(var(--padding-columns) + 2 * var(--space-m));
-    left: var(--padding-columns, 20px);
-    padding-top: 0;
-    padding-left: 0;
-    z-index: 99;
+  position: fixed;
+  bottom: calc(var(--padding-columns) + 1.5*var(--space-m));
+  /*left: var(--padding-columns, 20px);*/
+  padding-top: 0;
+  padding-left: 0;
+  z-index: 99;
 
-    opacity: 0;
-    visibility: hidden;
-    max-height: 0;
-    overflow: hidden; /* Keep hidden in base */
-    transform: translateY(20px); /* Start slightly up */
+  opacity: 0;
+  visibility: hidden;
+  max-height: 0;
+  overflow: hidden;
+  transform: translateY(0px);
 
-    /* --- Transitions (REMOVE overflow from list, adjust delay) --- */
-    transition-property: opacity, visibility, transform, max-height; /* <<< REMOVED overflow */
-    transition-duration: 0.5s; /* <<< Use your actual duration (0.5s based on your rule) */
-    transition-timing-function: ease-in-out;
-    transition-delay: 0s, 0.5s, 0s, 0s; /* <<< REMOVED delay for overflow (match property count) */
-    /* End delay for other properties */
+  transition-property: opacity, visibility, transform, max-height;
+  transition-duration: 0.5s;
+  transition-timing-function: ease-in-out;
+  transition-delay: 0s, 0.5s, 0s, 0s;
+
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE & old Edge */
 }
 
 .navigation-menu.is-visible {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0); /* Slide into final position */
+  font-size: var(--font-size-navigation);
+  font-weight: var(--font-weight-regular);
 
-    max-height: 600px; /* <<< Use a large value (your value) */
-    overflow: auto; /* <<< Allow scrollbar */
-    /* Keep overflow-y: auto; overflow-x: hidden; if needed */
+  opacity: .7;
+  visibility: visible;
+  transform: translateY(0);
+  max-height: 600px;
+  overflow: auto;
+  transition-delay: 0s;
 
-    margin-top: var(--space-m); /* Example: Add margin/padding when visible */
-    padding-top: var(--space-m);
-
-    /* Ensure transition starts immediately */
-    transition-delay: 0s;
-
-    /* --- ADD THE CSS KEYFRAME HACK --- */
-    /* Duration must match your transition-duration (0.5s) */
-    animation: hide-scroll .5s backwards; /* <<< Add animation */
-    /* Use 'backwards' to apply 'from' state immediately */
-    /* --- END KEYFRAME HACK --- */
+  animation: hide-scroll 0.5s backwards;
 }
 
-/* --- DEFINE THE KEYFRAMES --- */
+/* Hide scrollbars in WebKit browsers */
+.navigation-menu::-webkit-scrollbar,
+.navigation-menu::-webkit-scrollbar-thumb {
+  display: none;
+  width: 0;
+  background: transparent;
+}
+
 @keyframes hide-scroll {
   from, to { overflow: hidden; }
 }
 
-/* --- Target the scrollbar TRACK in Webkit browsers (Chrome, Safari, Edge) --- */
-.navigation-menu::-webkit-scrollbar {
-  display: none; /* Hide the scrollbar */
-  width: 0;      /* Optional: Also set width to 0 */
-  background: transparent; /* Optional: Hide track background */
+/* Navigation spacing and list */
+.nav-space {
+  width: var(--space-xs);
+  display: inline-block;
 }
 
-/* --- Target the scrollbar THUMB (the draggable part) in Webkit --- */
-/* This is often included with the track hiding rule */
-.navigation-menu::-webkit-scrollbar-thumb {
-  display: none; /* Hide the thumb */
-  background: transparent; /* Optional: Hide thumb background */
+.nav-link-list {
+  list-style: none;
+  margin: 0;
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
-/* --- For Firefox - Standard property --- */
-.navigation-menu {
-  scrollbar-width: none; /* Hide the scrollbar */
+.nav-link-list li {
+  margin-bottom: var(--space-xs);
 }
 
-/* --- For Internet Explorer and older Edge - Vendor prefix --- */
-.navigation-menu {
-  -ms-overflow-style: none; /* Hide the scrollbar */
+.nav-link {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-navigation);
+  color: var(--clr-text-primary);
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-block;
+  transition: color 0.2s ease;
+  opacity: 0.6;
 }
 
-  .nav-space {
-    width: var(--space-m);
-    display: inline-block;
-  }
-  .nav-link-list {
-    list-style: none; padding: 0; margin: 0 0 0 0;
-    max-height: 50vh; overflow-y: auto;
-  }
-  .nav-link-list li { margin-bottom: 8px; }
-  .nav-link {
-    font-family: var(--font-family-primary); font-size: var(--font-size-xsmall);
-    color: var(--clr-text-primary); text-decoration: none; cursor: pointer;
-    display: inline-block; transition: color 0.2s ease; opacity: 0.6;
-  }
-  .nav-link:hover,
-  .nav-link.active { color: var(--clr-text-primary); opacity: 1.0; }
-  .nav-controls { display: flex; justify-content: center; gap: 15px; }
-  .nav-button {
-    font-family: var(--font-family-primary); font-size: var(--font-size-xsmall);
-    background-color: transparent; border: 1px solid var(--clr-text-primary);
-    color: var(--clr-text-primary); padding: 5px 10px; cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease; border-radius: 4px;
-  }
-  .nav-button:hover { background-color: rgba(0, 0, 0, 0.05); }
+.nav-link:hover,
+.nav-link.active {
+  color: var(--font-family-primary);
+  opacity: 1.0; 
+}
 
-  /* --- Menu Toggle Button --- */
+.nav-controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.nav-button {
+  background-color: transparent;
+  border: none;
+  color: var(--clr-text-primary);
+  padding: 0;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.nav-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Menu Toggle Button */
 .menu-toggle-button {
   background: none;
   border: none;
-  padding: 5px;
-  margin: 0;
+  color: var(--clr-text-primary, aqua);
   cursor: pointer;
-  color: var(--clr-text-primary, aqua); /* Use theme color */
-  display: inline-block; /* Or block if needed */
+  display: inline-block;
   line-height: 0;
-  margin-bottom: var(--space-m, 15px); /* Space below button */
-  position: fixed; 
-  left: var(--padding-columns, 20px); 
-  bottom: var(--padding-columns, 20px); */
-
+  position: fixed;
+  /*left: var(--padding-columns, 20px);*/
+  bottom: var(--padding-columns, 20px);
   z-index: 100;
 }
+

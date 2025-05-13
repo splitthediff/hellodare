@@ -215,7 +215,7 @@ function attachButtonListeners() {
 
                          // Now animate them in
                          gsap.to(navLinks, {
-                            opacity: 1,              // Fade in
+                            opacity: .7,              // Fade in
                             y: 0,                    // Slide up to original position
                             duration: 0.4,           // Duration for *each* link's animation
                             ease: "power1.out",

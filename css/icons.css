@@ -9,23 +9,17 @@
     stroke-width: 0;
     pointer-events: none;
 8
-    fill: red !important; /* Force red fill */
     stroke: none !important;
-    /* ... */
 }
 /* Keep button styling */
 .controls-button {
-    /* ... */
-    color: var(--clr-text-overlay), white); /* Example color */
-    line-height: 0; /* Keep this */
-    /* ... */
+    color: var(--clr-text-overlay), white); 
+    line-height: 0; 
 }
 
 .menu-toggle-button {
-    /* ... */
-    color: var(--clr-text-primary, magenta); /* Example color */
-    line-height: 0; /* Keep this */
-    /* ... */
+    color: var(--clr-text-primary, magenta);
+    line-height: 0;
 }
   
   /* Container for icons inside button */
