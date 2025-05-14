@@ -1,17 +1,10 @@
 // js/main.js (Corrected for Config Keys and querySelector)
 
-// Adjust import paths based on your final structure
-import { renderPlaylist } from './core/playlistManager.js'; // Assuming playlistManager.js is in core/
-//import { goToIndex } from './core/scroll.js';         // Assuming scroll.js is in core/
-//import { config } from './config.js';             // Assuming config.js is in the same directory (js/)
-
-// import { initializeTitleCheck } from './interface.js'; // If you have this file
+import { renderPlaylist } from './core/playlistManager.js'; 
 
 window.addEventListener('load', async () => {
   console.log("Load event fired. Starting initializations...");
   await loadAndInjectSVGSprite();
-
-  // initializeTitleCheck?.(); // Optional: Call if it exists
 
   console.log("Running and AWAITING renderPlaylist...");
   try {
@@ -44,7 +37,6 @@ window.addEventListener('load', async () => {
         }
 
   } catch (error) {
-      // Catch errors from renderPlaylist or listener attachment
       console.error("ERROR during renderPlaylist or attaching listeners:", error);
   }
 
@@ -63,7 +55,7 @@ async function loadAndInjectSVGSprite() {
         const svgElement = tempDiv.querySelector('svg');
 
         if (svgElement) {
-            svgElement.style.display = 'none'; // Ensure it's hidden
+            svgElement.style.display = 'none';
             svgElement.setAttribute('aria-hidden', 'true'); // Hide from screen readers
             document.body.insertAdjacentElement('afterbegin', svgElement); // Inject at start of body
             console.log("SVG sprite injected into body.");

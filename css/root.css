@@ -52,13 +52,11 @@
     --space-between-paragraphs: var(--space-s);
     --space-paragraph-before-heading: var(--space-xl);
     --space-after-video: var(--space-s);
-
-
   
     --padding-columns: var(--space-xl);  
     --padding-controls-y: var(--space-s); 
     --padding-controls-x: var(--space-s); 
-    --padding-controls-button-y: var(--space-xs);     /* Specific button values */
+    --padding-controls-button-y: var(--space-xs);    
     --padding-controls-button-x: var(--space-m); 
     --padding-info-overlay-y: var(--space-s);  
     --padding-info-overlay-x: var(--space-m);  

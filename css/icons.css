@@ -4,14 +4,12 @@
     width: 18px; 
     height: 18px; 
     display: block; 
-   /* fill: currentColor;
-    stroke: none;*/
     stroke-width: 0;
     pointer-events: none;
 8
     stroke: none !important;
 }
-/* Keep button styling */
+
 .controls-button {
     color: var(--clr-text-overlay), white); 
     line-height: 0; 
@@ -22,16 +20,15 @@
     line-height: 0;
 }
   
-  /* Container for icons inside button */
 .button-icon-wrapper {
     display: inline-block;
     vertical-align: middle;
-    line-height: 0; /* Ensure wrapper doesn't add space */
+    line-height: 0;
     background-color: transparent;
 }
 
 .button-icon-wrapper.is-hidden {
-    display: none; /* Keep */
+    display: none;
 }
 
 /* Optional: Specific size adjustments */

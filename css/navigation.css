@@ -30,7 +30,7 @@
     background-color: transparent; display: inline; border: none; padding: 0;
     cursor: pointer;
   }
-  .info:hover { text-decoration: underline; }
+  .info:hover { text-decoration: underline; text-underline-offset: 4px; }
   
 /* --- Navigation Menu (Right Column) --- */
 .navigation-menu {
@@ -112,14 +112,21 @@
   cursor: pointer;
   display: inline-block;
   transition: color 0.2s ease;
-  opacity: 0.6;
 }
 
-.nav-link:hover,
-.nav-link.active {
-  color: var(--font-family-primary);
-  opacity: 1.0; 
-}
+.navigation-menu.is-visible .nav-link {
+  opacity: 0.6;
+  }
+  
+  .navigation-menu.is-visible .nav-link.active {
+    opacity: 1.0; 
+  }
+  
+  .navigation-menu.is-visible .nav-link:hover {
+    opacity: 1.0; 
+    color: var(--clr-text-primary); 
+    text-decoration: underline; text-underline-offset: 4px; 
+  }
 
 .nav-controls {
   display: flex;

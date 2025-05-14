@@ -51,8 +51,9 @@ function updateActiveClass() {
 }
 
 function updateInfoButtonState() {
-
+    
     if (!infoButtonElement || !scrollItems || scrollItems.length === 0) {
+        console.log('Info Button Element: '.info);
         return;
     }
 
@@ -60,6 +61,7 @@ function updateInfoButtonState() {
     const isOnInfoPage = currentIndex === infoSectionIndex;
 
     infoButtonElement.innerText = isOnInfoPage ? "Work" : "Info";
+    
 
     // --- ADD/REMOVE MOBILE HIDE CLASS ---
     infoButtonElement.classList.toggle('is-hidden-on-mobile', isOnInfoPage);
@@ -136,7 +138,7 @@ function attachButtonListeners() {
     // --- Info Button Listener ---
     console.log("ABL: Attempting getElementById for Info Button:", config.selectors.infoButtonId);
     // --- RESTORE ORIGINAL VARIABLE NAME ---
-    let infoButtonElement = document.getElementById(config.selectors.infoButtonId); // Use config ID (no #)
+    infoButtonElement = document.getElementById(config.selectors.infoButtonId); // Use config ID (no #)
     // --- END RESTORE ---
 
     if (infoButtonElement) { // Check the variable reference

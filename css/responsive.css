@@ -1,9 +1,10 @@
 /* ======================================== */
 /*            MOBILE LAYOUT STYLES          */
 /* ======================================== */
-@media (max-width: 768px) { /* Use config value eventually */
 
-    .page-container { flex-direction: column; }
+@media (max-width: 1100px) { /* Use config value eventually */
+
+    .page-container { flex-direction: column; height: 100dvh}
   
     /* --- Columns --- */
     .left-column, .right-column, .middle-column {
@@ -11,7 +12,7 @@
         padding: var(--space-l); /* Mobile padding */
     }
     .left-column { order: 1; text-align: center; flex-shrink: 0; padding: 5vh var(--space-l); }
-    .middle-column { order: 2; flex-grow: 1; padding: 0; }
+    .middle-column { order: 2; flex-grow: 1; padding: 0;}
     .right-column { order: 3; text-align: center; flex-shrink: 0; padding: 0 var(--space-l) 5vh; }
   
     /* --- Video Item --- */
@@ -33,7 +34,7 @@
     .video-info-overlay {
         /* JS sets top/bottom */
         left: 50%; /* Center using transform */
-        transform: translateX(-50%) translateY(15px); /* Initial state */
+        transform: translateX(-50%) translateY(10px); /* Initial state */
         max-width: 90%;
         text-align: center;
     }
@@ -46,10 +47,10 @@
   
     /* --- Info Section --- */
     .scroll-item.info-section {
-      padding: 20px; align-items: flex-start; overflow-y: auto;
+      padding: 0px; align-items: center; overflow-y: auto;
     }
     .info-content {
-      flex-direction: column; gap: 30px; width: 100%; max-width: 100%;
+      flex-direction: column; gap: 30px; width: 100%; max-width: 70%;
       transform: none; text-align: center;
     }
     .info-column {
@@ -67,10 +68,30 @@
     .info-column .recognition-item { margin-bottom: var(--space-m); }
     .info-column .recognition-details { font-size: calc(var(--font-size-small) * 0.85); }
   
+    /* --- Title --- */
+    .title {
+      position: relative;
+      top: 0;
+      transform: none;
+      text-align: center;
+      display: block;
+      margin: 1rem auto 0 auto; /* Adds some spacing from the top */
+    }
   
     /* --- Navigation Menu --- */
     .navigation-menu {
-      margin-top: 15px; padding-bottom: 15px; text-align: center;
+      position: relative;
+      bottom: auto;
+      left: auto;
+      transform: none;
+  
+      margin: 1rem auto 0 auto; /* Top spacing and horizontal centering */
+      text-align: center;
+  
+      opacity: 0;
+      visibility: visible;
+      max-height: autopx; /* Allow room for content */
+      overflow: visible;
     }
     .nav-link-list { max-height: none; overflow-y: visible; margin-bottom: 15px; }
      .nav-link { font-size: var(--font-size-xsmall); }
