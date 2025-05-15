@@ -7,11 +7,20 @@
     .page-container { flex-direction: column; height: 100dvh}
   
     /* --- Columns --- */
-    .left-column, .right-column, .middle-column {
-        flex: none; width: 100%; height: auto;
-        padding: var(--space-l); /* Mobile padding */
-    }
-    .left-column { order: 1; text-align: center; flex-shrink: 0; padding: 5vh var(--space-l); }
+  .left-column, .right-column, .middle-column {
+    flex: none; width: 100%; height: auto;
+    padding: var(--space-l);
+  }
+  .left-column {
+      order: 1; /* Keep as Header */
+      height: auto; /* Size to content */
+      flex-shrink: 0;
+      padding: 5vh var(--space-l); /* Top/Bottom spacing, Left/Right padding */
+      display: block; /* <<< Use block layout */
+      text-align: center; /* <<< Center block-level children horizontally */
+      position: relative; /* Keep relative if children use absolute */
+      z-index: var(--z-index-side-columns); /* Keep z-index */
+  }
     .middle-column { order: 2; flex-grow: 1; padding: 0;}
     .right-column { order: 3; text-align: center; flex-shrink: 0; padding: 0 var(--space-l) 5vh; }
   
@@ -70,12 +79,14 @@
   
     /* --- Title --- */
     .title {
-      position: relative;
-      top: 0;
+      position: static;
       transform: none;
+      top: auto; left: auto;
+      width: 100%;
       text-align: center;
+      margin: 0 auto var(--space-m) auto;
+      padding: 0; 
       display: block;
-      margin: 1rem auto 0 auto; /* Adds some spacing from the top */
     }
   
     /* --- Navigation Menu --- */
@@ -101,5 +112,34 @@
     #scroll-to-info-btn.is-hidden-on-mobile { /* Assuming ID from HTML */
       display: none;
     }
+
+    .menu-toggle-button {
+      position: static;
+      transform: none;
+      top: auto; left: auto; bottom: auto;
+      margin: 0 auto var(--space-m) auto;
+      display: inline-block;
+      text-align: center;
+      padding: 5px;
+    }
+
+    .navigation-menu {
+      position: static;
+      transform: none;
+      bottom: auto; left: auto; top: auto;
+      z-index: auto;
+  
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 0;/
+      text-align: center;
+    }
+
+    .navigation-menu.is-visible {
+      max-height: 500px;
+      overflow: auto;
+    }
+  
   
   } /* End Mobile Media Query */
