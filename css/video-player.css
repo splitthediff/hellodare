@@ -34,7 +34,7 @@
 }
 .video-thumbnail.thumbnail-hidden {
   opacity: 0; visibility: hidden; z-index: 0;
-  transition: opacity var(--transition-duration-slow) var(--transition-ease), visibility 0s linear var(--transition-duration-slow);*/
+  transition: opacity var(--transition-duration-slow) var(--transition-ease), visibility 0s linear var(--transition-duration-slow);
 }
 
 /* --- Iframe --- */
@@ -97,7 +97,6 @@
 /* --- Video Info Overlay (Positioned via JS) --- */
 .video-info-overlay {
   position: absolute; /* Relative to .scroll-item */
-  /* top/left set by JS */
   width: auto; max-width: 60%; box-sizing: border-box;
   z-index: var(--z-index-info-overlay);
   color: var(--clr-text-primary);
@@ -108,7 +107,7 @@
   transition: opacity var(--transition-duration) var(--transition-ease),
               visibility 0s linear var(--transition-duration),
               transform var(--transition-duration) var(--transition-ease),
-              bottom var(--transition-duration) var(--transition-ease), /* Keep transitions */
+              bottom var(--transition-duration) var(--transition-ease),
               top var(--transition-duration) var(--transition-ease),
               left var(--transition-duration) var(--transition-ease);
 }
@@ -128,7 +127,6 @@
 }
 
 /* === Icon and Button Styles === */
-
 .controls-button {
   background: none;
   border: none;
@@ -137,7 +135,6 @@
   cursor: pointer;
   transition: background-color var(--transition-duration-fast, 0.2s) ease, transform 0.1s ease; 
   line-height: 0; 
-  /*display: inline-flex;*/ /* this messes up the alignment */
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
@@ -147,16 +144,10 @@
     background-color: transparent;
 }
 .controls-button:active {
-    transform: scale(0.95); /* Slight press effect */
+    transform: scale(0.95);
 }
 
 /* Helper class to hide icons */
 .button-icon-wrapper.is-hidden {
   display: none;
 }
-
-/* Optional: Specific size adjustments */
-/*
-.icon-play, .icon-pause { width: 18px; height: 18px; }
-.icon-volume-on, .icon-volume-off { width: 22px; height: 22px; }
-*/

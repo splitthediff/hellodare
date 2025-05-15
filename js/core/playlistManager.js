@@ -42,14 +42,11 @@ export async function renderPlaylist() {
             updateDOMVideoSizes(currentVideos); // Update sizes first
 
             // --- Call positioning for ALL items on resize ---
-            // Loop through videos and call positioning for each
             if (currentVideos && currentVideos.length > 0) {
                  currentVideos.forEach(video => {
-                    // Check if player is initialized before repositioning maybe? Or just call it.
                     positionSingleInfoOverlay(video.id);
                  });
             }
-            // --- End resize positioning ---
 
         }, config.input.resizeDebounce);
     });
@@ -208,22 +205,18 @@ function getDynamicWidth() {
 }
 
 export function positionSingleInfoOverlay(videoId) {
-    // console.log(`Positioning single overlay for ${videoId} using GBCR logic...`);
     const item = document.querySelector(`${config.selectors.scrollItem}.video-item[data-video-id="${videoId}"]`);
     if (!item) { /* console.warn(`Item not found for positioning overlay ${videoId}`); */ return; }
 
     const wrapper = item.querySelector('.video-aspect-wrapper');
-    const overlay = item.querySelector('.video-info-overlay'); // Overlay is sibling
+    const overlay = item.querySelector('.video-info-overlay');
     const scrollItem = item;
 
     if (!wrapper || !overlay || !scrollItem) {
-        // console.warn(`[PositionOverlay ${videoId}] Missing elements.`);
         return;
     }
      // Add check for item visibility/height before using getBoundingClientRect
      if (item.offsetHeight === 0) {
-         // console.warn(`[PositionOverlay ${videoId}] Item height is 0. Cannot calculate reliably.`);
-         // setTimeout(() => positionSingleInfoOverlay(videoId), 50);
          return;
      }
 
@@ -241,19 +234,18 @@ export function positionSingleInfoOverlay(videoId) {
     overlay.style.bottom = `${overlayBottomPosition}px`;
 
     if (isMobile) {
-        overlay.style.left = '50%'; // CSS handles transform
+        //centered on mobile
+        console.log("Mobile detected - centering overlay");
         overlay.style.maxWidth = `${wrapperRect.width * 0.9}px`; // Example width
         overlay.style.width = 'auto';
+        overlay.style.left = 'auto';
     } else {
         const overlayLeftPosition = wrapperRect.left - scrollItemRect.left;
         overlay.style.left = `${overlayLeftPosition}px`; // Align left
         overlay.style.maxWidth = '60%'; // Example desktop width
         overlay.style.width = 'auto';
-        // Ensure mobile centering transform is removed/overridden by CSS if needed
     }
-    // --- End Left Position ---
 
-    // console.log(`[PositionOverlay GBCR ${videoId}] Set: bottom=${overlay.style.bottom}, left=${overlay.style.left}`);
 }
 
 function renderNavigationMenu(videoData, infoSectionName = "Info") {

@@ -47,10 +47,10 @@ export const config = {
 
     // Breakpoints
     breakpoints: {
-        mobileMaxWidth: 768 // max-width for mobile styles/logic (pixels)
+        mobileMaxWidth: 1100 // max-width for mobile styles/logic (pixels)
     },
 
     layout: {
-        overlayOffsetBottom: 100// Desired offset below video in pixels
+        overlayOffsetBottom: 60// Desired offset below video in pixels
     }
 };
