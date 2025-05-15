@@ -2,7 +2,7 @@
 
 // --- Imports ---
 // Adjust paths as needed
-import { initializeGsapScroll, toggleGlobalVolume, goToIndex, getCurrentIndex } from './scroll.js';
+import { initializeGsapScroll, toggleGlobalVolume, goToIndex, getCurrentIndex, closeNavMenu } from './scroll.js';
 import { playlist } from '../data/playlistData.js';
 import { Video } from '../modules/Video.js';
 import { config } from '../config.js';
@@ -301,16 +301,29 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
     // Listener for Links (using event delegation)
     if (linkList) {
         linkList.addEventListener('click', (event) => {
-            event.preventDefault();
-            const targetLink = event.target.closest('.nav-link'); // Find clicked link
-            if (targetLink && targetLink.dataset.index !== undefined) {
+            // --- ONLY target clicks on the actual .nav-link element ---
+            const targetLink = event.target.closest('.nav-link');
+            if (targetLink) { // Ensure a nav-link was clicked or is an ancestor
+                 event.preventDefault(); // Prevent default link behavior
+                 
                 const targetIndex = parseInt(targetLink.dataset.index, 10);
+                
                 if (!isNaN(targetIndex) && typeof goToIndex === 'function') {
                     console.log(`Nav link clicked: Scrolling to index ${targetIndex}`);
+                    // --- Step 1: Scroll to the target index ---
                     goToIndex(targetIndex);
+
+                    // --- Step 2: Close the menu after scrolling ---
+                    // Check if closeNavMenu is imported and callable
+                    if (typeof closeNavMenu === 'function') {
+                        console.log("Nav link clicked, calling closeNavMenu.");
+                        closeNavMenu(); // <<< Call the function to close the menu
+                    } else {
+                         console.error("closeNavMenu function not available in playlistManager.js scope.");
+                    }
                 }
-            }
-        });
+            } // End if targetLink
+        }); // End addEventListener
         console.log("Navigation link listener attached.");
     }
 

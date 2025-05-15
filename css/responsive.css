@@ -4,40 +4,64 @@
 
 @media (max-width: 1100px) { /* Use config value eventually */
 
-    .page-container { flex-direction: column; height: 100dvh}
-  
-    /* --- Columns --- */
-  .left-column, .right-column, .middle-column {
-    flex: none; width: 100%; height: auto;
-    padding: var(--space-l);
+  html, body { overflow: hidden; }
+
+  .page-container {
+    flex-direction: column;
+    height: 100dvh; 
+    width: 100vw; 
+    overflow: hidden;
   }
+  
   .left-column {
-      order: 1; /* Keep as Header */
-      height: auto; /* Size to content */
-      flex-shrink: 0;
-      padding: 5vh var(--space-l); /* Top/Bottom spacing, Left/Right padding */
-      display: block; /* <<< Use block layout */
-      text-align: center; /* <<< Center block-level children horizontally */
-      position: relative; /* Keep relative if children use absolute */
-      z-index: var(--z-index-side-columns); /* Keep z-index */
+    flex: none;
+    width: 80%; 
+    height: auto; 
+    padding: var(--space-m); 
+    text-align: center; 
+    flex-shrink: 0; 
+
+    /* --- Position it as an overlay --- */
+    position: fixed; 
+    top: 0;  left: 0;
+    width: 100%;    
+    background-color: var(--clr-background); 
+    z-index: 100;     
   }
-    .middle-column { order: 2; flex-grow: 1; padding: 0;}
-    .right-column { order: 3; text-align: center; flex-shrink: 0; padding: 0 var(--space-l) 5vh; }
-  
+  .middle-column {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    order: 2;
+    overflow: hidden;
+    position: relative; /* Keep relative for track positioning */
+
+    /* --- Center the video track within it --- */
+    display: flex;
+    justify-content: center; /* Center track horizontally */
+    align-items: center;     /* Center track vertically */
+  }
+
+  .right-column {
+    flex: none;
+    width: 100%;
+    height: auto;
+    display: none; /* <<< Hide completely */
+  }
     /* --- Video Item --- */
     .scroll-item.video-item {
         padding: 10px; /* Add back padding around wrapper on mobile */
     }
     .video-aspect-wrapper {
-        width: 100%; /* Let it fill padded parent */
+        width: 90%; /* Let it fill padded parent */
     }
   
     /* --- Controls & Overlays --- */
     .video-controls {
-        bottom: var(--space-m); padding: var(--space-s) var(--space-m); gap: var(--space-s);
+        bottom: var(--space-s); padding: var(--space-xs) var(--space-s); gap: var(--space-xs);
         width: calc(100% - var(--space-m) * 2) ; /* Adjust width based on padding */
     }
-    .controls-button { padding: var(--space-s) var(--space-m); font-size: 0.8em; }
+    .controls-button { padding: var(--space-xs) var(--space-s); font-size: 0.8em; }
   
     /* Video Info Overlay */
     .video-info-overlay {
@@ -63,9 +87,8 @@
       transform: none; text-align: center;
     }
     .info-column {
-        width: 100%; text-align: center; flex-grow: 0; flex-basis: auto; flex-shrink: 1;
+      width: 100%; text-align: center; flex-grow: 0; flex-basis: auto; flex-shrink: 1;
     }
-    .info-column-left, .info-column-right { /* No specific flex needed */ }
   
     /* Mobile Font Sizes */
     .info-column h2, .info-column h3 { font-size: var(--font-size-mobile-xsmall);}
@@ -84,7 +107,7 @@
       top: auto; left: auto;
       width: 100%;
       text-align: center;
-      margin: 0 auto var(--space-m) auto;
+      margin: 0 auto var(--space-l) auto;
       padding: 0; 
       display: block;
     }
@@ -109,7 +132,7 @@
      .nav-button { font-size: var(--font-size-xsmall); }
   
      /* Hide Info button when on info page */
-    #scroll-to-info-btn.is-hidden-on-mobile { /* Assuming ID from HTML */
+    #scroll-to-info-btn.is-hidden-on-mobile { 
       display: none;
     }
 
@@ -123,22 +146,10 @@
       padding: 5px;
     }
 
-    .navigation-menu {
-      position: static;
-      transform: none;
-      bottom: auto; left: auto; top: auto;
-      z-index: auto;
-  
-      width: 100%;
-      max-width: 100%;
-      margin: 0 auto;
-      padding: 0;/
-      text-align: center;
-    }
-
     .navigation-menu.is-visible {
       max-height: 500px;
       overflow: auto;
+      opacity: .9;
     }
   
   
