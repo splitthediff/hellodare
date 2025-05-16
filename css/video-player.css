@@ -112,7 +112,7 @@
               left var(--transition-duration) var(--transition-ease);
 }
 .video-info-overlay .video-info-title {
-  font-size: var(--font-size-small); font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-xsmall); font-weight: var(--font-weight-regular);
   margin: 0 0 var(--space-xs) 0; line-height: var(--line-height-heading);
   white-space: normal; overflow: visible; text-overflow: clip;
 }
