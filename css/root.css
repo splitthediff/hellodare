@@ -85,9 +85,9 @@
     --transition-ease-power: power2.out; /* Example for GSAP consistency */
   
     /* === LAYERS (Z-INDEX) === */
-    --z-index-iframe: 1;
-    --z-index-thumbnail: 2;
-    --z-index-info-overlay: 4;
-    --z-index-controls: 5;
+    --z-index-iframe: 2;
+    --z-index-thumbnail: 3;
+    --z-index-info-overlay: 1;
+    --z-index-controls: 4;
     --z-index-side-columns: 20;
   }

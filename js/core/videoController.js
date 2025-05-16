@@ -73,20 +73,18 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
                 // Explicitly set X and Y pixel offsets and percentages to known start points
                 // This ensures GSAP starts from a clean slate relative to the CSS positioning
                 gsap.set(contentElement, {
-                    x: 0, // <<< ADD: Ensure pixel X starts at 0
-                    y: initialYOffset, // Ensure pixel Y starts at the offset
-                    xPercent: isVideoIndex ? -50 : 0, // Ensure X% starts correctly
-                    yPercent: isVideoIndex ? -50 : 0, // Ensure Y% starts correctly
-                    opacity: 0, // Ensure opacity starts at 0
-                    // clearProps: "transform" // Optional: Can try clearing all GSAP transforms first
+                    x: 0,
+                    y: initialYOffset,
+                    xPercent: isVideoIndex ? -50 : 0, 
+                    yPercent: isVideoIndex ? -50 : 0, 
+                    opacity: 0,
                 });
                 // --- END Force Set ---
 
                 // --- Animate IN: Animate ONLY opacity, transform (y), and max-height ---
                 gsap.to(contentElement, {
                     opacity: 1,
-                    y: 0, // Animate pixel Y offset to 0
-                    // Do NOT animate x, xPercent, yPercent here - they are set instantly above
+                    y: 0,
                     duration: 0.6, // Adjust duration
                     delay: 0.1, // Adjust delay
                     ease: "power1.out",
@@ -145,21 +143,21 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
                 } catch (error) {
                     console.warn(`[VideoController ${video?.id || index}] Error activating video: ${error.message}`);
                      // Reset buttons on error
-                     const playPauseButton = document.getElementById(`playPauseButton-${video?.id}`);
-                     const soundButton = document.getElementById(`soundButton-${video?.id}`);
-                     const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper');
-                     const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
-                      const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
-                     const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
+                    const playPauseButton = document.getElementById(`playPauseButton-${video?.id}`);
+                    const soundButton = document.getElementById(`soundButton-${video?.id}`);
+                    const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper');
+                    const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
+                    const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
+                    const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
 
-                     if(playPauseButton && playWrapper && pauseWrapper){ 
+                    if(playPauseButton && playWrapper && pauseWrapper){ 
                         playWrapper.classList.remove('is-hidden'); pauseWrapper.classList.add('is-hidden'); playPauseButton.setAttribute('aria-label', 'Play'); 
                     }
-                     if (soundButton && volumeOnWrapper && volumeOffWrapper){ 
+                    if (soundButton && volumeOnWrapper && volumeOffWrapper){ 
                         const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); 
                         volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');
-                     }
-                    }
+                    } 
+                }
             } else if (!isVideoIndex) { // If INFO section
                  console.log(`[VideoController] Info Section Activated (Index ${index}). Content faded in.`);
                  // NOTE: The separate animateInfoIn might be redundant now,
@@ -170,16 +168,15 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
         else {
             // --- Reset Content Out ---
             if (contentElement && typeof gsap !== 'undefined') {
-                if (contentElement && typeof gsap !== 'undefined') {
-                    // --- Reset OUT: Explicitly set ALL transform components ---
-                    gsap.set(contentElement, {
-                       opacity: 0, // Set opacity to 0
-                       x: 0, // <<< ADD: Ensure pixel X is 0
-                       y: initialYOffset, // Set pixel Y offset
-                       xPercent: isVideoIndex ? -50 : 0, // Set X%
-                       yPercent: isVideoIndex ? -50 : 0 // Set Y%
-                   });
-               }
+                // --- Reset OUT: Explicitly set ALL transform components ---
+                gsap.set(contentElement, {
+                    opacity: 0,
+                    x: 0,
+                    y: initialYOffset, 
+                    xPercent: isVideoIndex ? -50 : 0, 
+                    yPercent: isVideoIndex ? -50 : 0,
+                    //clearProps: "opacity,transform" 
+                });
             }
             // ------------------------
 
@@ -232,7 +229,7 @@ export function animateInfoIn() {
 
 /** Resets the info section content animation state */
 export function resetInfoAnimation() {
-    if (typeof gsap === 'undefined') { return; } // Need GSAP check
+    if (typeof gsap === 'undefined') { return; }
 
     const infoBlocks = gsap.utils.toArray(`${config.selectors.infoSectionId} .info-block`);
     if (infoBlocks.length > 0) {
@@ -243,9 +240,9 @@ export function resetInfoAnimation() {
             // Keep xPercent/yPercent for consistency if needed, though less critical when opacity is 0
             //xPercent: isVideoIndex ? -50 : 0,
             //yPercent: isVideoIndex ? -50 : 0,
-            duration: 2, // Shorter duration for fade out (adjust as needed)
+            duration: 2,
             ease: "power1.in",
-            overwrite: true, // Stop any incoming animation if user scrolls back quickly
+            overwrite: true, 
         });
     }
 }

@@ -191,10 +191,10 @@ function attachButtonListeners() {
                const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');
                // const navLinks = navMenu.querySelectorAll('.nav-link'); // Not needed in this handler
 
-               // Toggle icon visibility classes and accessibility
-               menuIconWrapper.classList.toggle('is-hidden', menuIsCurrentlyVisible);
-               closeIconWrapper.classList.toggle('is-hidden', !menuIsCurrentlyVisible);
-               menuToggleButton.setAttribute('aria-expanded', !menuIsCurrentlyVisible);
+               menuIconWrapper.classList.toggle('is-hidden', !menuIsCurrentlyVisible); // <<< REVERSED
+               closeIconWrapper.classList.toggle('is-hidden', menuIsCurrentlyVisible); // <<< REVERSED
+               // ARIA labels should reflect the state AFTER click (the NEW state)
+               menuToggleButton.setAttribute('aria-expanded', !menuIsCurrentlyVisible); // Still true if ABOUT to open
                menuToggleButton.setAttribute('aria-label', !menuIsCurrentlyVisible ? 'Close Navigation Menu' : 'Open Navigation Menu');
 
                // --- Trigger Open/Close Sequence ---
@@ -278,10 +278,11 @@ export function closeNavMenu() {
     }
 
     // Update Icon/ARIA state to CLOSED
+    /*
     menuIconWrapper.classList.remove('is-hidden'); // Show menu icon
     closeIconWrapper.classList.add('is-hidden'); // Hide close icon
     menuToggleButton.setAttribute('aria-expanded', false); // Set false (closed)
-    menuToggleButton.setAttribute('aria-label', 'Open Navigation Menu'); // Set label to open
+    menuToggleButton.setAttribute('aria-label', 'Open Navigation Menu'); // Set label to open*/
     // --- End Hiding Logic ---
 
     console.log("SCROLL: --- closeNavMenu FINISHED ---");
