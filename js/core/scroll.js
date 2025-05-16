@@ -62,7 +62,6 @@ function updateInfoButtonState() {
 
     infoButtonElement.innerText = isOnInfoPage ? "Work" : "Info";
     
-
     // --- ADD/REMOVE MOBILE HIDE CLASS ---
     infoButtonElement.classList.toggle('is-hidden-on-mobile', isOnInfoPage);
 
@@ -87,8 +86,7 @@ export function goToIndex(index, immediate = false) {
 
     const infoSectionIndex = scrollItems.length - 1;
     // Set callback ONLY if target is the info section
-    const scrollCompleteCallback = (index === infoSectionIndex) ? animateInfoIn : null; // Use imported function
-
+    const scrollCompleteCallback = (index === infoSectionIndex) ? animateInfoIn : null;
         controlVideoPlayback(currentIndex, previousIndex, scrollCompleteCallback).catch(err => {
         console.error("[goToIndex] Error controlling video playback:", err);
     });
@@ -98,11 +96,10 @@ export function goToIndex(index, immediate = false) {
     // Perform Scroll Animation / Set
     if (immediate) {
         gsap.set(videoTrack, { yPercent: targetYPercent });
-        isAnimating = false; // Ensure flag is false
-        // --- (2e) Manually trigger callback if immediate AND target is info ---
+        isAnimating = false;
         if (scrollCompleteCallback) {
             console.log("[goToIndex Immediate] Triggering info animation immediately.");
-            scrollCompleteCallback(); // Call the callback directly
+            scrollCompleteCallback(); 
         }
         console.log(`[goToIndex Immediate Set] Target index: ${currentIndex}.`);
     } else {

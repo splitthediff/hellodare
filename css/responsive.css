@@ -54,6 +54,7 @@
   /* --- Video Item --- */
   .scroll-item.video-item {
       padding: 10px; /* Add back padding around wrapper on mobile */
+      z-index: 4;
   }
   .video-aspect-wrapper {
       width: 90%; /* Let it fill padded parent */
@@ -118,6 +119,7 @@
       overflow: visible;
       background-color: var(--primary-bg-color);
       background-blend-mode: screen;
+      z-index: 0;
     }
     .nav-link-list { max-height: none; overflow-y: visible; margin-bottom: 15px; }
       .nav-link { font-size: var(--font-size-xsmall); }

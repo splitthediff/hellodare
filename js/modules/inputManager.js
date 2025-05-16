@@ -135,3 +135,7 @@ export function initializeInput(
     attachEventListeners(touchHandlers, resizeHandler);
     console.log("Input Manager Initialized.");
 }
+
+export function checkForMobile() {
+    return window.innerWidth <= config.breakpoints.mobileMaxWidth;
+}

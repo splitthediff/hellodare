@@ -7,6 +7,7 @@ import { playlist } from '../data/playlistData.js';
 import { Video } from '../modules/Video.js';
 import { config } from '../config.js';
 import { paddedNumber } from '../utils/utils.js';
+import { checkForMobile } from '../modules/inputManager.js';
 
 // --- Global Variable ---
 let currentVideos = [];
@@ -220,8 +221,6 @@ export function positionSingleInfoOverlay(videoId) {
          return;
      }
 
-    const isMobile = window.innerWidth <= config.breakpoints.mobileMaxWidth;
-
     const scrollItemRect = scrollItem.getBoundingClientRect();
     const wrapperRect = wrapper.getBoundingClientRect();
 
@@ -229,34 +228,32 @@ export function positionSingleInfoOverlay(videoId) {
     const wrapperBottomRelativeToParent = wrapperRect.bottom - scrollItemRect.top;
     const spaceBelowWrapper = scrollItemRect.height - wrapperBottomRelativeToParent;
     // Ensure bottom isn't negative, maybe add a minimum gap
-    const overlayBottomPosition = Math.max(5, spaceBelowWrapper - config.layout.overlayOffsetBottom); // Using Math.max(5, ...) as safety
+    const overlayBottomPosition = Math.max(5, spaceBelowWrapper - config.layout.overlayOffsetBottom);
     // --- SET 'bottom' STYLE ---
     overlay.style.bottom = `${overlayBottomPosition}px`;
 
-    if (isMobile) {
-        //centered on mobile
+    if (checkForMobile()) { //centered on mobile
         console.log("Mobile detected - centering overlay");
         overlay.style.maxWidth = `${wrapperRect.width * 0.9}px`; // Example width
         overlay.style.width = 'auto';
         overlay.style.left = 'auto';
     } else {
         const overlayLeftPosition = wrapperRect.left - scrollItemRect.left;
-        overlay.style.left = `${overlayLeftPosition}px`; // Align left
-        overlay.style.maxWidth = '60%'; // Example desktop width
+        overlay.style.left = `${overlayLeftPosition}px`;
+        overlay.style.maxWidth = '60%';
         overlay.style.width = 'auto';
     }
-
 }
 
 function renderNavigationMenu(videoData, infoSectionName = "Info") {
     console.log("--- Rendering Navigation Menu ---");
-    const navContainer = document.getElementById('main-navigation'); // Use ID from HTML
+    const navContainer = document.getElementById('main-navigation');
     if (!navContainer) {
         console.error("Navigation container #main-navigation not found.");
         return;
     }
 
-    let navHTML = '<ul class="nav-link-list">'; // Start list
+    let navHTML = '<ul class="nav-link-list">';
 
     // Add link for each video
     videoData.forEach((video, index) => {
@@ -266,7 +263,9 @@ function renderNavigationMenu(videoData, infoSectionName = "Info") {
 
     // Add link for the Info section
     const infoIndex = videoData.length; // Index after the last video
-    //navHTML += `<li><a href="#" class="nav-link" data-index="${infoIndex}">${infoSectionName}</a></li>`;
+    if (checkForMobile()){
+        navHTML += `<li><a href="#" class="nav-link" data-index="${infoIndex}">${infoSectionName}</a></li>`;
+    }
 
     navHTML += '</ul>'; // End list
 
@@ -307,11 +306,13 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
 
                     // --- Step 2: Close the menu after scrolling ---
                     // Check if closeNavMenu is imported and callable
-                    if (typeof closeNavMenu === 'function') {
-                        console.log("Nav link clicked, calling closeNavMenu.");
-                        closeNavMenu(); // <<< Call the function to close the menu
-                    } else {
-                         console.error("closeNavMenu function not available in playlistManager.js scope.");
+                    if (checkForMobile()){
+                        if (typeof closeNavMenu === 'function') {
+                            console.log("Nav link clicked, calling closeNavMenu.");
+                            closeNavMenu(); // <<< Call the function to close the menu
+                        } else {
+                            console.error("closeNavMenu function not available in playlistManager.js scope.");
+                        }
                     }
                 }
             } // End if targetLink
