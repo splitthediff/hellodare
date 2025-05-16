@@ -168,17 +168,15 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
         else {
             // --- Reset Content Out ---
             if (contentElement && typeof gsap !== 'undefined') {
-                // --- Reset OUT: Explicitly set ALL transform components ---
-                gsap.set(contentElement, {
+                gsap.to(contentElement, {
                     opacity: 0,
-                    x: 0,
                     y: initialYOffset, 
-                    xPercent: isVideoIndex ? -50 : 0, 
-                    yPercent: isVideoIndex ? -50 : 0,
-                    //clearProps: "opacity,transform" 
+                    x: 0,
+                    duration: 0.7, 
+                    ease: "power1.in", 
+                    overwrite: true,
                 });
             }
-            // ------------------------
 
             // --- Pause Inactive Videos ---
             if (isVideoIndex && video) {
@@ -195,7 +193,7 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
                     if(playPauseButton && playWrapper && pauseWrapper){ playWrapper.classList.remove('is-hidden'); pauseWrapper.classList.add('is-hidden'); playPauseButton.setAttribute('aria-label', 'Play'); }
                 }
             }
-        } // End for loop iterating scrollItems
+        }
     }
 }
 
