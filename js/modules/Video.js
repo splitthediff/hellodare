@@ -123,14 +123,14 @@ export class Video {
                         // Attach all event listeners
                         this._attachPlayerListeners();
 
-                        // --- CALL POSITIONING FUNCTION FOR THIS VIDEO ---
+                      /*  // --- CALL POSITIONING FUNCTION FOR THIS VIDEO ---
                         console.log(`[Player Init ${this.id}] Player ready, calling positionSingleInfoOverlay.`);
                         try {
                             positionSingleInfoOverlay(this.id); // Call exported function
                         } catch (posError) {
                         console.error(`[Player Init ${this.id}] Error calling positionSingleInfoOverlay:`, posError);
                         }
-                        // --- END POSITIONING CALL ---
+                        // --- END POSITIONING CALL ---*/
     
                         resolve(this.player); // Resolve the main promise
                     }).catch((error) => {

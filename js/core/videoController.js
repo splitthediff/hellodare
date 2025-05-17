@@ -1,6 +1,7 @@
 // js/core/videoController.js - Manages video playback and volume
 
 import { config } from '../config.js';
+import { positionSingleInfoOverlay } from './playlistManager.js';
 
 // --- Module State ---
 let controlledVideos = []; // Stores the Video class instances
@@ -75,6 +76,8 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
                 gsap.set(contentElement, {
                     x: 0,
                     y: initialYOffset,
+                    scale: .98,
+                    filter: config.animation.blurMax, // Use CSS variable for blur
                     xPercent: isVideoIndex ? -50 : 0, 
                     yPercent: isVideoIndex ? -50 : 0, 
                     opacity: 0,
@@ -84,16 +87,24 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
                 // --- Animate IN: Animate ONLY opacity, transform (y), and max-height ---
                 gsap.to(contentElement, {
                     opacity: 1,
+                    scale: 1,
+                    filter: config.animation.blurReset, // Use CSS variable for blur
                     y: 0,
                     duration: 0.6, // Adjust duration
                     delay: 0.1, // Adjust delay
                     ease: "power1.out",
                     overwrite: true,
-                    stagger: isInfoBlocks ? 0.1 : 0
+                    stagger: isInfoBlocks ? 0.1 : 0,
+                    onComplete: () => {
+                        //gsap.set(contentElement, { clearProps: "opacity,transform,filter,scale" });
+                        if (isVideoIndex && video && typeof positionSingleInfoOverlay === 'function') {
+                             console.log(`[VC ${video.id}] Fade IN Complete. Positioning overlay.`);
+                             positionSingleInfoOverlay(video.id);
+                        }
+                    }
                 });
                 // --- END GSAP TO ---
             }
-            // --------------------------
 
             // --- Handle Video Playback (Only if it IS a video) ---
             if (isVideoIndex && video) {
@@ -170,11 +181,16 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
             if (contentElement && typeof gsap !== 'undefined') {
                 gsap.to(contentElement, {
                     opacity: 0,
+                    filter: config.animation.blurMax, 
+                    scale: .98,
                     y: initialYOffset, 
                     x: 0,
                     duration: 0.7, 
                     ease: "power1.in", 
                     overwrite: true,
+                    onComplete: () => {
+                        gsap.set(contentElement, { clearProps: "opacity,transform,filter,scale" });
+                    }
                 });
             }
 
@@ -212,6 +228,7 @@ export function animateInfoIn() {
          console.log("[VideoController] Animating Info Section IN");
          gsap.to(infoBlocks, {
             opacity: 1,
+
             y: 0,
             duration: 1,
             ease: "power1.out",
@@ -233,7 +250,7 @@ export function resetInfoAnimation() {
     if (infoBlocks.length > 0) {
         //console.log("[VideoController] Resetting Info Section Animation");
         gsap.to(infoBlocks, {
-            opacity: 0,
+            opacity: 0, 
             y: 20, // Animate back to the offset position
             // Keep xPercent/yPercent for consistency if needed, though less critical when opacity is 0
             //xPercent: isVideoIndex ? -50 : 0,

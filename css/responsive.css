@@ -54,7 +54,6 @@
   /* --- Video Item --- */
   .scroll-item.video-item {
       padding: 10px; /* Add back padding around wrapper on mobile */
-      z-index: 4;
   }
   .video-aspect-wrapper {
       width: 90%; /* Let it fill padded parent */
@@ -71,7 +70,7 @@
   .video-info-overlay {
     position: absolute; 
 
-    z-index: var(--z-index-info-overlay, 4);
+    z-index: var(--z-index-info-overlay, 1);
     width: auto;
     max-width: 100%;
     padding: 0;
