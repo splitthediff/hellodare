@@ -135,8 +135,7 @@ function attachButtonListeners() {
     // --- Info Button Listener ---
     console.log("ABL: Attempting getElementById for Info Button:", config.selectors.infoButtonId);
     // --- RESTORE ORIGINAL VARIABLE NAME ---
-    infoButtonElement = document.getElementById(config.selectors.infoButtonId); // Use config ID (no #)
-    // --- END RESTORE ---
+    infoButtonElement = document.getElementById(config.selectors.infoButtonId);
 
     if (infoButtonElement) { // Check the variable reference
          console.log("ABL: Found Info Button.", infoButtonElement);
@@ -153,14 +152,12 @@ function attachButtonListeners() {
             console.log("Dynamic Info/Work button listener attached.");
         }
     } else {
-        console.warn(`ABL: Info button ('#${config.selectors.infoButtonId}') not found.`); // Use config ID
+        console.warn(`ABL: Info button ('#${config.selectors.infoButtonId}') not found.`);
     }
 
     // --- Title Listener ---
     console.log("ABL: Attempting getElementById for Title:", config.selectors.titleElementId);
-    // --- RESTORE ORIGINAL VARIABLE NAME ---
-    const titleElementForListener = document.getElementById(config.selectors.titleElementId); // Use config ID (no #)
-    // --- END RESTORE ---
+    const titleElementForListener = document.getElementById(config.selectors.titleElementId); 
 
     if (titleElementForListener) { // Check the variable reference
         console.log("ABL: Found Title Element.", titleElementForListener);
@@ -174,72 +171,64 @@ function attachButtonListeners() {
             console.log("Title click listener attached.");
         }
     } else {
-        console.warn(`ABL: Main title ('#${config.selectors.titleElementId}') not found.`); // Use config ID
+        console.warn(`ABL: Main title ('#${config.selectors.titleElementId}') not found.`); 
     }
 
+    const pageContainer = document.querySelector('.page-container');
 
     // --- Menu Toggle Button Listener ---
-    const menuToggleButton = document.getElementById(config.selectors.menuToggleButtonId); // Use config ID (no #)
-    const navMenu = document.getElementById(config.selectors.navigationContainerId); // Use config ID (no #)
-    const menuIconWrapper = menuToggleButton?.querySelector('.icon-menu-wrapper'); // Use class selectors
-    const closeIconWrapper = menuToggleButton?.querySelector('.icon-close-wrapper'); // Use class selectors
+    const menuToggleButton = document.getElementById(config.selectors.menuToggleButtonId); 
+    const navMenu = document.getElementById(config.selectors.navigationContainerId);
+    const menuIconWrapper = menuToggleButton?.querySelector('.icon-menu-wrapper'); 
+    const closeIconWrapper = menuToggleButton?.querySelector('.icon-close-wrapper'); 
 
     // Check if all required elements exist for the Menu Toggle
     if (menuToggleButton && navMenu && menuIconWrapper && closeIconWrapper) {
         if (!menuToggleButton._listenerAttachedClick) {
            menuToggleButton.addEventListener('click', () => {
                const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');
-               // const navLinks = navMenu.querySelectorAll('.nav-link'); // Not needed in this handler
 
-               menuIconWrapper.classList.toggle('is-hidden', !menuIsCurrentlyVisible); // <<< REVERSED
-               closeIconWrapper.classList.toggle('is-hidden', menuIsCurrentlyVisible); // <<< REVERSED
+               menuIconWrapper.classList.toggle('is-hidden', !menuIsCurrentlyVisible);
+               closeIconWrapper.classList.toggle('is-hidden', menuIsCurrentlyVisible);
                // ARIA labels should reflect the state AFTER click (the NEW state)
-               menuToggleButton.setAttribute('aria-expanded', !menuIsCurrentlyVisible); // Still true if ABOUT to open
+               menuToggleButton.setAttribute('aria-expanded', !menuIsCurrentlyVisible);
                menuToggleButton.setAttribute('aria-label', !menuIsCurrentlyVisible ? 'Close Navigation Menu' : 'Open Navigation Menu');
 
                // --- Trigger Open/Close Sequence ---
-               if (!menuIsCurrentlyVisible) { // If menu is currently hidden (about to become visible)
+               if (!menuIsCurrentlyVisible) { 
                     console.log("SCROLL: Triggering Menu OPEN sequence from button.");
-                    // Call the separate open function if you create one, or toggle class directly
-                    // For now, just toggle the class
-                    navMenu.classList.remove('is-hidden'); // Remove hidden class
-                    navMenu.classList.add('is-visible');   // Add visible class
+                    navMenu.classList.remove('is-hidden');
+                    navMenu.classList.add('is-visible'); 
+
+                    pageContainer.classList.add('menu-open');
 
                     // Ensure links are in starting animation state if they animate in
-                    const navLinks = navMenu.querySelectorAll('.nav-link'); // Find links here
+                    const navLinks = navMenu.querySelectorAll('.nav-link');
                     if (navLinks.length > 0) {
-                        // Apply initial state here if they animate in when menu opens
-                        gsap.set(navLinks, { opacity: 0, y: 10 }); // Example initial state
-                        // And trigger the animation here if you want it linked to button click
+                        gsap.set(navLinks, { opacity: 0, y: 10 });
                         gsap.to(navLinks, { opacity: 1, y: 0, duration: 0.4, ease: "power1.out", stagger: 0.08, delay: 0.1, overwrite: true });
                     }
 
-                } else { // If menu is currently visible (about to become hidden)
+                } else {
                     console.log("SCROLL: Triggering Menu CLOSE sequence from button.");
-                    // --- Call the separate close function (define below) ---
-                    closeNavMenu(); // <<< Call the new function here
-                    // --- End Call ---
+                    closeNavMenu();
+                    pageContainer.classList.remove('menu-open');
                 }
-               // --- End Trigger Sequence ---
-           }); // Closing parenthesis for addEventListener
+           });
            menuToggleButton._listenerAttachedClick = true;
            console.log("SCROLL: Menu toggle button listener attached.");
         } else {
-             console.log("ABL: Menu toggle listener ALREADY attached."); // <-- This log should appear if flag was true
+             console.log("ABL: Menu toggle listener ALREADY attached.");
         }
     } else {
-        // Log specifics if something is missing
         console.log("ABL: Menu Toggle Condition Failed.");
         if (!menuToggleButton) console.warn(`ABL: Menu toggle button ('#${config.selectors.menuToggleButtonId}') not found.`);
         if (!navMenu) console.warn(`ABL: Navigation menu ('#${config.selectors.navigationContainerId}') not found.`);
         if (!menuIconWrapper) console.warn("ABL: Menu icon wrapper not found inside toggle button.");
         if (!closeIconWrapper) console.warn("ABL: Close icon wrapper not found inside toggle button.");
-        // --- END Log specifics ---
+        if (!pageContainer) console.warn("SCROLL: Page container element (.page-container) not found.");
     }
-    // --- ADD LOG ---
     console.log("--- attachButtonListeners finished running ---");
-    // --- END LOG ---
-
 }
 
 export function closeNavMenu() {

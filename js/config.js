@@ -53,6 +53,6 @@ export const config = {
     },
 
     layout: {
-        overlayOffsetBottom: 60// Desired offset below video in pixels
+        overlayOffsetBottom: 80// Desired offset below video in pixels
     }
 };

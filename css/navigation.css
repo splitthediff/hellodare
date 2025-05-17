@@ -18,6 +18,8 @@
     text-align: left;
     margin: 0;
     padding: 0;
+
+    mix-blend-mode: difference;
   }
   .intro-title.overlapped {
     color: var(--clr-text-overlap); opacity: 0.65;
@@ -54,6 +56,7 @@
   max-height: 0;
   overflow: hidden;
   transform: translateY(0px);
+  mix-blend-mode: difference;
 
   transition-property: opacity, visibility, transform, max-height;
   transition-duration: 0.5s;
@@ -76,6 +79,7 @@
   transition-delay: 0s;
 
   animation: hide-scroll 0.5s backwards;
+
 }
 
 /* Hide scrollbars in WebKit browsers */

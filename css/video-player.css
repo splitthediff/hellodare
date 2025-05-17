@@ -13,10 +13,12 @@
   width: 100%; overflow: hidden;
   background-color: transparent; /* Background during load */
   border-radius: var(--radius-video); flex-shrink: 0;
+  filter: none;
   /* Animation */
-  opacity: 0; will-change: opacity, transform;
+  transition: filter 0.3s ease-in-out
+  opacity: 0; will-change: opacity, transform, filter;
    /* aspect-ratio set by JS */
-   z-index: var(--z-index-video-item, 1); /* Base z-index for wrapper */
+  z-index: var(--z-index-video-item, 1); /* Base z-index for wrapper */
 }
 
 /* --- Thumbnail --- */
@@ -96,24 +98,26 @@
 
 /* --- Video Info Overlay (Positioned via JS) --- */
 .video-info-overlay {
-  position: absolute; /* Relative to .scroll-item */
+  position: absolute;
   width: auto; max-width: 60%; box-sizing: border-box;
   z-index: var(--z-index-info-overlay);
   color: var(--clr-text-primary);
   padding: 0; text-align: left;
-  /* Initial state */
-  opacity: 0; visibility: hidden; transform: translateY(10px); pointer-events: none;
-  /* Transition */
+  
+  opacity: 0; visibility: hidden; transform: translateY(10px); filter: none; pointer-events: none;
+
   transition: opacity var(--transition-duration) var(--transition-ease),
               visibility 0s linear var(--transition-duration),
               transform var(--transition-duration) var(--transition-ease),
+              filter 0.3s ease-in-out,
               bottom var(--transition-duration) var(--transition-ease),
               top var(--transition-duration) var(--transition-ease),
               left var(--transition-duration) var(--transition-ease);
+  will-change: filter;
 }
 .video-info-overlay .video-info-title {
   font-size: var(--font-size-xsmall); font-weight: var(--font-weight-regular);
-  margin: var(--space-l) 0 var(--space-s) 0; line-height: var(--line-height-heading);
+  margin: 0 0 0 0; line-height: var(--line-height-heading);
   white-space: normal; overflow: visible; text-overflow: clip;
 }
 .video-info-overlay .video-info-year {

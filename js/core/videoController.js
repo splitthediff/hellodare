@@ -24,17 +24,12 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
     const videoCount = controlledVideos.length;
     const infoSectionIndex = videoCount;
 
-    // We need access to the scrollItems elements here to find content
-    // Let's assume scrollItems is accessible or passed, otherwise this needs adjustment
-    // For now, let's query them directly (less ideal but works for demonstration)
-    const scrollItems = document.querySelectorAll(config.selectors.scrollItem); // Query within function
+    const scrollItems = document.querySelectorAll(config.selectors.scrollItem);
 
     if (!scrollItems || scrollItems.length === 0) {
         console.error("[VideoController] Cannot control playback/fade: scrollItems not found.");
         return;
     }
-
-    // console.log(`--- [VideoController w/ Fade] Playback: Prev=${previousIdx}, Current=${currentIdx}, InfoIdx=${infoSectionIndex} ---`);
 
     // --- Handle Info Section (Keep this logic) ---
     if (currentIdx === infoSectionIndex) {
@@ -56,10 +51,9 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
         let contentElement = null;
         if (isVideoIndex) {
             contentElement = scrollItemElement.querySelector('.video-aspect-wrapper');
-        } else if (index === infoSectionIndex) { // Check if it's the info section index
+        } else if (index === infoSectionIndex) {
             contentElement = scrollItemElement.querySelector('.info-content');
         }
-        // --- End Find Content ---
 
         const initialYOffset = 20;
 
@@ -71,8 +65,6 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
                  const isInfoBlocks = Array.isArray(contentElement);
 
                 // --- Force Set Initial GSAP State ---
-                // Explicitly set X and Y pixel offsets and percentages to known start points
-                // This ensures GSAP starts from a clean slate relative to the CSS positioning
                 gsap.set(contentElement, {
                     x: 0,
                     y: initialYOffset,
@@ -82,13 +74,12 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
                     yPercent: isVideoIndex ? -50 : 0, 
                     opacity: 0,
                 });
-                // --- END Force Set ---
 
                 // --- Animate IN: Animate ONLY opacity, transform (y), and max-height ---
                 gsap.to(contentElement, {
                     opacity: 1,
                     scale: 1,
-                    filter: config.animation.blurReset, // Use CSS variable for blur
+                    filter: config.animation.blurReset,
                     y: 0,
                     duration: 0.6, // Adjust duration
                     delay: 0.1, // Adjust delay
