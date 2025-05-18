@@ -134,9 +134,7 @@ function attachButtonListeners() {
 
     // --- Info Button Listener ---
     console.log("ABL: Attempting getElementById for Info Button:", config.selectors.infoButtonId);
-    // --- RESTORE ORIGINAL VARIABLE NAME ---
-    infoButtonElement = document.getElementById(config.selectors.infoButtonId); // Use config ID (no #)
-    // --- END RESTORE ---
+    infoButtonElement = document.getElementById(config.selectors.infoButtonId);
 
     if (infoButtonElement) { // Check the variable reference
          console.log("ABL: Found Info Button.", infoButtonElement);
@@ -153,14 +151,12 @@ function attachButtonListeners() {
             console.log("Dynamic Info/Work button listener attached.");
         }
     } else {
-        console.warn(`ABL: Info button ('#${config.selectors.infoButtonId}') not found.`); // Use config ID
+        console.warn(`ABL: Info button ('#${config.selectors.infoButtonId}') not found.`);
     }
 
     // --- Title Listener ---
     console.log("ABL: Attempting getElementById for Title:", config.selectors.titleElementId);
-    // --- RESTORE ORIGINAL VARIABLE NAME ---
-    const titleElementForListener = document.getElementById(config.selectors.titleElementId); // Use config ID (no #)
-    // --- END RESTORE ---
+    const titleElementForListener = document.getElementById(config.selectors.titleElementId);
 
     if (titleElementForListener) { // Check the variable reference
         console.log("ABL: Found Title Element.", titleElementForListener);
@@ -174,15 +170,14 @@ function attachButtonListeners() {
             console.log("Title click listener attached.");
         }
     } else {
-        console.warn(`ABL: Main title ('#${config.selectors.titleElementId}') not found.`); // Use config ID
+        console.warn(`ABL: Main title ('#${config.selectors.titleElementId}') not found.`);
     }
 
-
     // --- Menu Toggle Button Listener ---
-    const menuToggleButton = document.getElementById(config.selectors.menuToggleButtonId); // Use config ID (no #)
-    const navMenu = document.getElementById(config.selectors.navigationContainerId); // Use config ID (no #)
-    const menuIconWrapper = menuToggleButton?.querySelector('.icon-menu-wrapper'); // Use class selectors
-    const closeIconWrapper = menuToggleButton?.querySelector('.icon-close-wrapper'); // Use class selectors
+    const menuToggleButton = document.getElementById(config.selectors.menuToggleButtonId);
+    const navMenu = document.getElementById(config.selectors.navigationContainerId);
+    const menuIconWrapper = menuToggleButton?.querySelector('.icon-menu-wrapper');
+    const closeIconWrapper = menuToggleButton?.querySelector('.icon-close-wrapper');
 
     // Check if all required elements exist for the Menu Toggle
     if (menuToggleButton && navMenu && menuIconWrapper && closeIconWrapper) {
@@ -234,14 +229,11 @@ function openNavMenu(navMenu){
 export function closeNavMenu() {
     console.log("SCROLL: --- Running closeNavMenu START ---");
 
-    // Find elements needed for closing (use config IDs)
     const navMenu = document.getElementById(config.selectors.navigationContainerId);
     const menuToggleButton = document.getElementById(config.selectors.menuToggleButtonId);
-    // Find wrappers relative to button AFTER finding the button
     const menuIconWrapper = menuToggleButton?.querySelector('.icon-menu-wrapper');
     const closeIconWrapper = menuToggleButton?.querySelector('.icon-close-wrapper');
     const navLinks = navMenu?.querySelectorAll('.nav-link'); // Find links here
-
 
     if (!navMenu || !menuToggleButton || !menuIconWrapper || !closeIconWrapper) {
         console.warn("SCROLL: Cannot close menu - elements not found in closeNavMenu.");
@@ -259,7 +251,6 @@ export function closeNavMenu() {
     navMenu.classList.remove('is-visible'); // Trigger CSS transition to hide
     navMenu.classList.add('is-hidden');    // Add the hidden class back
     navMenu.style.overflowY = 'hidden'; // Ensure overflow hidden immediately
-
 
     // Hide Nav Links (instant reset) via GSAP (if they animate in)
     if (navLinks && navLinks.length > 0) {
