@@ -189,57 +189,46 @@ function attachButtonListeners() {
         if (!menuToggleButton._listenerAttachedClick) {
            menuToggleButton.addEventListener('click', () => {
                const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');
-               // const navLinks = navMenu.querySelectorAll('.nav-link'); // Not needed in this handler
 
-               menuIconWrapper.classList.toggle('is-hidden', !menuIsCurrentlyVisible); // <<< REVERSED
-               closeIconWrapper.classList.toggle('is-hidden', menuIsCurrentlyVisible); // <<< REVERSED
+               menuIconWrapper.classList.toggle('is-hidden', !menuIsCurrentlyVisible); 
+               closeIconWrapper.classList.toggle('is-hidden', menuIsCurrentlyVisible);
                // ARIA labels should reflect the state AFTER click (the NEW state)
-               menuToggleButton.setAttribute('aria-expanded', !menuIsCurrentlyVisible); // Still true if ABOUT to open
+               menuToggleButton.setAttribute('aria-expanded', !menuIsCurrentlyVisible); 
                menuToggleButton.setAttribute('aria-label', !menuIsCurrentlyVisible ? 'Close Navigation Menu' : 'Open Navigation Menu');
 
                // --- Trigger Open/Close Sequence ---
                if (!menuIsCurrentlyVisible) { // If menu is currently hidden (about to become visible)
                     console.log("SCROLL: Triggering Menu OPEN sequence from button.");
-                    // Call the separate open function if you create one, or toggle class directly
-                    // For now, just toggle the class
-                    navMenu.classList.remove('is-hidden'); // Remove hidden class
-                    navMenu.classList.add('is-visible');   // Add visible class
-
-                    // Ensure links are in starting animation state if they animate in
-                    const navLinks = navMenu.querySelectorAll('.nav-link'); // Find links here
-                    if (navLinks.length > 0) {
-                        // Apply initial state here if they animate in when menu opens
-                        gsap.set(navLinks, { opacity: 0, y: 10 }); // Example initial state
-                        // And trigger the animation here if you want it linked to button click
-                        gsap.to(navLinks, { opacity: 1, y: 0, duration: 0.4, ease: "power1.out", stagger: 0.08, delay: 0.1, overwrite: true });
-                    }
-
+                    openNavMenu(navMenu);
                 } else { // If menu is currently visible (about to become hidden)
                     console.log("SCROLL: Triggering Menu CLOSE sequence from button.");
-                    // --- Call the separate close function (define below) ---
-                    closeNavMenu(); // <<< Call the new function here
-                    // --- End Call ---
+                    closeNavMenu(); 
                 }
-               // --- End Trigger Sequence ---
-           }); // Closing parenthesis for addEventListener
+           });
            menuToggleButton._listenerAttachedClick = true;
            console.log("SCROLL: Menu toggle button listener attached.");
         } else {
-             console.log("ABL: Menu toggle listener ALREADY attached."); // <-- This log should appear if flag was true
+             console.log("ABL: Menu toggle listener ALREADY attached.");
         }
     } else {
-        // Log specifics if something is missing
         console.log("ABL: Menu Toggle Condition Failed.");
         if (!menuToggleButton) console.warn(`ABL: Menu toggle button ('#${config.selectors.menuToggleButtonId}') not found.`);
         if (!navMenu) console.warn(`ABL: Navigation menu ('#${config.selectors.navigationContainerId}') not found.`);
         if (!menuIconWrapper) console.warn("ABL: Menu icon wrapper not found inside toggle button.");
         if (!closeIconWrapper) console.warn("ABL: Close icon wrapper not found inside toggle button.");
-        // --- END Log specifics ---
     }
-    // --- ADD LOG ---
     console.log("--- attachButtonListeners finished running ---");
-    // --- END LOG ---
+}
 
+function openNavMenu(navMenu){
+    navMenu.classList.remove('is-hidden'); // Remove hidden class
+    navMenu.classList.add('is-visible');   // Add visible class
+
+    const navLinks = navMenu.querySelectorAll('.nav-link');
+    if (navLinks.length > 0) {
+        gsap.set(navLinks, { opacity: 0, y: 10 }); // initial state
+        gsap.to(navLinks, { opacity: .8, y: 0, duration: 0.4, ease: "power1.out", stagger: 0.08, delay: 0.1, overwrite: true, clearProps: "opacity,transform" });
+    }
 }
 
 export function closeNavMenu() {
@@ -274,17 +263,9 @@ export function closeNavMenu() {
 
     // Hide Nav Links (instant reset) via GSAP (if they animate in)
     if (navLinks && navLinks.length > 0) {
-       gsap.set(navLinks, { opacity: 0, y: 10, clearProps: "opacity,transform" });
+       //gsap.set(navLinks, { opacity: 0, y: 10, clearProps: "opacity,transform" });
+       gsap.to(navLinks, { opacity: 0, y: -20, duration: 0.4, ease: "power2.out", stagger: 0.1, delay: 0.1, overwrite: true , clearProps: "opacity,transform"});
     }
-
-    // Update Icon/ARIA state to CLOSED
-    /*
-    menuIconWrapper.classList.remove('is-hidden'); // Show menu icon
-    closeIconWrapper.classList.add('is-hidden'); // Hide close icon
-    menuToggleButton.setAttribute('aria-expanded', false); // Set false (closed)
-    menuToggleButton.setAttribute('aria-label', 'Open Navigation Menu'); // Set label to open*/
-    // --- End Hiding Logic ---
-
     console.log("SCROLL: --- closeNavMenu FINISHED ---");
 }
 

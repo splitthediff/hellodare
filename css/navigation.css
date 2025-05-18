@@ -114,11 +114,11 @@
   text-decoration: none;
   cursor: pointer;
   display: inline-block;
-  transition: color 0.2s ease;
+  /*transition: color 0.2s ease;*/
 }
 
 .navigation-menu.is-visible .nav-link {
-  opacity: 0.6;
+  opacity: 0.8;
 }
   
 .navigation-menu.is-visible .nav-link.active {
