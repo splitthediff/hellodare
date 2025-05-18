@@ -51,23 +51,10 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
         const contentElement = _getContentElement(scrollItemElement, isVideoIndex, infoSectionIndex);
         const animationParameters = _getAnimationParameters(isVideoIndex);
 
-        /*const initialYOffset = 20;
-
-        // Adjust blurs if Mobile Nav is open
-        let setBlur = config.animation.blurMax; 
-        let resetBlur = config.animation.blurReset;
-        let setOpacity = 0;
-        let resetOpacity = 1;
-        if (InputManager.checkForMobile() && InputManager.NavMenuOpen()){
-            console.log('CHECK FOR NAV MENU IS OPEN AND ON MOBILE');
-            setBlur = resetBlur = config.animation.blurNavOpen;
-            setOpacity = resetOpacity = .5;
-        } */
-
         // --- Action for the CURRENT item being scrolled TO ---
         if (index === currentIdx) {
             if (contentElement && typeof gsap !== 'undefined') {
-                    _activateItemAnimation(contentElement, isVideoIndex, animationParameters, video);
+                _activateItemAnimation(contentElement, isVideoIndex, animationParameters, video);
             }
 
             if (isVideoIndex && video) {
@@ -186,13 +173,38 @@ export async function toggleGlobalVolume() {
 }
 
 /** Get the element to animate based on item type. */
+/*
 function _getContentElement(scrollItemElement, isVideoIndex, infoSectionIndex) {
-    let contentElement = null;
+    const contentElement = [];
+
     if (isVideoIndex) {
-        contentElement = scrollItemElement.querySelector('.video-aspect-wrapper');
-    } else if (scrollItemElement && scrollItemElement.id === 'info-section') { // Check ID if it's the info item
-        contentElement = scrollItemElement.querySelector('.info-content');
+        const contentVideo = scrollItemElement.querySelector('.video-aspect-wrapper');
+        const contentOverlay = scrollItemElement.querySelector('.video-info-overlay');
+
+        // Use booleans or visibility checks if needed
+        if (contentVideo) contentElement.push(contentVideo);
+        if (contentOverlay) contentElement.push(contentOverlay);
+    } else if (scrollItemElement && scrollItemElement.id === 'info-section') {
+        const infoContent = scrollItemElement.querySelector('.info-content');
+        if (infoContent) contentElement.push(infoContent);
     }
+
+    return contentElement;
+}*/
+function _getContentElement(scrollItemElement, isVideoIndex) {
+    const contentElement = {};
+
+    if (isVideoIndex) {
+        const contentVideo = scrollItemElement.querySelector('.video-aspect-wrapper');
+        const contentOverlay = scrollItemElement.querySelector('.video-info-overlay');
+
+        if (contentVideo) contentElement.video = contentVideo;
+        if (contentOverlay) contentElement.overlay = contentOverlay;
+    } else if (scrollItemElement && scrollItemElement.id === 'info-section') {
+        const infoContent = scrollItemElement.querySelector('.info-content');
+        if (infoContent) contentElement.info = infoContent;
+    }
+
     return contentElement;
 }
 
@@ -216,26 +228,32 @@ function _getAnimationParameters(isVideoIndex) {
 }
 
 /** Animate content IN when item becomes current. */
+
 function _activateItemAnimation(contentElement, isVideoIndex, animationParameters, video) {
     if (!contentElement || typeof gsap === 'undefined') return;
-    const isInfoBlocks = Array.isArray(contentElement);
+
     const { setBlur, resetBlur, setOpacity, resetOpacity, initialYOffset } = animationParameters;
 
+    // Convert { key: element } to array of [key, element] pairs
+    const entries = Object.entries(contentElement).filter(([_, el]) => !!el);
 
-    // --- Force Set Initial GSAP State ---
-    gsap.set(contentElement, {
-        x: 0,
-        y: initialYOffset,
-        scale: 0.98,
-        filter: setBlur,
-        xPercent: isVideoIndex ? -50 : 0,
-        yPercent: isVideoIndex ? -50 : 0,
-        opacity: setOpacity,
+    if (entries.length === 0) return;
+
+    // Step 1: Set initial styles per element
+    entries.forEach(([key, el]) => {
+        gsap.set(el, {
+            x: 0,
+            y: initialYOffset,
+            scale: 0.98,
+            filter: setBlur,
+            opacity: setOpacity,
+            xPercent: key === 'video' && isVideoIndex ? -50 : 0,
+            yPercent: key === 'video' && isVideoIndex ? -50 : 0
+        });
     });
-    // --- END Force Set ---
 
-    // --- Animate IN ---
-    gsap.to(contentElement, {
+    // Step 2: Animate in all elements
+    gsap.to(entries.map(([_, el]) => el), {
         opacity: resetOpacity,
         scale: 1,
         filter: resetBlur,
@@ -244,19 +262,15 @@ function _activateItemAnimation(contentElement, isVideoIndex, animationParameter
         delay: 0.1,
         ease: "power1.out",
         overwrite: true,
-        stagger: isInfoBlocks ? 0.1 : 0,
-        // --- CRUCIAL: Remove inline styles HERE ---
+        stagger: entries.length > 1 ? 0.1 : 0,
         onComplete: () => {
-            // DO NOT USE - THIS WILL RESET to CSS AND VIDEO WILL HAVE 0 OPACITY - NOT WHAT IS WANTED/NEEDED
-            // gsap.set(contentElement, { clearProps: "opacity,transform,filter,scale" });
-             if (isVideoIndex && video && typeof positionSingleInfoOverlay === 'function') {
-                  // console.log(`[VC ${video.id}] Fade IN Complete. Positioning overlay.`);
-                  positionSingleInfoOverlay(video.id);
-             }
+            if (isVideoIndex && video && typeof positionSingleInfoOverlay === 'function') {
+                positionSingleInfoOverlay(video.id);
+            }
         }
-        // --- END CRUCIAL ---
     });
 }
+
 
 /** Reset/Animate content OUT when item is scrolled away. */
 function _deactivateItemAnimation(contentElement, isVideoIndex, animationParameters) {

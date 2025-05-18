@@ -97,7 +97,7 @@
 /* --- Video Info Overlay (Positioned via JS) --- */
 .video-info-overlay {
   position: absolute; /* Relative to .scroll-item */
-  width: auto; max-width: 60%; box-sizing: border-box;
+  width: auto; max-width: auto; box-sizing: border-box;
   z-index: var(--z-index-info-overlay);
   color: var(--clr-text-primary);
   padding: 0; text-align: left;

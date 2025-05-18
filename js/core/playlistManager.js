@@ -234,7 +234,7 @@ export function positionSingleInfoOverlay(videoId) {
 
     if (checkForMobile()) { //centered on mobile
         console.log("Mobile detected - centering overlay");
-        overlay.style.maxWidth = `${wrapperRect.width * 0.9}px`; // Example width
+        //overlay.style.maxWidth = `${wrapperRect.width * 0.9}px`; // Example width
         overlay.style.width = 'auto';
         overlay.style.left = 'auto';
     } else {
@@ -268,14 +268,6 @@ function renderNavigationMenu(videoData, infoSectionName = "Info") {
     }
 
     navHTML += '</ul>'; // End list
-
-    /*
-    navHTML += `
-        <div class="nav-controls">
-            <button class="nav-button nav-button-prev" id="nav-prev-btn" aria-label="Previous Section"><</button>
-            <button class="nav-button nav-button-next" id="nav-next-btn" aria-label="Next Section">></button>
-        </div>
-    `;*/
 
     navContainer.innerHTML = navHTML;
     console.log("Navigation menu HTML rendered.");
