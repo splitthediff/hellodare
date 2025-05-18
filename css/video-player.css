@@ -16,7 +16,7 @@
   /* Animation */
   opacity: 0; will-change: opacity, transform;
    /* aspect-ratio set by JS */
-   z-index: var(--z-index-video-item, 1); /* Base z-index for wrapper */
+  z-index: var(--z-index-video-item, 1); /* Base z-index for wrapper */
 }
 
 /* --- Thumbnail --- */

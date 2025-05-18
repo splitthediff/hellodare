@@ -139,3 +139,7 @@ export function initializeInput(
 export function checkForMobile() {
     return window.innerWidth <= config.breakpoints.mobileMaxWidth;
 }
+
+export function NavMenuOpen() {
+    return document.getElementById(config.selectors.navigationContainerId).classList.contains('is-visible');
+}

@@ -199,7 +199,16 @@ function attachButtonListeners() {
                     console.log("SCROLL: Triggering Menu CLOSE sequence from button.");
                     closeNavMenu(); 
                 }
+
+                const activeItemElement = document.querySelector('.scroll-item.video-item.active-scroll-item');
+                if (activeItemElement){
+                    console.log ('ACTIVE ITEM ELEMENT TRIGGERED');
+                    blurActiveElement(activeItemElement);
+                }
            });
+           
+           
+
            menuToggleButton._listenerAttachedClick = true;
            console.log("SCROLL: Menu toggle button listener attached.");
         } else {
@@ -259,6 +268,37 @@ export function closeNavMenu() {
     }
     console.log("SCROLL: --- closeNavMenu FINISHED ---");
 }
+
+function blurActiveElement(activeItemElement){
+    const activeVideoContent = activeItemElement.querySelector('.video-aspect-wrapper');
+    const activeInfoOverlay = activeItemElement.querySelector('.video-info-overlay');
+    const blurTargets = [];
+    if (activeVideoContent) blurTargets.push(activeVideoContent);
+    if (activeInfoOverlay) blurTargets.push(activeInfoOverlay);
+
+    if (blurTargets.length > 0 && typeof gsap !== 'undefined') {
+        if (InputManager.NavMenuOpen()) { // If menu is currently hidden (about to become open)
+            console.log("SCROLL: Applying blur/opacity to active video content.");
+            gsap.to(blurTargets, {
+                filter: config.animation.blurNavOpen,
+                opacity: config.animation.opacityNavOpen, 
+                duration: 0.3,
+                ease: "power1.out",
+                overwrite: true, // Crucial: Overwrite any ongoing ScrollTrigger animation
+            });
+        } else { // If menu is currently visible (about to become hidden)
+            console.log("SCROLL: Removing blur/opacity from active video content.");
+            gsap.to(blurTargets, {
+                filter: config.animation.blurReset, // Target blur (normal)
+                opacity: 1, // Target opacity (normal)
+                duration: 0.3, 
+                ease: "power1.out",
+                overwrite: true, // Crucial
+            });
+        }
+    }
+}
+
 
 // ==================================================
 // INITIALIZATION FUNCTION (EXPORTED)

@@ -2,6 +2,7 @@
 
 import { config } from '../config.js';
 import { positionSingleInfoOverlay } from './playlistManager.js';
+import * as InputManager from '../modules/inputManager.js';
 
 // --- Module State ---
 let controlledVideos = []; // Stores the Video class instances
@@ -23,20 +24,14 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
     if (!controlledVideos) controlledVideos = [];
     const videoCount = controlledVideos.length;
     const infoSectionIndex = videoCount;
-
-    // We need access to the scrollItems elements here to find content
-    // Let's assume scrollItems is accessible or passed, otherwise this needs adjustment
-    // For now, let's query them directly (less ideal but works for demonstration)
-    const scrollItems = document.querySelectorAll(config.selectors.scrollItem); // Query within function
+    const scrollItems = document.querySelectorAll(config.selectors.scrollItem); 
 
     if (!scrollItems || scrollItems.length === 0) {
         console.error("[VideoController] Cannot control playback/fade: scrollItems not found.");
         return;
     }
 
-    // console.log(`--- [VideoController w/ Fade] Playback: Prev=${previousIdx}, Current=${currentIdx}, InfoIdx=${infoSectionIndex} ---`);
-
-    // --- Handle Info Section (Keep this logic) ---
+    // --- Handle Info Section ---
     if (currentIdx === infoSectionIndex) {
         if (typeof onScrollCompleteCallback === 'function') { onScrollCompleteCallback(); }
         else { animateInfoIn(); }
@@ -56,12 +51,24 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
         let contentElement = null;
         if (isVideoIndex) {
             contentElement = scrollItemElement.querySelector('.video-aspect-wrapper');
-        } else if (index === infoSectionIndex) { // Check if it's the info section index
+        } else if (index === infoSectionIndex) { 
             contentElement = scrollItemElement.querySelector('.info-content');
         }
         // --- End Find Content ---
 
         const initialYOffset = 20;
+
+        // Adjust blurs if Mobile Nav is open
+        let setBlur = config.animation.blurMax; 
+        let resetBlur = config.animation.blurReset;
+        let setOpacity = 0;
+        let resetOpacity = 1;
+        if (InputManager.checkForMobile() && InputManager.NavMenuOpen()){
+            console.log('CHECK FOR NAV MENU IS OPEN AND ON MOBILE');
+            setBlur = resetBlur = config.animation.blurNavOpen;
+            setOpacity = resetOpacity = .5;
+
+        } 
 
         // --- Action for the CURRENT item being scrolled TO ---
         if (index === currentIdx) {
@@ -69,26 +76,24 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
             if (contentElement && typeof gsap !== 'undefined') {
                  // Check if we are animating info section blocks individually
                  const isInfoBlocks = Array.isArray(contentElement);
-
+            
                 // --- Force Set Initial GSAP State ---
-                // Explicitly set X and Y pixel offsets and percentages to known start points
-                // This ensures GSAP starts from a clean slate relative to the CSS positioning
                 gsap.set(contentElement, {
                     x: 0,
                     y: initialYOffset,
                     scale: .98,
-                    filter: config.animation.blurMax, // Use CSS variable for blur
+                    filter: setBlur,
                     xPercent: isVideoIndex ? -50 : 0, 
                     yPercent: isVideoIndex ? -50 : 0, 
-                    opacity: 0,
+                    opacity: setOpacity,
                 });
                 // --- END Force Set ---
 
                 // --- Animate IN: Animate ONLY opacity, transform (y), and max-height ---
                 gsap.to(contentElement, {
-                    opacity: 1,
+                    opacity: resetOpacity,
                     scale: 1,
-                    filter: config.animation.blurReset, // Use CSS variable for blur
+                    filter: resetBlur,
                     y: 0,
                     duration: 0.6, // Adjust duration
                     delay: 0.1, // Adjust delay
@@ -106,7 +111,6 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
                 // --- END GSAP TO ---
             }
 
-            // --- Handle Video Playback (Only if it IS a video) ---
             if (isVideoIndex && video) {
                 try {
                     const player = await video.initializePlayer();
@@ -171,8 +175,6 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
                 }
             } else if (!isVideoIndex) { // If INFO section
                  console.log(`[VideoController] Info Section Activated (Index ${index}). Content faded in.`);
-                 // NOTE: The separate animateInfoIn might be redundant now,
-                 // unless it does more complex animations than the simple fade/slide here.
             }
         }
         // --- Action for all OTHER items being scrolled AWAY FROM ---
@@ -180,8 +182,8 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
             // --- Reset Content Out ---
             if (contentElement && typeof gsap !== 'undefined') {
                 gsap.to(contentElement, {
-                    opacity: 0,
-                    filter: config.animation.blurMax, 
+                    opacity: setOpacity,
+                    filter: setBlur, 
                     scale: .98,
                     y: initialYOffset, 
                     x: 0,
@@ -189,7 +191,8 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
                     ease: "power1.in", 
                     overwrite: true,
                     onComplete: () => {
-                        gsap.set(contentElement, { clearProps: "opacity,transform,filter,scale" });
+                        //this makes videos pop when scrolled of screen
+                        //gsap.set(contentElement, { clearProps: "opacity,transform,filter,scale" });
                     }
                 });
             }

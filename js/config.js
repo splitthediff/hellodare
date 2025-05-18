@@ -6,8 +6,10 @@ export const config = {
         desktopDuration: 1.3,   // Duration of scroll animation on desktop (seconds)
         mobileDuration: 0.7,    // Duration of scroll animation on mobile (seconds)
         ease: "sine.inOut",    // GSAP easing function for scroll animation
-        blurMax: 'blur(4px)', // Maximum blur effect
+        blurMax: 'blur(2px)', // Maximum blur effect
         blurReset: 'blur(0px)',  // Reset blur effect
+        opacityNavOpen: .4,
+        blurNavOpen: 'blur(3px)',
     },
 
     // Input Handling Settings
