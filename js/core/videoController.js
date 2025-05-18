@@ -48,15 +48,10 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
         const video = isVideoIndex ? controlledVideos[index] : null;
 
         // --- Find the primary content element within this scrollItem ---
-        let contentElement = null;
-        if (isVideoIndex) {
-            contentElement = scrollItemElement.querySelector('.video-aspect-wrapper');
-        } else if (index === infoSectionIndex) { 
-            contentElement = scrollItemElement.querySelector('.info-content');
-        }
-        // --- End Find Content ---
+        const contentElement = _getContentElement(scrollItemElement, isVideoIndex, infoSectionIndex);
+        const animationParameters = _getAnimationParameters(isVideoIndex);
 
-        const initialYOffset = 20;
+        /*const initialYOffset = 20;
 
         // Adjust blurs if Mobile Nav is open
         let setBlur = config.animation.blurMax; 
@@ -67,150 +62,29 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
             console.log('CHECK FOR NAV MENU IS OPEN AND ON MOBILE');
             setBlur = resetBlur = config.animation.blurNavOpen;
             setOpacity = resetOpacity = .5;
-
-        } 
+        } */
 
         // --- Action for the CURRENT item being scrolled TO ---
         if (index === currentIdx) {
-            // --- Animate Content In ---
             if (contentElement && typeof gsap !== 'undefined') {
-                 // Check if we are animating info section blocks individually
-                 const isInfoBlocks = Array.isArray(contentElement);
-            
-                // --- Force Set Initial GSAP State ---
-                gsap.set(contentElement, {
-                    x: 0,
-                    y: initialYOffset,
-                    scale: .98,
-                    filter: setBlur,
-                    xPercent: isVideoIndex ? -50 : 0, 
-                    yPercent: isVideoIndex ? -50 : 0, 
-                    opacity: setOpacity,
-                });
-                // --- END Force Set ---
-
-                // --- Animate IN: Animate ONLY opacity, transform (y), and max-height ---
-                gsap.to(contentElement, {
-                    opacity: resetOpacity,
-                    scale: 1,
-                    filter: resetBlur,
-                    y: 0,
-                    duration: 0.6, // Adjust duration
-                    delay: 0.1, // Adjust delay
-                    ease: "power1.out",
-                    overwrite: true,
-                    stagger: isInfoBlocks ? 0.1 : 0,
-                    onComplete: () => {
-                        //gsap.set(contentElement, { clearProps: "opacity,transform,filter,scale" });
-                        if (isVideoIndex && video && typeof positionSingleInfoOverlay === 'function') {
-                             console.log(`[VC ${video.id}] Fade IN Complete. Positioning overlay.`);
-                             positionSingleInfoOverlay(video.id);
-                        }
-                    }
-                });
-                // --- END GSAP TO ---
+                    _activateItemAnimation(contentElement, isVideoIndex, animationParameters, video);
             }
 
             if (isVideoIndex && video) {
-                try {
-                    const player = await video.initializePlayer();
-                    const playPauseButton = document.getElementById(`playPauseButton-${video.id}`); // Find button
-                    const soundButton = document.getElementById(`soundButton-${video.id}`);
-                    const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper'); // Find icons
-                    const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
-                    const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
-                    const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
-
-                    if (video.justFinishedLoopLimit) { // Use correct loop flag
-                         console.log(`%c[VideoController ${video.id}] Activate Play SKIPPED: Loop limit. Ensuring pause.`, "color: orange;");
-                         try { await player.pause(); } catch(e){ /* handle */ }
-                         video.justFinishedLoopLimit = false;
-                         if(playPauseButton && playWrapper && pauseWrapper) {
-                            playWrapper.classList.remove('is-hidden');
-                            pauseWrapper.classList.add('is-hidden');
-                            playPauseButton.setAttribute('aria-label', 'Play');
-                        }
-                        await player.setVolume(globalVolumeLevel);
-                         if (soundButton && volumeOnWrapper && volumeOffWrapper) {
-                            const isMuted = globalVolumeLevel === 0;
-                            volumeOffWrapper.classList.toggle('is-hidden', !isMuted);
-                            volumeOnWrapper.classList.toggle('is-hidden', isMuted);
-                            soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');
-                        }
-                    } else {
-                        // console.log(`[VideoController ${video.id}] Activating Video ${index}...`);
-                        // ... (Activate normally: set volume, play) ...
-                        await player.setVolume(globalVolumeLevel);
-                        await player.play();
-                         // --- Update Icons for Playing State ---
-                        if(playPauseButton && playWrapper && pauseWrapper) {
-                            playWrapper.classList.add('is-hidden');
-                            pauseWrapper.classList.remove('is-hidden');
-                            playPauseButton.setAttribute('aria-label', 'Pause');
-                        }
-                        if (soundButton && volumeOnWrapper && volumeOffWrapper) {
-                            const isMuted = globalVolumeLevel === 0;
-                            volumeOffWrapper.classList.toggle('is-hidden', !isMuted);
-                            volumeOnWrapper.classList.toggle('is-hidden', isMuted);
-                            soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');
-                        }
-                    }
-                } catch (error) {
-                    console.warn(`[VideoController ${video?.id || index}] Error activating video: ${error.message}`);
-                     // Reset buttons on error
-                    const playPauseButton = document.getElementById(`playPauseButton-${video?.id}`);
-                    const soundButton = document.getElementById(`soundButton-${video?.id}`);
-                    const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper');
-                    const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
-                    const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
-                    const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
-
-                    if(playPauseButton && playWrapper && pauseWrapper){ 
-                        playWrapper.classList.remove('is-hidden'); pauseWrapper.classList.add('is-hidden'); playPauseButton.setAttribute('aria-label', 'Play'); 
-                    }
-                    if (soundButton && volumeOnWrapper && volumeOffWrapper){ 
-                        const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); 
-                        volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');
-                    } 
-                }
+                _activateVideoPlayback(video);
             } else if (!isVideoIndex) { // If INFO section
-                 console.log(`[VideoController] Info Section Activated (Index ${index}). Content faded in.`);
+                console.log(`[VideoController] Info Section Activated (Index ${index}). Content faded in.`);
             }
         }
-        // --- Action for all OTHER items being scrolled AWAY FROM ---
         else {
             // --- Reset Content Out ---
             if (contentElement && typeof gsap !== 'undefined') {
-                gsap.to(contentElement, {
-                    opacity: setOpacity,
-                    filter: setBlur, 
-                    scale: .98,
-                    y: initialYOffset, 
-                    x: 0,
-                    duration: 0.7, 
-                    ease: "power1.in", 
-                    overwrite: true,
-                    onComplete: () => {
-                        //this makes videos pop when scrolled of screen
-                        //gsap.set(contentElement, { clearProps: "opacity,transform,filter,scale" });
-                    }
-                });
+                _deactivateItemAnimation(contentElement, isVideoIndex, animationParameters);
             }
 
             // --- Pause Inactive Videos ---
             if (isVideoIndex && video) {
-                const playPauseButton = document.getElementById(`playPauseButton-${video.id}`);
-                const soundButton = document.getElementById(`soundButton-${video.id}`);
-                const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper');
-                const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
-                const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
-                const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
-
-               // --- Update Icons for Paused State ---
-                if (soundButton && volumeOnWrapper && volumeOffWrapper) { const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');
-                if (video.player) { try { video.player.pause().catch(e => {}); } catch (e) {} }
-                    if(playPauseButton && playWrapper && pauseWrapper){ playWrapper.classList.remove('is-hidden'); pauseWrapper.classList.add('is-hidden'); playPauseButton.setAttribute('aria-label', 'Play'); }
-                }
+                _deactivateVideoPlayback(video); 
             }
         }
     }
@@ -309,4 +183,158 @@ export async function adjustGlobalVolume(delta) {
 export async function toggleGlobalVolume() {
     const newVolume = (globalVolumeLevel > 0) ? 0.0 : DEFAULT_UNMUTE_LEVEL;
     globalVolumeLevel = newVolume; await applyGlobalVolume();
+}
+
+/** Get the element to animate based on item type. */
+function _getContentElement(scrollItemElement, isVideoIndex, infoSectionIndex) {
+    let contentElement = null;
+    if (isVideoIndex) {
+        contentElement = scrollItemElement.querySelector('.video-aspect-wrapper');
+    } else if (scrollItemElement && scrollItemElement.id === 'info-section') { // Check ID if it's the info item
+        contentElement = scrollItemElement.querySelector('.info-content');
+    }
+    return contentElement;
+}
+
+/** Determine animation parameters based on mobile and nav state. */
+function _getAnimationParameters(isVideoIndex) {
+    const initialYOffset = 20;
+    let setBlur = config.animation.blurMax;
+    let resetBlur = config.animation.blurReset;
+    let setOpacity = 0;
+    let resetOpacity = 1;
+
+    if (typeof InputManager.checkForMobile === 'function' && typeof InputManager.NavMenuOpen === 'function') {
+        if (InputManager.checkForMobile() && InputManager.NavMenuOpen()){
+            console.log('CHECK FOR NAV MENU IS OPEN AND ON MOBILE (Parameters)');
+            setBlur = resetBlur = config.animation.blurNavOpen;
+            setOpacity = resetOpacity = 0.5;
+        }
+    }
+
+    return { setBlur, resetBlur, setOpacity, resetOpacity, initialYOffset };
+}
+
+/** Animate content IN when item becomes current. */
+function _activateItemAnimation(contentElement, isVideoIndex, animationParameters, video) {
+    if (!contentElement || typeof gsap === 'undefined') return;
+    const isInfoBlocks = Array.isArray(contentElement);
+    const { setBlur, resetBlur, setOpacity, resetOpacity, initialYOffset } = animationParameters;
+
+
+    // --- Force Set Initial GSAP State ---
+    gsap.set(contentElement, {
+        x: 0,
+        y: initialYOffset,
+        scale: 0.98,
+        filter: setBlur,
+        xPercent: isVideoIndex ? -50 : 0,
+        yPercent: isVideoIndex ? -50 : 0,
+        opacity: setOpacity,
+    });
+    // --- END Force Set ---
+
+    // --- Animate IN ---
+    gsap.to(contentElement, {
+        opacity: resetOpacity,
+        scale: 1,
+        filter: resetBlur,
+        y: 0,
+        duration: 0.6,
+        delay: 0.1,
+        ease: "power1.out",
+        overwrite: true,
+        stagger: isInfoBlocks ? 0.1 : 0,
+        // --- CRUCIAL: Remove inline styles HERE ---
+        onComplete: () => {
+            // DO NOT USE - THIS WILL RESET to CSS AND VIDEO WILL HAVE 0 OPACITY - NOT WHAT IS WANTED/NEEDED
+            // gsap.set(contentElement, { clearProps: "opacity,transform,filter,scale" });
+             if (isVideoIndex && video && typeof positionSingleInfoOverlay === 'function') {
+                  // console.log(`[VC ${video.id}] Fade IN Complete. Positioning overlay.`);
+                  positionSingleInfoOverlay(video.id);
+             }
+        }
+        // --- END CRUCIAL ---
+    });
+}
+
+/** Reset/Animate content OUT when item is scrolled away. */
+function _deactivateItemAnimation(contentElement, isVideoIndex, animationParameters) {
+    if (!contentElement || typeof gsap === 'undefined') return;
+    const { setBlur, resetBlur, setOpacity, resetOpacity, initialYOffset } = animationParameters;
+
+    // --- Reset OUT Animation ---
+    gsap.to(contentElement, {
+        opacity: setOpacity,
+        filter: setBlur,
+        scale: 0.98,
+        y: initialYOffset,
+        x: 0, // Ensure X is reset
+        duration: 0.7,
+        ease: "power1.in",
+        overwrite: true,
+        // --- DO NOT add clearProps HERE ---
+        // onComplete: () => { gsap.set(contentElement, { clearProps: "..." }); } 
+    });
+}
+
+/** Activate video playback and update icons. */
+async function _activateVideoPlayback(video) {
+    if (!video) return;
+    try {
+        const player = await video.initializePlayer();
+        const playPauseButton = document.getElementById(`playPauseButton-${video.id}`);
+        const soundButton = document.getElementById(`soundButton-${video.id}`);
+        const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper');
+        const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
+        const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
+        const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
+
+        if (video.hasPlayedOnce) { // Check flag (from timeupdate end simulation)
+            console.log(`%c[VideoController ${video.id}] Activate SKIPPED (hasPlayedOnce). Ensuring pause.`, "color: blue;");
+            if(playPauseButton && playWrapper && pauseWrapper) { playWrapper.classList.remove('is-hidden'); pauseWrapper.classList.add('is-hidden'); playPauseButton.setAttribute('aria-label', 'Play'); }
+            if (soundButton && volumeOnWrapper && volumeOffWrapper) { const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute'); }
+             await player.pause().catch(e => {/* ignore non-critical errors */}); // Ensure paused
+             await player.setVolume(globalVolumeLevel); // Still set volume
+
+        } else { // Activate normally
+            // console.log(`[VideoController ${video.id}] Activating Video ${video.id}.`);
+            await player.setVolume(globalVolumeLevel);
+            if (soundButton && volumeOnWrapper && volumeOffWrapper) { const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute'); }
+            await player.play();
+            if(playPauseButton && playWrapper && pauseWrapper) { playWrapper.classList.add('is-hidden'); pauseWrapper.classList.remove('is-hidden'); playPauseButton.setAttribute('aria-label', 'Pause'); }
+        }
+    } catch (error) {
+        console.warn(`[VideoController ${video?.id}] Error activating video: ${error.message}`);
+        const playPauseButton = document.getElementById(`playPauseButton-${video?.id}`); // Find button
+        const soundButton = document.getElementById(`soundButton-${video?.id}`);
+        const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper');
+        const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
+        const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
+        const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
+        if(playPauseButton && playWrapper && pauseWrapper){ playWrapper.classList.remove('is-hidden'); pauseWrapper.classList.add('is-hidden'); playPauseButton.setAttribute('aria-label', 'Play'); }
+        if (soundButton && volumeOnWrapper && volumeOffWrapper){ const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');}
+    }
+}
+
+/** Deactivate video playback and update icons. */
+function _deactivateVideoPlayback(video) {
+    if (!video || !video.player) return; // Only pause if player instance exists
+
+    // console.log(`[VideoController ${video.id}] Deactivating Video.`);
+    try {
+        video.player.pause().catch(e => {/* ignore non-critical errors */}); // Non-awaited pause
+
+        const playPauseButton = document.getElementById(`playPauseButton-${video.id}`);
+        const soundButton = document.getElementById(`soundButton-${video.id}`);
+        const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper');
+        const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
+        const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
+        const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
+         // Update Icons for Paused State
+        if (soundButton && volumeOnWrapper && volumeOffWrapper) { const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute'); }
+        if(playPauseButton && playWrapper && pauseWrapper){ playWrapper.classList.remove('is-hidden'); pauseWrapper.classList.add('is-hidden'); playPauseButton.setAttribute('aria-label', 'Play'); }
+
+    } catch (e) { console.warn(`[VideoController ${video.id}] Error during deactivation: ${e.message}`); }
+
 }
