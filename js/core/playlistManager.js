@@ -2,7 +2,7 @@
 
 // --- Imports ---
 // Adjust paths as needed
-import { initializeGsapScroll, toggleGlobalVolume, goToIndex, getCurrentIndex, closeNavMenu } from './scroll.js';
+import { initializeGsapScroll, toggleGlobalVolume, goToIndex, getCurrentIndex, closeNavMenu, blurActiveElement, updateMenuToggleUI } from './scroll.js';
 import { playlist } from '../data/playlistData.js';
 import { Video } from '../modules/Video.js';
 import { config } from '../config.js';
@@ -299,9 +299,20 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
                     // --- Step 2: Close the menu after scrolling ---
                     // Check if closeNavMenu is imported and callable
                     if (checkForMobile()){
+                        const menuToggleButton = document.getElementById(config.selectors.menuToggleButtonId);
+                        const navMenu = document.getElementById(config.selectors.navigationContainerId);
+                        const menuIconWrapper = menuToggleButton?.querySelector('.icon-menu-wrapper');
+                        const closeIconWrapper = menuToggleButton?.querySelector('.icon-close-wrapper');
                         if (typeof closeNavMenu === 'function') {
                             console.log("Nav link clicked, calling closeNavMenu.");
+                            const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');     
+                            updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, closeIconWrapper, menuToggleButton);
                             closeNavMenu(); // <<< Call the function to close the menu
+                            const activeItemElement = document.querySelector('.scroll-item.video-item.active-scroll-item');
+                                if (activeItemElement){
+                                    console.log ('ACTIVE ITEM ELEMENT TRIGGERED');
+                                    blurActiveElement(activeItemElement);
+                                }
                         } else {
                             console.error("closeNavMenu function not available in playlistManager.js scope.");
                         }

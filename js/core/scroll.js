@@ -184,7 +184,10 @@ function attachButtonListeners() {
         if (!menuToggleButton._listenerAttachedClick) {
            menuToggleButton.addEventListener('click', () => {
                const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');
-
+/*
+               updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, closeIconWrapper, menuToggleButton);
+*/
+               
                menuIconWrapper.classList.toggle('is-hidden', !menuIsCurrentlyVisible); 
                closeIconWrapper.classList.toggle('is-hidden', menuIsCurrentlyVisible);
                // ARIA labels should reflect the state AFTER click (the NEW state)
@@ -206,13 +209,11 @@ function attachButtonListeners() {
                     blurActiveElement(activeItemElement);
                 }
            });
-           
-           
 
            menuToggleButton._listenerAttachedClick = true;
            console.log("SCROLL: Menu toggle button listener attached.");
         } else {
-             console.log("ABL: Menu toggle listener ALREADY attached.");
+            console.log("ABL: Menu toggle listener ALREADY attached.");
         }
     } else {
         console.log("ABL: Menu Toggle Condition Failed.");
@@ -269,7 +270,7 @@ export function closeNavMenu() {
     console.log("SCROLL: --- closeNavMenu FINISHED ---");
 }
 
-function blurActiveElement(activeItemElement){
+export function blurActiveElement(activeItemElement){
     const activeVideoContent = activeItemElement.querySelector('.video-aspect-wrapper');
     const activeInfoOverlay = activeItemElement.querySelector('.video-info-overlay');
     const blurTargets = [];
@@ -277,7 +278,7 @@ function blurActiveElement(activeItemElement){
     if (activeInfoOverlay) blurTargets.push(activeInfoOverlay);
 
     if (blurTargets.length > 0 && typeof gsap !== 'undefined') {
-        if (InputManager.NavMenuOpen()) { // If menu is currently hidden (about to become open)
+        if (InputManager.NavMenuOpen() && InputManager.checkForMobile()) { // If menu is currently hidden (about to become open)
             console.log("SCROLL: Applying blur/opacity to active video content.");
             gsap.to(blurTargets, {
                 filter: config.animation.blurNavOpen,
@@ -299,6 +300,13 @@ function blurActiveElement(activeItemElement){
     }
 }
 
+export function updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, closeIconWrapper, menuToggleButton) {
+    menuIconWrapper.classList.toggle('is-hidden', !menuIsCurrentlyVisible);
+    closeIconWrapper.classList.toggle('is-hidden', menuIsCurrentlyVisible);
+    // ARIA labels should reflect the NEW state (after toggle)
+    menuToggleButton.setAttribute('aria-expanded', !menuIsCurrentlyVisible);
+    menuToggleButton.setAttribute('aria-label', !menuIsCurrentlyVisible ? 'Close Navigation Menu' : 'Open Navigation Menu');
+}
 
 // ==================================================
 // INITIALIZATION FUNCTION (EXPORTED)

@@ -173,24 +173,7 @@ export async function toggleGlobalVolume() {
 }
 
 /** Get the element to animate based on item type. */
-/*
-function _getContentElement(scrollItemElement, isVideoIndex, infoSectionIndex) {
-    const contentElement = [];
 
-    if (isVideoIndex) {
-        const contentVideo = scrollItemElement.querySelector('.video-aspect-wrapper');
-        const contentOverlay = scrollItemElement.querySelector('.video-info-overlay');
-
-        // Use booleans or visibility checks if needed
-        if (contentVideo) contentElement.push(contentVideo);
-        if (contentOverlay) contentElement.push(contentOverlay);
-    } else if (scrollItemElement && scrollItemElement.id === 'info-section') {
-        const infoContent = scrollItemElement.querySelector('.info-content');
-        if (infoContent) contentElement.push(infoContent);
-    }
-
-    return contentElement;
-}*/
 function _getContentElement(scrollItemElement, isVideoIndex) {
     const contentElement = {};
 
@@ -221,6 +204,12 @@ function _getAnimationParameters(isVideoIndex) {
             console.log('CHECK FOR NAV MENU IS OPEN AND ON MOBILE (Parameters)');
             setBlur = resetBlur = config.animation.blurNavOpen;
             setOpacity = resetOpacity = 0.5;
+        } else {
+            setBlur = config.animation.blurMax;
+            resetBlur = config.animation.blurReset;
+            setOpacity = 0;
+            resetOpacity = 1;
+
         }
     }
 
