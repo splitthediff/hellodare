@@ -4,6 +4,7 @@ import { renderPlaylist } from './core/playlistManager.js';
 
 window.addEventListener('load', async () => {
   console.log("Load event fired. Starting initializations...");
+  registerGSAP();
   await loadAndInjectSVGSprite();
 
   console.log("Running and AWAITING renderPlaylist...");
@@ -42,6 +43,16 @@ window.addEventListener('load', async () => {
 
    console.log("All initializations in load handler complete.");
 });
+
+function registerGSAP() {
+    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined' && typeof CSSPlugin !== 'undefined') {
+        gsap.registerPlugin(ScrollTrigger, CSSPlugin); 
+        console.log("GSAP and plugins registered.");
+    } else {
+        console.error("GSAP or plugins not loaded!");
+        return; 
+    }
+}
 
 async function loadAndInjectSVGSprite() {
     try {

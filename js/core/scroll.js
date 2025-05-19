@@ -53,7 +53,6 @@ function updateActiveClass() {
 function updateInfoButtonState() {
     
     if (!infoButtonElement || !scrollItems || scrollItems.length === 0) {
-        console.log('Info Button Element: '.info);
         return;
     }
 
@@ -184,16 +183,15 @@ function attachButtonListeners() {
         if (!menuToggleButton._listenerAttachedClick) {
            menuToggleButton.addEventListener('click', () => {
                const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');
-/*
+
                updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, closeIconWrapper, menuToggleButton);
-*/
-               
+/*          
                menuIconWrapper.classList.toggle('is-hidden', !menuIsCurrentlyVisible); 
                closeIconWrapper.classList.toggle('is-hidden', menuIsCurrentlyVisible);
                // ARIA labels should reflect the state AFTER click (the NEW state)
                menuToggleButton.setAttribute('aria-expanded', !menuIsCurrentlyVisible); 
                menuToggleButton.setAttribute('aria-label', !menuIsCurrentlyVisible ? 'Close Navigation Menu' : 'Open Navigation Menu');
-
+*/
                // --- Trigger Open/Close Sequence ---
                if (!menuIsCurrentlyVisible) { // If menu is currently hidden (about to become visible)
                     console.log("SCROLL: Triggering Menu OPEN sequence from button.");
