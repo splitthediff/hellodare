@@ -3,7 +3,7 @@
 import { config } from '../config.js';
 import { positionSingleInfoOverlay } from './playlistManager.js';
 import * as InputManager from '../modules/inputManager.js';
-
+import { _logMissingElements } from '../utils/utils.js'
 // --- Module State ---
 let controlledVideos = []; // Stores the Video class instances
 let globalVolumeLevel = 0.0;
@@ -53,7 +53,7 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
 
         // --- Action for the CURRENT item being scrolled TO ---
         if (index === currentIdx) {
-            if (contentElement && typeof gsap !== 'undefined') {
+            if (contentElement && animationParameters && typeof gsap !== 'undefined') {
                 _activateItemAnimation(contentElement, isVideoIndex, animationParameters, video);
             }
 
@@ -209,7 +209,6 @@ function _getAnimationParameters(isVideoIndex) {
             resetBlur = config.animation.blurReset;
             setOpacity = 0;
             resetOpacity = 1;
-
         }
     }
 
@@ -219,6 +218,7 @@ function _getAnimationParameters(isVideoIndex) {
 /** Animate content IN when item becomes current. */
 
 function _activateItemAnimation(contentElement, isVideoIndex, animationParameters, video) {
+    _logMissingElements(contentElement, '_activateItemAnimation');
     if (!contentElement || typeof gsap === 'undefined') return;
 
     const { setBlur, resetBlur, setOpacity, resetOpacity, initialYOffset } = animationParameters;
@@ -260,24 +260,25 @@ function _activateItemAnimation(contentElement, isVideoIndex, animationParameter
     });
 }
 
-
 /** Reset/Animate content OUT when item is scrolled away. */
 function _deactivateItemAnimation(contentElement, isVideoIndex, animationParameters) {
+    _logMissingElements(contentElement, '_deactivateItemAnimation');
     if (!contentElement || typeof gsap === 'undefined') return;
     const { setBlur, resetBlur, setOpacity, resetOpacity, initialYOffset } = animationParameters;
 
     // --- Reset OUT Animation ---
-    gsap.to(contentElement, {
+    const entries = Object.entries(contentElement).filter(([_, el]) => !!el);
+    if (entries.length === 0) return;
+
+    gsap.to(entries.map(([_, el]) => el), {
         opacity: setOpacity,
         filter: setBlur,
         scale: 0.98,
         y: initialYOffset,
-        x: 0, // Ensure X is reset
+        x: 0,
         duration: 0.7,
         ease: "power1.in",
         overwrite: true,
-        // --- DO NOT add clearProps HERE ---
-        // onComplete: () => { gsap.set(contentElement, { clearProps: "..." }); } 
     });
 }
 

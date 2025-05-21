@@ -63,3 +63,18 @@ export function getAspectRatio(videoWidth, videoHeight) {
         return 16 / 9; // Default fallback aspect ratio
     }
 }
+
+export function _logMissingElements(contentElement, context = '') {
+    if (!contentElement || typeof contentElement !== 'object') {
+        console.warn(`[${context}] contentElement is missing or invalid:`, contentElement);
+        return;
+    }
+
+    Object.entries(contentElement).forEach(([key, el]) => {
+        if (!el) {
+            console.warn(`[${context}] Missing element for key: '${key}'`);
+        } else if (!(el instanceof Element)) {
+            console.warn(`[${context}] Value for '${key}' is not a DOM element:`, el);
+        }
+    });
+}
