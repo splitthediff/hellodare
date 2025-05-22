@@ -265,7 +265,7 @@ function _activateItemAnimation(contentElement, isVideoIndex, animationParameter
 function _deactivateItemAnimation(contentElement, isVideoIndex, animationParameters) {
     _logMissingElements(contentElement, '_deactivateItemAnimation');
     if (!contentElement || typeof gsap === 'undefined') return;
-    const { setBlur, resetBlur, setOpacity, resetOpacity, initialYOffset } = animationParameters;
+    const { setBlur, resetBlur, setOpacity, resetOpacity, initialYOffset, setScale } = animationParameters;
 
     // --- Reset OUT Animation ---
     const entries = Object.entries(contentElement).filter(([_, el]) => !!el);
@@ -274,7 +274,7 @@ function _deactivateItemAnimation(contentElement, isVideoIndex, animationParamet
     gsap.to(entries.map(([_, el]) => el), {
         opacity: setOpacity,
         filter: setBlur,
-        scale: 0.98,
+        scale: setScale,
         y: initialYOffset,
         x: 0,
         duration: 0.7,

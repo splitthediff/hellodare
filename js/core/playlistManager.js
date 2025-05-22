@@ -207,42 +207,28 @@ function getDynamicWidth() {
 
 export function positionSingleInfoOverlay(videoId) {
     const item = document.querySelector(`${config.selectors.scrollItem}.video-item[data-video-id="${videoId}"]`);
-    if (!item) { /* console.warn(`Item not found for positioning overlay ${videoId}`); */ return; }
+    if (!item) return;
 
     const wrapper = item.querySelector('.video-aspect-wrapper');
     const overlay = item.querySelector('.video-info-overlay');
-    const scrollItem = item;
+    if (!wrapper || !overlay || item.offsetHeight === 0) return;
 
-    if (!wrapper || !overlay || !scrollItem) {
-        return;
-    }
-     // Add check for item visibility/height before using getBoundingClientRect
-     if (item.offsetHeight === 0) {
-         return;
-     }
+    // Ensure scrollItem is relatively positioned for absolute overlay
+    item.style.position = 'relative';
+    overlay.style.position = 'absolute';
 
-    const scrollItemRect = scrollItem.getBoundingClientRect();
-    const wrapperRect = wrapper.getBoundingClientRect();
+    // --- Calculate top position below the video ---
+    const offsetBelow = config.layout.overlayOffsetBottom || 10; // adjust this value as needed
+    const overlayTop = wrapper.offsetTop + (wrapper.offsetHeight/2) + offsetBelow;
+    overlay.style.top = `${overlayTop}px`;
 
-    // --- Calculate Bottom Position ---
-    const wrapperBottomRelativeToParent = wrapperRect.bottom - scrollItemRect.top;
-    const spaceBelowWrapper = scrollItemRect.height - wrapperBottomRelativeToParent;
-    // Ensure bottom isn't negative, maybe add a minimum gap
-    const overlayBottomPosition = Math.max(5, spaceBelowWrapper - config.layout.overlayOffsetBottom);
-    // --- SET 'bottom' STYLE ---
-    overlay.style.bottom = `${overlayBottomPosition}px`;
+    // --- Align overlay left edge with video left edge ---
+    const overlayLeft = wrapper.offsetLeft - (wrapper.offsetWidth / 2);
+    overlay.style.left = `${overlayLeft}px`;
 
-    if (checkForMobile()) { //centered on mobile
-        console.log("Mobile detected - centering overlay");
-        //overlay.style.maxWidth = `${wrapperRect.width * 0.9}px`; // Example width
-        overlay.style.width = 'auto';
-        overlay.style.left = 'auto';
-    } else {
-        const overlayLeftPosition = wrapperRect.left - scrollItemRect.left;
-        overlay.style.left = `${overlayLeftPosition}px`;
-        overlay.style.maxWidth = '60%';
-        overlay.style.width = 'auto';
-    }
+    // Optional sizing tweaks
+    overlay.style.width = `${wrapper.offsetWidth}px`;
+    overlay.style.maxWidth = '100%'; // prevent overflow
 }
 
 function renderNavigationMenu(videoData, infoSectionName = "Info") {

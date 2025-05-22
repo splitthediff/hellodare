@@ -11,12 +11,12 @@
 .video-aspect-wrapper {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
   width: 100%; overflow: hidden;
-  background-color: transparent; /* Background during load */
+  background-color: transparent;
   border-radius: var(--radius-video); flex-shrink: 0;
   /* Animation */
   opacity: 0; will-change: opacity, transform;
    /* aspect-ratio set by JS */
-  z-index: var(--z-index-video-item, 1); /* Base z-index for wrapper */
+  z-index: var(--z-index-video-item, 1);
 }
 
 /* --- Thumbnail --- */
