@@ -198,6 +198,7 @@ function _getAnimationParameters(isVideoIndex) {
     let resetBlur = config.animation.blurReset;
     let setOpacity = 0;
     let resetOpacity = 1;
+    let setScale = 1
 
     if (typeof InputManager.checkForMobile === 'function' && typeof InputManager.NavMenuOpen === 'function') {
         if (InputManager.checkForMobile() && InputManager.NavMenuOpen()){
@@ -207,12 +208,12 @@ function _getAnimationParameters(isVideoIndex) {
         } else {
             setBlur = config.animation.blurMax;
             resetBlur = config.animation.blurReset;
-            setOpacity = 0;
+            setOpacity = 1;
             resetOpacity = 1;
         }
     }
 
-    return { setBlur, resetBlur, setOpacity, resetOpacity, initialYOffset };
+    return { setBlur, resetBlur, setOpacity, resetOpacity, initialYOffset, setScale };
 }
 
 /** Animate content IN when item becomes current. */
@@ -221,7 +222,7 @@ function _activateItemAnimation(contentElement, isVideoIndex, animationParameter
     _logMissingElements(contentElement, '_activateItemAnimation');
     if (!contentElement || typeof gsap === 'undefined') return;
 
-    const { setBlur, resetBlur, setOpacity, resetOpacity, initialYOffset } = animationParameters;
+    const { setBlur, resetBlur, setOpacity, resetOpacity, initialYOffset, setScale } = animationParameters;
 
     // Convert { key: element } to array of [key, element] pairs
     const entries = Object.entries(contentElement).filter(([_, el]) => !!el);
@@ -233,7 +234,7 @@ function _activateItemAnimation(contentElement, isVideoIndex, animationParameter
         gsap.set(el, {
             x: 0,
             y: initialYOffset,
-            scale: 0.98,
+            scale: setScale,
             filter: setBlur,
             opacity: setOpacity,
             xPercent: key === 'video' && isVideoIndex ? -50 : 0,
