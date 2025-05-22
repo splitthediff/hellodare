@@ -102,7 +102,7 @@
   color: var(--clr-text-primary);
   padding: 0; text-align: left;
   /* Initial state */
-  opacity: 0; visibility: hidden; transform: translateY(10px); pointer-events: none;
+  opacity: 0; visibility: hidden; transform: translateY(5px); pointer-events: none;
   /* Transition */
   transition: opacity var(--transition-duration) var(--transition-ease),
               visibility 0s linear var(--transition-duration),
@@ -113,7 +113,7 @@
 }
 .video-info-overlay .video-info-title {
   font-size: var(--font-size-xsmall); font-weight: var(--font-weight-regular);
-  margin: var(--space-l) 0 var(--space-s) 0; line-height: var(--line-height-heading);
+  margin: var(--space-l) 0 var(--space-xs) 0; line-height: var(--line-height-heading);
   white-space: normal; overflow: visible; text-overflow: clip;
 }
 .video-info-overlay .video-info-year {

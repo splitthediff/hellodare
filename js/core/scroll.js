@@ -223,8 +223,23 @@ function openNavMenu(navMenu){
 
     const navLinks = navMenu.querySelectorAll('.nav-link');
     if (navLinks.length > 0) {
+        navLinks.forEach(link => link.style.transition = 'none');
         gsap.set(navLinks, { opacity: 0, y: -5 }); // initial state
-        gsap.to(navLinks, { opacity: .8, y: 0, duration: 0.4, ease: "power1.out", stagger: 0.05, delay: 0.1, overwrite: true, clearProps: "opacity,transform" });
+        gsap.to(navLinks, {
+            opacity: config.navigation.navOpacity,
+            y: 0,
+            duration: 0.4,
+            ease: "power1.out",
+            stagger: 0.03,
+            delay: 0.1,
+            overwrite: true,
+            onComplete: () => {
+                // Clear only opacity after animation completes
+                navLinks.forEach(link => link.style.removeProperty('opacity'));
+                navLinks.forEach(link => link.style.removeProperty('transform'));
+                navLinks.forEach(link => link.style.removeProperty('transition'));
+            }
+        });
     }
 }
 
@@ -256,8 +271,13 @@ export function closeNavMenu() {
 
     // Hide Nav Links (instant reset) via GSAP (if they animate in)
     if (navLinks && navLinks.length > 0) {
-       //gsap.set(navLinks, { opacity: 0, y: 10, clearProps: "opacity,transform" });
-       gsap.to(navLinks, { opacity: 0, y: -5, duration: 0.4, ease: "power2.out", stagger: 0.1, delay: 0.1, overwrite: true , clearProps: "opacity,transform"});
+       gsap.to(navLinks, { opacity: 0, y: -5, duration: 0.4, ease: "power2.out", stagger: 0.03, delay: 0.1, overwrite: true , 
+            onComplete: () => {
+                // Clear only opacity after animation completes
+                // navLinks.forEach(link => link.style.removeProperty('opacity'));
+                navLinks.forEach(link => link.style.removeProperty('transform'));
+            }
+        });
     }
     console.log("SCROLL: --- closeNavMenu FINISHED ---");
 }

@@ -68,7 +68,7 @@
   font-size: var(--font-size-navigation);
   font-weight: var(--font-weight-regular);
 
-  opacity: .7;
+  opacity: 1;
   visibility: visible;
   transform: translateY(0);
   max-height: 600px;
@@ -114,21 +114,25 @@
   text-decoration: none;
   cursor: pointer;
   display: inline-block;
-  /*transition: color 0.2s ease;*/
+
+  opacity: 0.3; /* NEED TO MATCH THIS IN CONFIG, navOpacity */
+ /* transition: opacity 1s ease;*/
+
 }
 
+
 .navigation-menu.is-visible .nav-link {
-  opacity: 0.8;
+  transition: opacity 0.5s ease;
 }
   
 .navigation-menu.is-visible .nav-link.active {
   opacity: 1.0; 
+  /*text-decoration: underline; text-underline-offset: 5px; */
 }
   
 .navigation-menu.is-visible .nav-link:hover {
-  opacity: 1.0; 
-  color: var(--clr-text-primary); 
-  text-decoration: underline; text-underline-offset: 4px; 
+  opacity: .8; 
+  /*color: var(--clr-text-primary);  */
 }
 
 .nav-controls {

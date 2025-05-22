@@ -31,6 +31,10 @@ export const config = {
         localThumbnailBasePath: "assets/images/thumbnails/"
     },
 
+    navigation: {
+        navOpacity: 0.3, // used in openNavMenu in playlsitManager.js
+    },
+
     // DOM Selectors & Class Names
     selectors: {
         // Query Selectors (usually start with . or #)
