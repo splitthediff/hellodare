@@ -142,7 +142,8 @@
     .navigation-menu.is-visible {
       max-height: 500px;
       overflow: auto;
-      opacity: .9;
+      opacity: 1
+    ;
     }
   }
 

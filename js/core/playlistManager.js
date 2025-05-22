@@ -2,7 +2,7 @@
 
 // --- Imports ---
 // Adjust paths as needed
-import { initializeGsapScroll, toggleGlobalVolume, goToIndex, getCurrentIndex, closeNavMenu, blurActiveElement, updateMenuToggleUI } from './scroll.js';
+import { initializeGsapScroll, toggleGlobalVolume, goToIndex, getCurrentIndex, closeNavMenu, blurActiveElement, updateMenuToggleUI, updateTitleStyleBasedOnViewport } from './scroll.js';
 import { playlist } from '../data/playlistData.js';
 import { Video } from '../modules/Video.js';
 import { config } from '../config.js';
@@ -48,6 +48,7 @@ export async function renderPlaylist() {
                     positionSingleInfoOverlay(video.id);
                  });
             }
+            updateTitleStyleBasedOnViewport();
 
         }, config.input.resizeDebounce);
     });

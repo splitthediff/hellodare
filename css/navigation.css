@@ -18,10 +18,23 @@
     text-align: left;
     margin: 0;
     padding: 0;
+
+    transition: 
+    top 0.4s ease,
+    transform 0.8s ease,
+    font-size 0.4s ease,
+    opacity 0.4s ease;
   }
-  .intro-title.overlapped {
-    color: var(--clr-text-overlap); opacity: 0.65;
-  }
+
+  /* Cornered style for short viewports + menu open */
+.title-cornered {
+  /*left: var(--padding-columns, 20px);*/
+  top: var(--padding-columns, 20px);
+  transform: none;
+  font-size: var(--font-size-sm); /* Optional: scale down for tight space */
+  opacity: 1; /* Make sure it's fully visible */
+}
+
   
   /* --- Info Button (Right Column) --- */
   .info { /* Specific button/link */
@@ -99,8 +112,8 @@
 .nav-link-list {
   list-style: none;
   margin: 0;
-  max-height: 50vh;
-  overflow-y: auto;
+  max-height: 60vh;
+  overflow-y: hidden;
 }
 
 .nav-link-list li {

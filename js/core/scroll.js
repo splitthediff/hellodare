@@ -199,6 +199,7 @@ function attachButtonListeners() {
                 if (activeItemElement){
                     console.log ('ACTIVE ITEM ELEMENT TRIGGERED');
                     blurActiveElement(activeItemElement);
+                    updateTitleStyleBasedOnViewport();
                 }
            });
 
@@ -279,6 +280,7 @@ export function closeNavMenu() {
             }
         });
     }
+
     console.log("SCROLL: --- closeNavMenu FINISHED ---");
 }
 
@@ -312,6 +314,23 @@ export function blurActiveElement(activeItemElement){
     }
 }
 
+export function updateTitleStyleBasedOnViewport() {
+    const title = document.getElementById('main-page-title');
+    const navMenu = document.getElementById(config.selectors.navigationContainerId);
+    const minHeight = config.breakpoints.minHeight; // Minimum height for viewport check
+
+    if (!title || !navMenu) return;
+
+    const isMenuVisible = navMenu.classList.contains('is-visible');
+    const isShortViewport = window.innerHeight < minHeight;
+
+    if (isMenuVisible && isShortViewport) {
+        title.classList.add('title-cornered');
+    } else {
+        title.classList.remove('title-cornered');
+    }
+}
+
 export function updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, closeIconWrapper, menuToggleButton) {
     menuIconWrapper.classList.toggle('is-hidden', !menuIsCurrentlyVisible);
     closeIconWrapper.classList.toggle('is-hidden', menuIsCurrentlyVisible);
@@ -325,7 +344,6 @@ export function updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, clos
 // ==================================================
 export function initializeGsapScroll(videos) {
     setVideos(videos);
-
 
     // Find DOM Elements (Hardcoded selectors)
     videoTrack = document.querySelector(config.selectors.track);

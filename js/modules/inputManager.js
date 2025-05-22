@@ -3,6 +3,7 @@
 // Assuming utils.js is in ../utils/ relative to this modules/ folder
 import { throttle } from '../utils/utils.js';
 import { config } from '../config.js'; 
+import { updateTitleStyleBasedOnViewport } from '../core/scroll.js'; // Assuming this function is defined in scroll.js
 
 // --- Module State ---
 let scrollInputProcessor = null; // Function to call when scroll input occurs (throttled)
@@ -81,21 +82,31 @@ function createTouchHandlers() { // Uses hardcoded minY/maxX
     return { onTouchStart, onTouchMove, onTouchEnd };
 }
 
-function createResizeHandler(resizeCallback) { // Uses hardcoded debounce time
+function createResizeHandler(resizeCallback) {
+    console.log('[ResizeHandler] Resize event triggered');
     let resizeTimeout;
-    function onResize() {
-         clearTimeout(resizeTimeout);
-         resizeTimeout = setTimeout(resizeCallback, resizeDebounceTime); // Use hardcoded time
-    }
-    return onResize;
+    return function onResize() {
+     
+    };
 }
 
 /** Attaches all necessary global event listeners. */
 function attachEventListeners(touchHandlers, resizeHandler) {
-    // Detach first
-    window.removeEventListener('keydown', handleKeyDown); window.removeEventListener('wheel', handleWheel); window.removeEventListener('touchstart', touchHandlers.onTouchStart); window.removeEventListener('touchmove', touchHandlers.onTouchMove); window.removeEventListener('touchend', touchHandlers.onTouchEnd); window.removeEventListener('resize', resizeHandler);
-    // Attach new
-    window.addEventListener('keydown', handleKeyDown); window.addEventListener('wheel', handleWheel, { passive: false }); window.addEventListener('touchstart', touchHandlers.onTouchStart, { passive: true }); window.addEventListener('touchmove', touchHandlers.onTouchMove, { passive: false }); window.addEventListener('touchend', touchHandlers.onTouchEnd, { passive: true }); window.addEventListener('resize', resizeHandler);
+    // Remove previous listeners
+    window.removeEventListener('keydown', handleKeyDown);
+    window.removeEventListener('wheel', handleWheel);
+    window.removeEventListener('touchstart', touchHandlers.onTouchStart);
+    window.removeEventListener('touchmove', touchHandlers.onTouchMove);
+    window.removeEventListener('touchend', touchHandlers.onTouchEnd);
+    window.removeEventListener('resize', resizeHandler);
+
+    // Add new listeners
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('touchstart', touchHandlers.onTouchStart, { passive: true });
+    window.addEventListener('touchmove', touchHandlers.onTouchMove, { passive: false });
+    window.addEventListener('touchend', touchHandlers.onTouchEnd, { passive: true });
+    window.addEventListener('resize', resizeHandler);
 }
 
 /** Initializes the input manager. */
