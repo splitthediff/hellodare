@@ -12,9 +12,14 @@ export class Video {
         this.year = videoData.year;
         this.client = videoData.client;
 
-        this.thumbnailUrl = '';
-        this.thumbnailFilename = videoData.thumbnailFilename || null; 
-        this.iframeSrc = '';
+        this.thumbnailFilename = videoData.thumbnailFilename || null;
+        if (this.thumbnailFilename) {
+            this.thumbnailUrl = `${config.video.localThumbnailBasePath}${this.thumbnailFilename}`;
+        } else {
+            this.thumbnailUrl = '';
+            console.warn(`[Video ${this.id}] No thumbnail filename provided.`);
+        }
+        this.iframeSrc = `https://player.vimeo.com/video/${this.id}?${config.video.vimeoParams}&quality=${config.video.vimeoQuality}`;
         this.thumbnailWidth = videoData.thumbnailWidth || 0; 
         this.thumbnailHeight = videoData.thumbnailHeight || 0;
 
@@ -38,49 +43,6 @@ export class Video {
 
         this.playerInitializationPromise = null;
         this.thumbnailElement = null;
-    }
-
-    /**
-     * Fetches video metadata (dimensions, thumbnail) from Vimeo oEmbed API.
-     * Must be called before player can be initialized correctly.
-     */
-    async initialize() { /*
-        // No longer need to get aspect ratio from oEmbed data, using thumbnail data instead
-        try {
-            const data = await this.fetchVimeoData(this.id);
-            if (data && data.width > 0 && data.height > 0 && data.thumbnail_url) {
-                this.nativeWidth = data.width; this.nativeHeight = data.height;
-                this.thumbnailUrl = data.thumbnail_url;
-                this.aspectRatio = getAspectRatio(this.nativeWidth, this.nativeHeight);
-            } else {
-                console.warn(`[Video ${this.id}] Using default 16:9 / no thumbnail due to invalid oEmbed data.`);
-                this.nativeWidth = 16; this.nativeHeight = 9; this.aspectRatio = 16 / 9; this.thumbnailUrl = '';
-            }
-        } catch (error) {
-            console.error(`[Video ${this.id}] Error during initialize logic:`, error);
-            this.nativeWidth = 16; this.nativeHeight = 9; this.aspectRatio = 16 / 9; this.thumbnailUrl = '';
-        } finally {
-            // Always set iframe src, even on error (using hardcoded params)
-            this.iframeSrc = `https://player.vimeo.com/video/${this.id}?${config.video.vimeoParams}&quality=${config.video.vimeoQuality}`;
-            
-            if (this.thumbnailFilename) {
-                this.thumbnailUrl = `${config.video.localThumbnailBasePath}${this.thumbnailFilename}`;
-                // console.log(`[Video ${this.id}] Constructed local thumbnail URL: ${this.thumbnailUrl}`);
-            } else {
-               // Handle case where no filename is provided in playlist data
-               this.thumbnailUrl = ''; // No thumbnail URL
-               console.warn(`[Video ${this.id}] No thumbnail filename provided in playlist data.`);
-            }
-        }*/
-        // Construct Local Thumbnail URL
-        if (this.thumbnailFilename) {
-            this.thumbnailUrl = `${config.video.localThumbnailBasePath}${this.thumbnailFilename}`;
-        } else {
-            this.thumbnailUrl = '';
-            console.warn(`[Video ${this.id}] No thumbnail filename provided.`);
-        }
-
-        this.iframeSrc = `https://player.vimeo.com/video/${this.id}?${config.video.vimeoParams}&quality=${config.video.vimeoQuality}`;
     }
 
     /**

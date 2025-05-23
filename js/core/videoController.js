@@ -190,22 +190,20 @@ function _getContentElement(scrollItemElement, isVideoIndex) {
 /** Determine animation parameters based on mobile and nav state. */
 function _getAnimationParameters(isVideoIndex) {
     const initialYOffset = 20;
+    let setScale = 1
     let setBlur = config.animation.blurMax;
     let resetBlur = config.animation.blurReset;
     let setOpacity = 0;
     let resetOpacity = 1;
-    let setScale = 1
 
     if (typeof InputManager.checkForMobile === 'function' && typeof InputManager.NavMenuOpen === 'function') {
         if (InputManager.checkForMobile() && InputManager.NavMenuOpen()){
-            console.log('CHECK FOR NAV MENU IS OPEN AND ON MOBILE (Parameters)');
             setBlur = resetBlur = config.animation.blurNavOpen;
-            setOpacity = resetOpacity = 0.5;
+            setOpacity = resetOpacity = 0.5; // no opacity change
         } else {
             setBlur = config.animation.blurMax;
             resetBlur = config.animation.blurReset;
-            setOpacity = 1;
-            resetOpacity = 1;
+            setOpacity = resetOpacity = 1; // no opacity change
         }
     }
 

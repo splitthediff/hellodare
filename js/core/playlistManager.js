@@ -16,11 +16,10 @@ const INFO_OVERLAY_SELECTOR = '.video-info-overlay';
 
 // --- Main Exported Function ---
 export async function renderPlaylist() {
-    currentVideos = await initializeVideos();
+    currentVideos = initializeVideos();
     renderVideos(currentVideos);
     renderNavigationMenu(playlist, "Info");
 
-    // Initialize Players (calls positionSingleInfoOverlay internally via Video.js)
     console.log("--- Starting player init trigger ---");
     if (currentVideos && currentVideos.length > 0) {
         currentVideos.forEach(video => {
@@ -29,41 +28,15 @@ export async function renderPlaylist() {
         console.log("--- Finished player init trigger ---");
     }
 
-    // --- NO Initial positioning call needed here ---
-    console.log("Initial overlay positioning skipped - will position on player ready.");
-
     initializeGsapScroll(currentVideos);
-
-    // --- Resize Listener ---
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            console.log("Resize Trigger - Repositioning All Overlays");
-            updateDOMVideoSizes(currentVideos); // Update sizes first
-
-            // --- Call positioning for ALL items on resize ---
-            if (currentVideos && currentVideos.length > 0) {
-                 currentVideos.forEach(video => {
-                    positionSingleInfoOverlay(video.id);
-                    //positionFooterToAlignWithVideo(video.id)
-                 });
-            }
-            updateTitleStyleBasedOnViewport();
-
-        }, config.input.resizeDebounce);
-    });
 }
 
 // --- Helper Functions ---
-async function initializeVideos() {
-    const videos = await Promise.all(
-        playlist.map(async (videoData) => {
-            const video = new Video(videoData);
-            await video.initialize();
-            return video;
-        })
-    );
+function initializeVideos() { 
+    const videos = playlist.map((videoData) => { 
+        const video = new Video(videoData);
+        return video;
+    });
     updateVideoObjectSizes(videos);
     return videos;
 }
@@ -345,5 +318,15 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
             }
         });
          console.log("Navigation Next button listener attached.");
+    }
+}
+
+export function handleAllVideoAndOverlayResizes() {
+    console.log("PlaylistManager: Handling all video and overlay resizes.");
+    updateDOMVideoSizes(currentVideos); // Update internal video object sizes
+    if (currentVideos && currentVideos.length > 0) {
+        currentVideos.forEach(video => {
+            positionSingleInfoOverlay(video.id); // Reposition each overlay
+        });
     }
 }

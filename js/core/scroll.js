@@ -11,6 +11,7 @@ import {
     animateInfoIn,  
     resetInfoAnimation
 } from './videoController.js';
+import { handleAllVideoAndOverlayResizes } from './playlistManager.js';
 import * as InputManager from '../modules/inputManager.js';
 import { config } from '../config.js';
 
@@ -136,8 +137,7 @@ function attachButtonListeners() {
     infoButtonElement = document.getElementById(config.selectors.infoButtonId);
 
     if (infoButtonElement) { // Check the variable reference
-         console.log("ABL: Found Info Button.", infoButtonElement);
-        if (!infoButtonElement._listenerAttachedClick) { // Check flag on the element
+         console.log("ABL: Found Info Button.", infoButtonElement); // Check flag on the element
             infoButtonElement.style.cursor = 'pointer';
             infoButtonElement.addEventListener('click', (event) => {
                 event.preventDefault();
@@ -146,9 +146,7 @@ function attachButtonListeners() {
                 const currentIdx = getCurrentIndex();
                 goToIndex(currentIdx === infoSectionIndex ? 0 : infoSectionIndex);
             });
-            infoButtonElement._listenerAttachedClick = true; // Set flag on the element
             console.log("Dynamic Info/Work button listener attached.");
-        }
     } else {
         console.warn(`ABL: Info button ('#${config.selectors.infoButtonId}') not found.`);
     }
@@ -159,15 +157,12 @@ function attachButtonListeners() {
 
     if (titleElementForListener) { // Check the variable reference
         console.log("ABL: Found Title Element.", titleElementForListener);
-         if (!titleElementForListener._listenerAttachedClick) { // Check flag on the element
             titleElementForListener.style.cursor = 'pointer';
             titleElementForListener.addEventListener('click', (event) => {
                 event.preventDefault();
                 goToIndex(0); // Call goToIndex directly
             });
-            titleElementForListener._listenerAttachedClick = true; // Set flag on the element
             console.log("Title click listener attached.");
-        }
     } else {
         console.warn(`ABL: Main title ('#${config.selectors.titleElementId}') not found.`);
     }
@@ -180,7 +175,6 @@ function attachButtonListeners() {
 
     // Check if all required elements exist for the Menu Toggle
     if (menuToggleButton && navMenu && menuIconWrapper && closeIconWrapper) {
-        if (!menuToggleButton._listenerAttachedClick) {
            menuToggleButton.addEventListener('click', () => {
                const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');
 
@@ -202,12 +196,7 @@ function attachButtonListeners() {
                     updateTitleStyleBasedOnViewport();
                 }
            });
-
-           menuToggleButton._listenerAttachedClick = true;
            console.log("SCROLL: Menu toggle button listener attached.");
-        } else {
-            console.log("ABL: Menu toggle listener ALREADY attached.");
-        }
     } else {
         console.log("ABL: Menu Toggle Condition Failed.");
         if (!menuToggleButton) console.warn(`ABL: Menu toggle button ('#${config.selectors.menuToggleButtonId}') not found.`);
@@ -386,6 +375,7 @@ export function initializeGsapScroll(videos) {
     InputManager.initializeInput(
         throttledScrollProcessor,
         resizeCallback,
+        handleAllVideoAndOverlayResizes,
         adjustGlobalVolume,
         getActiveVideoFn,
         togglePlayPauseFn,

@@ -82,11 +82,19 @@ function createTouchHandlers() { // Uses hardcoded minY/maxX
     return { onTouchStart, onTouchMove, onTouchEnd };
 }
 
-function createResizeHandler(resizeCallback) {
-    console.log('[ResizeHandler] Resize event triggered');
-    let resizeTimeout;
+function createResizeHandler(scrollPositionResizeCb, globalResizeHandler) {
+    let resizeTimeoutId; 
     return function onResize() {
-     
+        // Clear any existing timeout to debounce the resize event
+        clearTimeout(resizeTimeoutId);
+        resizeTimeoutId = setTimeout(() => {
+            // Call the specific scroll position update (from scroll.js)
+            scrollPositionResizeCb();
+            // Call the comprehensive resize handler (from playlistManager.js)
+            globalResizeHandler(); // **NEW CALL**
+            updateTitleStyleBasedOnViewport();
+            console.log('[InputMgr] Resize debounced and handled.');
+        }, config.input.resizeDebounce); // Use the debounce time from config
     };
 }
 
@@ -112,15 +120,15 @@ function attachEventListeners(touchHandlers, resizeHandler) {
 /** Initializes the input manager. */
 export function initializeInput(
     scrollProcessor,
-    resizeCb,
+    scrollPositionResizeCb, // Renamed from resizeCb
+    globalResizeHandler,    // NEW PARAMETER
     adjustVolumeFn,
-    getActiveVideoFn, 
+    getActiveVideoFn,
     togglePlayPauseFn,
-    // Use config for default values if args not provided
     resizeDebounce = config.input.resizeDebounce,
     touchY = config.input.touchSensitivityY,
     touchX = config.input.touchSensitivityX
-    ) {
+) {
     scrollInputProcessor = scrollProcessor;
     adjustVolumeCallback = adjustVolumeFn;
     getActiveVideoCallback = getActiveVideoFn;
@@ -142,7 +150,8 @@ export function initializeInput(
     touchMaxX = touchX;
 
     const touchHandlers = createTouchHandlers();
-    const resizeHandler = createResizeHandler(resizeCb);
+    // Pass both resize callbacks to createResizeHandler
+    const resizeHandler = createResizeHandler(scrollPositionResizeCb, globalResizeHandler); // **UPDATED**
     attachEventListeners(touchHandlers, resizeHandler);
     console.log("Input Manager Initialized.");
 }

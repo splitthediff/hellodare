@@ -43,6 +43,8 @@
     <meta name="msapplication-wide310x150logo" content="favicon/mstile-310x150.png" />
     <meta name="msapplication-square310x310logo" content="favicon/mstile-310x310.png" />
 
+    <script>document.documentElement.setAttribute('data-theme-init', '');</script>
+
 
   </head>
   <body>
@@ -107,6 +109,14 @@
     <!-- --- ADD GSAP CSSPLUGIN --- -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CSSPlugin.min.js"></script>
     <script type="module" src="js/main.js"></script>
+
+      <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      requestAnimationFrame(() => {
+        document.documentElement.removeAttribute("data-theme-init");
+      });
+    });
+  </script>
 
   </body>
   

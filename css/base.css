@@ -18,6 +18,11 @@ html, body {
   transition: background-color 4s ease, color 2s ease;
 }
 
+/* Suppress transitions during initial page load */
+html[data-theme-init] * {
+  transition: none !important;
+}
+
 /* Basic Link Styling (if needed globally) */
 a {
   color: var(--clr-text-primary); /* Or a specific link color variable */
