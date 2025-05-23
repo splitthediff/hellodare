@@ -247,6 +247,20 @@ export class Video {
             }
         }
 
+        _updatePlayPauseButtonUI = (isPaused) => {
+            const playPauseButton = document.getElementById(`playPauseButton-${this.id}`);
+            const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper');
+            const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
+
+            if (playPauseButton && playWrapper && pauseWrapper) {
+                playWrapper.classList.toggle('is-hidden', !isPaused);    // Hide play if not paused
+                pauseWrapper.classList.toggle('is-hidden', isPaused);   // Hide pause if paused
+                playPauseButton.setAttribute('aria-label', isPaused ? 'Play' : 'Pause');
+            } else {
+                console.warn(`[Video ${this.id}] Play/Pause button elements not found for UI update.`);
+            }
+        };
+
     updateVideoSizes(containerWidth) { if (this.aspectRatio > 0 && containerWidth > 0) { this.videoWidth = containerWidth; this.videoHeight = containerWidth / this.aspectRatio; } else { this.videoWidth = 0; this.videoHeight = 0; } }
 
     /**
@@ -285,22 +299,15 @@ export class Video {
                 }
                 await player.play();
                 // Show Pause icon, hide Play icon
-                playWrapper.classList.add('is-hidden');
-                pauseWrapper.classList.remove('is-hidden');
-                buttonElement.setAttribute('aria-label', 'Pause'); // Update accessibility
+                this._updatePlayPauseButtonUI(false); // Pass 'false' because it's now playing (not paused)
             } else {
                 await player.pause();
                 // Show Play icon, hide Pause icon
-                playWrapper.classList.remove('is-hidden');
-                pauseWrapper.classList.add('is-hidden');
-                buttonElement.setAttribute('aria-label', 'Play'); // Update accessibility
+                this._updatePlayPauseButtonUI(true); // Pass 'true' because it's now paused
             }
         } catch (error) {
              console.error(`[Toggle Play ${this.id}] API error:`, error.name);
-             // Reset to Play icon on error?
-             playWrapper.classList.remove('is-hidden');
-             pauseWrapper.classList.add('is-hidden');
-             buttonElement.setAttribute('aria-label', 'Play');
+             this._updatePlayPauseButtonUI(true); // Assume paused state on error
         }
     }
 

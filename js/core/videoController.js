@@ -291,7 +291,7 @@ async function _activateVideoPlayback(video) {
 
         if (video.hasPlayedOnce) { // Check flag (from timeupdate end simulation)
             console.log(`%c[VideoController ${video.id}] Activate SKIPPED (hasPlayedOnce). Ensuring pause.`, "color: blue;");
-            if(playPauseButton && playWrapper && pauseWrapper) { playWrapper.classList.remove('is-hidden'); pauseWrapper.classList.add('is-hidden'); playPauseButton.setAttribute('aria-label', 'Play'); }
+            video._updatePlayPauseButtonUI(true); // Force paused state if hasPlayedOnce
             if (soundButton && volumeOnWrapper && volumeOffWrapper) { const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute'); }
              await player.pause().catch(e => {/* ignore non-critical errors */}); // Ensure paused
              await player.setVolume(globalVolumeLevel); // Still set volume
@@ -301,7 +301,7 @@ async function _activateVideoPlayback(video) {
             await player.setVolume(globalVolumeLevel);
             if (soundButton && volumeOnWrapper && volumeOffWrapper) { const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute'); }
             await player.play();
-            if(playPauseButton && playWrapper && pauseWrapper) { playWrapper.classList.add('is-hidden'); pauseWrapper.classList.remove('is-hidden'); playPauseButton.setAttribute('aria-label', 'Pause'); }
+            video._updatePlayPauseButtonUI(false); // Force playing state
         }
     } catch (error) {
         console.warn(`[VideoController ${video?.id}] Error activating video: ${error.message}`);
@@ -311,7 +311,7 @@ async function _activateVideoPlayback(video) {
         const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
         const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
         const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
-        if(playPauseButton && playWrapper && pauseWrapper){ playWrapper.classList.remove('is-hidden'); pauseWrapper.classList.add('is-hidden'); playPauseButton.setAttribute('aria-label', 'Play'); }
+        video._updatePlayPauseButtonUI(true); // Assume paused on error
         if (soundButton && volumeOnWrapper && volumeOffWrapper){ const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');}
     }
 }
@@ -332,8 +332,7 @@ function _deactivateVideoPlayback(video) {
         const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
          // Update Icons for Paused State
         if (soundButton && volumeOnWrapper && volumeOffWrapper) { const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute'); }
-        if(playPauseButton && playWrapper && pauseWrapper){ playWrapper.classList.remove('is-hidden'); pauseWrapper.classList.add('is-hidden'); playPauseButton.setAttribute('aria-label', 'Play'); }
-
+        video._updatePlayPauseButtonUI(true); // Video is being deactivated, so set to paused state
     } catch (e) { console.warn(`[VideoController ${video.id}] Error during deactivation: ${e.message}`); }
 
 }
