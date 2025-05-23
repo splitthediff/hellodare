@@ -134,7 +134,6 @@ function attachButtonListeners() {
 
     // --- Info Button Listener ---
     console.log("ABL: Attempting getElementById for Info Button:", config.selectors.infoButtonId);
-    infoButtonElement = document.getElementById(config.selectors.infoButtonId);
 
     if (infoButtonElement) { // Check the variable reference
          console.log("ABL: Found Info Button.", infoButtonElement); // Check flag on the element
@@ -178,23 +177,32 @@ function attachButtonListeners() {
            menuToggleButton.addEventListener('click', () => {
                const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');
 
-               updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, closeIconWrapper, menuToggleButton);
-
+                updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, closeIconWrapper, menuToggleButton);
+                const activeItemElement = document.querySelector('.scroll-item.active-scroll-item');
                // --- Trigger Open/Close Sequence ---
                if (!menuIsCurrentlyVisible) { // If menu is currently hidden (about to become visible)
                     console.log("SCROLL: Triggering Menu OPEN sequence from button.");
                     openNavMenu(navMenu);
+                    if (activeItemElement){
+                        console.log ('ACTIVE ITEM ELEMENT TRIGGERED');
+                        console.log(activeItemElement);
+                        blurActiveElement(activeItemElement);
+                        updateTitleStyleBasedOnViewport();
+                    }
                 } else { // If menu is currently visible (about to become hidden)
                     console.log("SCROLL: Triggering Menu CLOSE sequence from button.");
                     closeNavMenu(); 
+                    if (activeItemElement){
+                        console.log ('ACTIVE ITEM ELEMENT TRIGGERED');
+                        console.log(activeItemElement);
+                        unblurActiveElement(activeItemElement);
+                        updateTitleStyleBasedOnViewport();
+                    }
                 }
 
-                const activeItemElement = document.querySelector('.scroll-item.video-item.active-scroll-item');
-                if (activeItemElement){
-                    console.log ('ACTIVE ITEM ELEMENT TRIGGERED');
-                    blurActiveElement(activeItemElement);
-                    updateTitleStyleBasedOnViewport();
-                }
+               //const activeItemElement = document.querySelector('.scroll-item.video-item.active-scroll-item');
+               //const activeItemElement = document.querySelector('.scroll-item.active-scroll-item');
+                
            });
            console.log("SCROLL: Menu toggle button listener attached.");
     } else {
@@ -273,34 +281,61 @@ export function closeNavMenu() {
     console.log("SCROLL: --- closeNavMenu FINISHED ---");
 }
 
-export function blurActiveElement(activeItemElement){
-    const activeVideoContent = activeItemElement.querySelector('.video-aspect-wrapper');
-    const activeInfoOverlay = activeItemElement.querySelector('.video-info-overlay');
-    const blurTargets = [];
-    if (activeVideoContent) blurTargets.push(activeVideoContent);
-    if (activeInfoOverlay) blurTargets.push(activeInfoOverlay);
+export function blurActiveElement(activeItemElement) {
+    const blurTargets = getBlurTargets(activeItemElement);
+    console.log("BLUR: Targets found:", blurTargets);
 
-    if (blurTargets.length > 0) {
-        if (InputManager.NavMenuOpen() && InputManager.checkForMobile()) { // If menu is currently hidden (about to become open)
-            console.log("SCROLL: Applying blur/opacity to active video content.");
-            gsap.to(blurTargets, {
-                filter: config.animation.blurNavOpen,
-                opacity: config.animation.opacityNavOpen, 
-                duration: 0.3,
-                ease: "power1.out",
-                overwrite: true, // Crucial: Overwrite any ongoing ScrollTrigger animation
-            });
-        } else { // If menu is currently visible (about to become hidden)
-            console.log("SCROLL: Removing blur/opacity from active video content.");
-            gsap.to(blurTargets, {
-                filter: config.animation.blurReset, // Target blur (normal)
-                opacity: 1, // Target opacity (normal)
-                duration: 0.3, 
-                ease: "power1.out",
-                overwrite: true, // Crucial
-            });
+    if (blurTargets.length === 0) {
+        console.warn("BLUR: No blur targets found for", activeItemElement);
+        return;
+    }
+
+    gsap.to(blurTargets, {
+        filter: config.animation.blurNavOpen,
+        opacity: config.animation.opacityNavOpen,
+        duration: 0.3,
+        ease: "power1.out",
+        overwrite: true,
+    });
+}
+
+export function unblurActiveElement(activeItemElement) {
+    const blurTargets = getBlurTargets(activeItemElement);
+    if (blurTargets.length === 0) return;
+
+    gsap.to(blurTargets, {
+        filter: config.animation.blurReset,
+        opacity: 1,
+        duration: 0.3,
+        ease: "power1.out",
+        overwrite: true,
+    });
+}
+
+// Shared helper function
+function getBlurTargets(activeItemElement) {
+    const blurTargets = [];
+
+    // For video items
+    const videoWrapper = activeItemElement.querySelector('.video-aspect-wrapper');
+    const infoOverlay = activeItemElement.querySelector('.video-info-overlay');
+
+    if (videoWrapper) blurTargets.push(videoWrapper);
+    if (infoOverlay) blurTargets.push(infoOverlay);
+
+    // Additional check for the info section
+    const isInfoSection = activeItemElement.classList.contains('info-section');
+    if (isInfoSection) {
+        const infoBlocks = activeItemElement.querySelectorAll('.info-block, .info-content, .info-wrapper'); // Update to your actual class names
+        if (infoBlocks.length > 0) {
+            blurTargets.push(...infoBlocks);
+        } else {
+            // Fallback: blur the whole section
+            blurTargets.push(activeItemElement);
         }
     }
+
+    return blurTargets;
 }
 
 export function updateTitleStyleBasedOnViewport() {
@@ -340,9 +375,12 @@ export function initializeGsapScroll(videos) {
         console.error(`Scroll Init Failed: '${config.selectors.track}' not found.`); return; 
     }
     scrollItems = gsap.utils.toArray(videoTrack.children).filter(el => el.classList.contains(config.selectors.scrollItem.substring(1))); // Remove leading '.' for classList check
-    infoButtonElement = document.querySelector(config.selectors.infoButtonId);
-    if (scrollItems.length === 0) { 
-        console.error(`Scroll Init Failed: No '${config.selectors.scrollItem}' children found.`); return; 
+    infoButtonElement = document.getElementById(config.selectors.infoButtonId);
+    if (!infoButtonElement) {
+        console.error(`[CRITICAL ERROR] Info button with ID '${config.selectors.infoButtonId}' was NOT found in the DOM during initializeGsapScroll.`);
+        console.error(`This likely means the HTML element is missing, or its ID is incorrect, or it's being dynamically removed/re-added by another script.`);
+    } else {
+        console.log(`[SUCCESS] Info button found and assigned:`, infoButtonElement);
     }
     console.log(`Scroll Initializing...`);
 

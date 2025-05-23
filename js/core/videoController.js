@@ -177,15 +177,11 @@ function _getAnimationParameters(isVideoIndex) {
     let setOpacity = 0;
     let resetOpacity = 1;
 
-    if (typeof InputManager.checkForMobile === 'function' && typeof InputManager.NavMenuOpen === 'function') {
-        if (InputManager.checkForMobile() && InputManager.NavMenuOpen()){
-            setBlur = resetBlur = config.animation.blurNavOpen;
-            setOpacity = resetOpacity = 0.5; // no opacity change
-        } else {
-            setBlur = config.animation.blurMax;
-            resetBlur = config.animation.blurReset;
-            setOpacity = resetOpacity = 1; // no opacity change
-        }
+    if (InputManager.checkForMobile() && InputManager.NavMenuOpen()){
+        setBlur = config.animation.blurNavOpen;    // Fixed blur when nav open
+        resetBlur = config.animation.blurNavOpen;   // Fixed blur when nav open
+        setOpacity = config.animation.opacityNavOpen; // Fixed opacity when nav open
+        resetOpacity = config.animation.opacityNavOpen; // Fixed opacity when nav open
     }
 
     return { setBlur, resetBlur, setOpacity, resetOpacity, initialYOffset, setScale };
