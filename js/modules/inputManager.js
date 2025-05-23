@@ -98,7 +98,7 @@ function createResizeHandler(scrollPositionResizeCb, globalResizeHandler) {
     };
 }
 
-/** Attaches all necessary global event listeners. */
+/** Attaches all necessary global event listeners. togglePlayPauseCallback*/
 function attachEventListeners(touchHandlers, resizeHandler) {
     // Remove previous listeners
     window.removeEventListener('keydown', handleKeyDown);
@@ -133,14 +133,13 @@ export function initializeInput(
     adjustVolumeCallback = adjustVolumeFn;
     getActiveVideoCallback = getActiveVideoFn;
     togglePlayPauseCallback = (video) => { // This is the WRAPPER called by handleKeyDown
-        const btn = document.getElementById(`playPauseButton-${video?.id}`);
-        if (video && btn && typeof togglePlayPauseFn === 'function') { // Check original fn exists
-             try {
-                 console.log(`[InputMgr] Wrapper calling original togglePlayPauseFn for video ${video.id}`);
-                 togglePlayPauseFn(video, btn); // <<< Call original fn with video AND button
-             } catch(e) { console.error("Error calling togglePlayPauseFn from wrapper:", e); }
+        if (video && typeof togglePlayPauseFn === 'function') {
+            try {
+                console.log(`[InputMgr] Wrapper calling original togglePlayPauseFn for video ${video.id}`);
+                togglePlayPauseFn(video); // Call original fn without the button
+            } catch(e) { console.error("Error calling togglePlayPauseFn from wrapper:", e); }
         } else {
-             console.warn(`[InputMgr] Cannot toggle: video, button, or togglePlayPauseFn missing. Video: ${!!video}, Button: ${!!btn}, Fn: ${typeof togglePlayPauseFn}`);
+            console.warn(`[InputMgr] Cannot toggle: video or togglePlayPauseFn missing. Video: ${!!video}, Fn: ${typeof togglePlayPauseFn}`);
         }
     };
 

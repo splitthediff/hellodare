@@ -155,21 +155,6 @@ function renderVideos(videos) {
         if (!videoItemElement) { console.error(`Failed to find video item ${videoId}`); return; }
         const wrapperElement = videoItemElement.querySelector('.video-aspect-wrapper');
         if (wrapperElement && video.nativeWidth > 0 && video.nativeHeight > 0) { wrapperElement.style.aspectRatio = `${video.nativeWidth}/${video.nativeHeight}`; }
-        const playPauseButton = videoItemElement.querySelector(`#playPauseButton-${video.id}`);
-        const soundButton = videoItemElement.querySelector(`#soundButton-${videoId}`);
-        const thumbnailElement = videoItemElement.querySelector(`#thumbnail-${videoId}`);
-        if (playPauseButton) { playPauseButton.addEventListener('click', async () => { await video.togglePlayPause(playPauseButton); }); }
-        if (soundButton) {
-            // The 'toggleGlobalVolume' used here is the one imported at the top of THIS file
-            soundButton.addEventListener('click', async () => {
-                // console.log(`Sound button clicked for ${video.id}`);
-                // Pass the imported function AS AN ARGUMENT to the video's method
-                await video.toggleSound(toggleGlobalVolume); // <<< ENSURE THIS PASSES THE ARGUMENT
-            });
-        } else {
-            console.warn(`renderVideos: Sound button not found for ${video.id}`);
-        }
-        if (thumbnailElement) { video.thumbnailElement = thumbnailElement; }
     });
 
     console.log("--- Finished renderVideos ---");

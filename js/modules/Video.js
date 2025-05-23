@@ -43,6 +43,10 @@ export class Video {
 
         this.playerInitializationPromise = null;
         this.thumbnailElement = null;
+
+        this.videoWrapperElement = null;       
+        this.playPauseButtonElement = null;    
+        this.soundButtonElement = null;        
     }
 
     /**
@@ -97,14 +101,33 @@ export class Video {
     
     
         // --- "Private" Helper Methods for Player Setup ---
-    
-        _findPlayerUIElements() {
+    //DELETE THIS LATER
+      /*  _findPlayerUIElements() {
             // console.log(`[Player UI ${this.id}] Finding elements...`);
             this.progressBarContainer = document.getElementById(`progress-container-${this.id}`);
             this.progressBarFill = document.getElementById(`progress-fill-${this.id}`);
             this.currentTimeDisplayElement = document.getElementById(`current-time-display-${this.id}`);
             // Note: thumbnailElement is assigned externally for now, but could be found here too if preferred
             // this.thumbnailElement = document.getElementById(`thumbnail-${this.id}`);
+        }*/
+
+        _findPlayerUIElements() {
+            // console.log(`[Player UI ${this.id}] Finding elements...`);
+            const videoItemElement = document.querySelector(`${config.selectors.scrollItem}.video-item[data-video-id="${this.id}"]`);
+            if (!videoItemElement) {
+                console.warn(`[Player UI ${this.id}] Video item element not found for ID: ${this.id}.`);
+                return;
+            }
+
+            this.videoWrapperElement = videoItemElement.querySelector('.video-aspect-wrapper');
+            this.playPauseButtonElement = videoItemElement.querySelector(`#playPauseButton-${this.id}`);
+            this.soundButtonElement = videoItemElement.querySelector(`#soundButton-${this.id}`);
+            this.thumbnailElement = videoItemElement.querySelector(`#thumbnail-${this.id}`); // Assign thumbnail here
+            this.progressBarContainer = videoItemElement.querySelector(`#progress-container-${this.id}`);
+            this.progressBarFill = videoItemElement.querySelector(`#progress-fill-${this.id}`);
+            this.currentTimeDisplayElement = videoItemElement.querySelector(`#current-time-display-${this.id}`);
+
+            // console.log(`[Player UI ${this.id}] Elements found and assigned.`);
         }
     
         _resetPlayerUI() {
@@ -195,7 +218,7 @@ export class Video {
                     console.log(`%c[Player ${this.id}] TIMEUPDATE near end. Pausing & Updating Button Icon.`, "color: purple;");
 
                     // Find button and icon wrappers
-                    const btn = document.getElementById(`playPauseButton-${this.id}`);
+                    const btn = this.playPauseButtonElement;
                     const playWrapper = btn?.querySelector('.icon-play-wrapper');
                     const pauseWrapper = btn?.querySelector('.icon-pause-wrapper');
 
@@ -248,7 +271,7 @@ export class Video {
         }
 
         _updatePlayPauseButtonUI = (isPaused) => {
-            const playPauseButton = document.getElementById(`playPauseButton-${this.id}`);
+            const playPauseButton = this.playPauseButtonElement;
             const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper');
             const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
 
@@ -263,7 +286,7 @@ export class Video {
 
         // Helper to update the sound button's icons and aria-label
         _updateSoundButtonUI = (isMuted) => {
-            const soundButton = document.getElementById(`soundButton-${this.id}`);
+            const soundButton = this.soundButtonElement;
             const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
             const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
 
@@ -283,7 +306,7 @@ export class Video {
      * Resets end-simulation flags and seeks to start if re-playing after simulated end.
      * @param {HTMLButtonElement} playPauseButton - The button element to update text on.
      */
-    async togglePlayPause(playPauseButton) {
+    async togglePlayPause() {
         let player;
         try { player = await this.initializePlayer(); }
         catch (error) { console.error(`[Toggle Play ${this.id}] Player init failed: ${error.message}`); return; }
@@ -294,11 +317,11 @@ export class Video {
         if (!isActive) { console.warn(`[Toggle Play ${this.id}] Ignoring click: Not active item.`); return; }
 
         // Find icon wrappers using this.id
-        const buttonElement = document.getElementById(`playPauseButton-${this.id}`); // Get button for aria-label
-        const playWrapper = buttonElement?.querySelector('.icon-play-wrapper');
-        const pauseWrapper = buttonElement?.querySelector('.icon-pause-wrapper');
+        const playPauseButton = this.playPauseButtonElement; // Get button for aria-label
+        const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper');
+        const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
 
-        if (!buttonElement || !playWrapper || !pauseWrapper) {
+        if (!playPauseButton || !playWrapper || !pauseWrapper) {
              console.error(`[Toggle Play ${this.id}] Button or Icon wrappers not found! Query: #playPauseButton-${this.id}`);
              return;
         }

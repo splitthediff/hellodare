@@ -263,12 +263,6 @@ async function _activateVideoPlayback(video) {
     if (!video) return;
     try {
         const player = await video.initializePlayer();
-        const playPauseButton = document.getElementById(`playPauseButton-${video.id}`);
-        const soundButton = document.getElementById(`soundButton-${video.id}`);
-        const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper');
-        const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
-        const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
-        const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
 
         if (video.hasPlayedOnce) { // Check flag (from timeupdate end simulation)
             console.log(`%c[VideoController ${video.id}] Activate SKIPPED (hasPlayedOnce). Ensuring pause.`, "color: blue;");
@@ -286,12 +280,6 @@ async function _activateVideoPlayback(video) {
         }
     } catch (error) {
         console.warn(`[VideoController ${video?.id}] Error activating video: ${error.message}`);
-        const playPauseButton = document.getElementById(`playPauseButton-${video?.id}`); // Find button
-        const soundButton = document.getElementById(`soundButton-${video?.id}`);
-        const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper');
-        const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
-        const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
-        const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
         video._updatePlayPauseButtonUI(true); // Assume paused on error
         video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI on error    
     }
@@ -300,20 +288,11 @@ async function _activateVideoPlayback(video) {
 /** Deactivate video playback and update icons. */
 function _deactivateVideoPlayback(video) {
     if (!video || !video.player) return; // Only pause if player instance exists
-
     // console.log(`[VideoController ${video.id}] Deactivating Video.`);
     try {
         video.player.pause().catch(e => {/* ignore non-critical errors */}); // Non-awaited pause
-
-        const playPauseButton = document.getElementById(`playPauseButton-${video.id}`);
-        const soundButton = document.getElementById(`soundButton-${video.id}`);
-        const playWrapper = playPauseButton?.querySelector('.icon-play-wrapper');
-        const pauseWrapper = playPauseButton?.querySelector('.icon-pause-wrapper');
-        const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
-        const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
          // Update Icons for Paused State
         video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI based on global volume
         video._updatePlayPauseButtonUI(true); // Video is being deactivated, so set to paused state
     } catch (e) { console.warn(`[VideoController ${video.id}] Error during deactivation: ${e.message}`); }
-
 }
