@@ -153,6 +153,7 @@ function renderVideos(videos) {
         const videoId = video.id;
         const videoItemElement = trackElement.querySelector(`.video-item[data-video-id="${videoId}"]`);
         if (!videoItemElement) { console.error(`Failed to find video item ${videoId}`); return; }
+        videoItemElement.style.position = 'relative';
         const wrapperElement = videoItemElement.querySelector('.video-aspect-wrapper');
         if (wrapperElement && video.nativeWidth > 0 && video.nativeHeight > 0) { wrapperElement.style.aspectRatio = `${video.nativeWidth}/${video.nativeHeight}`; }
     });
@@ -174,7 +175,6 @@ export function positionSingleInfoOverlay(videoId) {
     if (!wrapper || !overlay || item.offsetHeight === 0) return;
 
     // Ensure scrollItem is relatively positioned for absolute overlay
-    item.style.position = 'relative';
     overlay.style.position = 'absolute';
 
     // --- Calculate top position below the video ---
@@ -209,9 +209,6 @@ function renderNavigationMenu(videoData, infoSectionName = "Info") {
 
     // Add link for the Info section
     const infoIndex = videoData.length; // Index after the last video
-    /*if (checkForMobile()){
-        navHTML += `<li><a href="#" class="nav-link" data-index="${infoIndex}">${infoSectionName}</a></li>`;
-    }*/
     navHTML += `<li><a href="#" class="nav-link" data-index="${infoIndex}">${infoSectionName}</a></li>`;
 
     navHTML += '</ul>'; // End list

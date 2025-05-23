@@ -101,16 +101,6 @@ export class Video {
     
     
         // --- "Private" Helper Methods for Player Setup ---
-    //DELETE THIS LATER
-      /*  _findPlayerUIElements() {
-            // console.log(`[Player UI ${this.id}] Finding elements...`);
-            this.progressBarContainer = document.getElementById(`progress-container-${this.id}`);
-            this.progressBarFill = document.getElementById(`progress-fill-${this.id}`);
-            this.currentTimeDisplayElement = document.getElementById(`current-time-display-${this.id}`);
-            // Note: thumbnailElement is assigned externally for now, but could be found here too if preferred
-            // this.thumbnailElement = document.getElementById(`thumbnail-${this.id}`);
-        }*/
-
         _findPlayerUIElements() {
             // console.log(`[Player UI ${this.id}] Finding elements...`);
             const videoItemElement = document.querySelector(`${config.selectors.scrollItem}.video-item[data-video-id="${this.id}"]`);
@@ -160,23 +150,12 @@ export class Video {
         }
     
         // --- "Private" Event Handler Methods ---
-        // Using arrow functions to automatically bind 'this' to the Video instance
-    
-        _handlePlay = () => {
-            // console.log(`[Player Event ${this.id}] _handlePlay`);
+        _handlePlay = () => {;
             if (this.thumbnailElement) this.thumbnailElement.classList.add('thumbnail-hidden');
             this.isEnding = false; // Reset ending flag
-    
-            // Re-attaching timeupdate within play might still be needed if events
-            // get automatically detached on pause/end by the library, but let's test without first
-            // If time stops updating after pause/resume, add the off/on logic back here:
-            // this.player.off('timeupdate');
-            // this.player.on('timeupdate', this._handleProgressUpdate);
-            // this.player.on('timeupdate', this._handleSimulatedEnd);
         }
     
         _handlePause = () => {
-            // console.log(`[Player Event ${this.id}] _handlePause`);
             // Show thumbnail only if video reached its simulated end
             if (this.thumbnailElement && this.hasPlayedOnce) {
                 this.thumbnailElement.classList.remove('thumbnail-hidden');
@@ -244,7 +223,7 @@ export class Video {
                     // console.log(`[Player ${this.id}] Time moved away, resetting isEnding.`);
                     this.isEnding = false; // Reset if time moves away
             }
-        }; // End _handleSimulatedEnd
+        };
      
         _handleSeekClick = (event) => {
             // console.log(`[Seek Click ${this.id}]`);
@@ -284,7 +263,6 @@ export class Video {
             }
         };
 
-        // Helper to update the sound button's icons and aria-label
         _updateSoundButtonUI = (isMuted) => {
             const soundButton = this.soundButtonElement;
             const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
@@ -304,7 +282,6 @@ export class Video {
     /**
      * Toggles play/pause state for this video IF it's the active scroll item.
      * Resets end-simulation flags and seeks to start if re-playing after simulated end.
-     * @param {HTMLButtonElement} playPauseButton - The button element to update text on.
      */
     async togglePlayPause() {
         let player;
@@ -352,7 +329,7 @@ export class Video {
     /**
      * Calls the globally provided function to toggle volume for all videos.
      * Ensures this video's player is ready first.
-     * @param {Function} toggleGlobalVolumeFunction - The function (likely from videoController) to call.
+
      */
     async toggleSound(toggleGlobalVolumeFunction) { // <<< Accept function as argument
         // console.log(`[Toggle Sound ${this.id}] Clicked.`);
@@ -370,13 +347,6 @@ export class Video {
         } catch (error) {
             console.warn(`[Toggle Sound ${this.id}] Player not ready: ${error.message}`);
         }
-    }
-
-    // No longer needed, but Keep if need to fetch oEmbed data
-    async fetchVimeoData(id) {
-        const videoUrl = `https://vimeo.com/${id}`; const oEmbedUrl = `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(videoUrl)}`;
-        try { const response = await fetch(oEmbedUrl); if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`); const contentType = response.headers.get("content-type"); if (!contentType || !contentType.includes("application/json")) throw new Error(`Expected JSON response, got ${contentType}`); const data = await response.json(); return data;
-        } catch (error) { console.error(`[Fetch Data ${id}] Error fetching Vimeo oEmbed data for ${videoUrl}:`, error); return null; }
     }
 
 }
