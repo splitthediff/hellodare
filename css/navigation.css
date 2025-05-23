@@ -28,16 +28,15 @@
 
   /* Cornered style for short viewports + menu open */
 .title-cornered {
-  /*left: var(--padding-columns, 20px);*/
   top: var(--padding-columns, 20px);
   transform: none;
-  font-size: var(--font-size-sm); /* Optional: scale down for tight space */
-  opacity: 1; /* Make sure it's fully visible */
+  font-size: var(--font-size-sm);
+  opacity: 1;
 }
 
   
   /* --- Info Button (Right Column) --- */
-  .info { /* Specific button/link */
+  .info { 
     font-size: var(--font-size-small);
     font-weight: var(--font-weight-regular);
     background-color: transparent; display: inline; border: none; padding: 0;
@@ -88,10 +87,10 @@
   overflow: auto;
   transition-delay: 0s;
 
-  animation: hide-scroll 0.5s backwards;
 }
 
 /* Hide scrollbars in WebKit browsers */
+
 .navigation-menu::-webkit-scrollbar,
 .navigation-menu::-webkit-scrollbar-thumb {
   display: none;
@@ -99,9 +98,6 @@
   background: transparent;
 }
 
-@keyframes hide-scroll {
-  from, to { overflow: hidden; }
-}
 
 /* Navigation spacing and list */
 .nav-space {
@@ -112,7 +108,7 @@
 .nav-link-list {
   list-style: none;
   margin: 0;
-  max-height: 60vh;
+  max-height: 60vh; /* adjust if list gets longer */
   overflow-y: hidden;
 }
 
@@ -123,14 +119,11 @@
 .nav-link {
   font-family: var(--font-family-primary);
   font-size: var(--font-size-navigation);
-  color: var(--clr-text-primary);
   text-decoration: none;
   cursor: pointer;
   display: inline-block;
 
   opacity: 0.3; /* NEED TO MATCH THIS IN CONFIG, navOpacity */
- /* transition: opacity 1s ease;*/
-
 }
 
 
@@ -140,12 +133,11 @@
   
 .navigation-menu.is-visible .nav-link.active {
   opacity: 1.0; 
-  /*text-decoration: underline; text-underline-offset: 5px; */
+  text-decoration: underline; text-underline-offset: 6px; 
 }
   
 .navigation-menu.is-visible .nav-link:hover {
   opacity: .8; 
-  /*color: var(--clr-text-primary);  */
 }
 
 .nav-controls {
@@ -157,7 +149,6 @@
 .nav-button {
   background-color: transparent;
   border: none;
-  color: var(--clr-text-primary);
   padding: 0;
   cursor: pointer;
   border-radius: 4px;
@@ -172,12 +163,10 @@
 .menu-toggle-button {
   background: none;
   border: none;
-  color: var(--clr-text-primary, aqua);
   cursor: pointer;
   display: inline-block;
   line-height: 0;
   position: fixed;
-  /*left: var(--padding-columns, 20px);*/
   bottom: var(--padding-columns, 20px);
   z-index: 100;
 }

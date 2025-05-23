@@ -229,7 +229,7 @@ function openNavMenu(navMenu){
         gsap.to(navLinks, {
             opacity: config.navigation.navOpacity,
             y: 0,
-            duration: 0.4,
+            duration: 0.8,
             ease: "power1.out",
             stagger: 0.03,
             delay: 0.1,
@@ -272,7 +272,7 @@ export function closeNavMenu() {
 
     // Hide Nav Links (instant reset) via GSAP (if they animate in)
     if (navLinks && navLinks.length > 0) {
-       gsap.to(navLinks, { opacity: 0, y: -5, duration: 0.4, ease: "power2.out", stagger: 0.03, delay: 0.1, overwrite: true , 
+       gsap.to(navLinks, { opacity: 0, y: -5, duration: 0.8, ease: "power2.out", stagger: 0.03, delay: 0.1, overwrite: true , 
             onComplete: () => {
                 // Clear only opacity after animation completes
                 // navLinks.forEach(link => link.style.removeProperty('opacity'));
@@ -321,10 +321,10 @@ export function updateTitleStyleBasedOnViewport() {
 
     if (!title || !navMenu) return;
 
-    const isMenuVisible = navMenu.classList.contains('is-visible');
+    //const isMenuVisible = navMenu.classList.contains('is-visible');
     const isShortViewport = window.innerHeight < minHeight;
 
-    if (isMenuVisible && isShortViewport) {
+    if (isShortViewport) {
         title.classList.add('title-cornered');
     } else {
         title.classList.remove('title-cornered');

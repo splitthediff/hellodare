@@ -22,25 +22,20 @@
  .right-column {
     flex: var(--column-flex-side);
     display: flex;
-    flex-direction: column; /* Stack items vertically */
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: var(--padding-columns);
     z-index: var(--z-index-side-columns);
-    color: var(--clr-text-primary);
   }
-
 
   .left-column{
     flex: var(--column-flex-side);
-    display: block;            /* Use flex for nav alignment */
-    /*flex-direction: column;   /* Stack potential items below title */
-    /*align-items: center;      /* Center nav horizontally */
+    display: block;            
     padding: var(--padding-columns);
     height: 100%;
-    position: relative;       /* <<< REQUIRED for absolute title */
+    position: relative;      
     z-index: var(--z-index-side-columns);
-    color: var(--clr-text-primary);
   }
 
   .middle-column {
@@ -57,10 +52,4 @@
   .scroll-item {
     width: 100%; height: 100%; position: relative; overflow: hidden;
     display: flex; justify-content: center; align-items: center; padding: 0px;
-  }
-  
-  /* --- Active Scroll Item --- */
-  .scroll-item.active-scroll-item {
-    /* Add indicator styles if desired */
-    /* outline: 2px solid red; */
   }

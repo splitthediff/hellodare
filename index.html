@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="css/video-player.css">
     <link rel="stylesheet" href="css/info-section.css">
     <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/darkmode.css">
 
     <!-- FAVICON -->
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="favicon/apple-touch-icon-57x57.png" />
@@ -77,8 +78,23 @@
       <!-- Right Column: Info Button -->
       <div class="right-column">    
         <div class="info" id="scroll-to-info-btn">Info</div>
+        <div>
+          <button id="darkModeToggle" aria-label="Toggle Dark Mode" class="dark-mode-toggle-btn">
+            <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 18a6 6 0 100-12 6 6 0 000 12z" />
+            </svg>
+            <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" />
+            </svg>
+          </button>
+        </div>
       </div>
+    
+      <footer class="site-footer"><p>&copy; 2025</p></footer>
+
     </div>
+
+  
     
     <!--SCRIPTS-->
      <!-- VIMEO API -->
@@ -92,4 +108,5 @@
     <script type="module" src="js/main.js"></script>
 
   </body>
+  
 </html>

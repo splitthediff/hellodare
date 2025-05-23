@@ -99,7 +99,6 @@
   position: absolute; /* Relative to .scroll-item */
   width: auto; max-width: auto; box-sizing: border-box;
   z-index: var(--z-index-info-overlay);
-  color: var(--clr-text-primary);
   padding: 0; text-align: left;
   /* Initial state */
   opacity: 0; visibility: hidden; transform: translateY(5px); pointer-events: none;

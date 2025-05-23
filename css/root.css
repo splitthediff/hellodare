@@ -1,12 +1,17 @@
 :root {
     /* === COLORS === */
-    --clr-background: #FBF5E9;
+    --clr-background: #efede8;
     --clr-text-primary: #231F20;
     --clr-text-overlay: #ffffff;         /* For text on dark overlays */
     --clr-text-overlap: var(--clr-background); /* For title overlap */
     --clr-overlay-bg: rgba(0, 0, 0, 0.5); /* Controls background */
     --clr-info-overlay-bg: rgba(0, 0, 0, 0.6); /* Video info overlay background */
     --clr-button-hover-bg: rgba(255, 255, 255, 0.15); /* Controls button hover */
+    --clr-link-hover: #ff00e1; /* Link hover color */
+
+    --clr-background-darkmode: #111111;
+    --clr-text-primary-darkmode: #b3b3b3;
+
   
     /* === FONTS === */
     --font-family-primary: "neue-haas-unica", helvetica, sans-serif;

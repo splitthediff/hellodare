@@ -3,7 +3,6 @@
 
 import { config } from '../config.js';
 import { formatTime, getAspectRatio } from '../utils/utils.js';
-import { positionSingleInfoOverlay } from '../core/playlistManager.js';
 
 export class Video {
     constructor(videoData) {

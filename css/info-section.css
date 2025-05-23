@@ -10,7 +10,6 @@
   /* --- Layout --- */
   .info-section { /* Is also .scroll-item */
     display: flex; justify-content: center; align-items: center;
-    color: var(--clr-text-primary); background-color: var(--clr-background);
     padding: var(--space-xxl); /* Overall padding */
   }
   .info-content {
@@ -58,17 +57,17 @@
   .info-column .recognition-list .recognition-item:last-child { margin-bottom: 0; }
   .info-column .recognition-award-name {
     font-size: var(--font-size-xsmall); font-weight: var(--font-weight-medium);
-    line-height: var(--line-height-heading); color: var(--clr-text-primary); margin: 0;
+    line-height: var(--line-height-heading); margin: 0;
   }
   .info-column .recognition-details {
     font-family: var(--font-family-primary);
     font-size: calc(var(--font-size-xsmall) * 0.9); font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-tight); color: var(--clr-text-primary); opacity: 0.6; margin: 0;
+    line-height: var(--line-height-tight); opacity: 0.6; margin: 0;
   }
   
   /* --- Links --- */
   .info-column a {
-    color: var(--clr-text-primary); background-color: transparent; text-decoration: none;
+    background-color: transparent; text-decoration: none;
     transition: color var(--transition-duration-fast) ease; cursor: pointer;
   }
   .info-column a:hover,

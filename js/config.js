@@ -56,7 +56,7 @@ export const config = {
     // Breakpoints
     breakpoints: {
         mobileMaxWidth: 1100, // max-width for mobile styles/logic (pixels)
-        minHeight: 800
+        minHeight: 900
     },
 
     layout: {

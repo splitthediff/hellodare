@@ -3,43 +3,46 @@
 import { renderPlaylist } from './core/playlistManager.js'; 
 
 window.addEventListener('load', async () => {
-  console.log("Load event fired. Starting initializations...");
-  registerGSAP();
-  await loadAndInjectSVGSprite();
+    console.log("Load event fired. Starting initializations...");
+    registerGSAP();
+    await loadAndInjectSVGSprite();
 
-  console.log("Running and AWAITING renderPlaylist...");
-  try {
-        console.log("MAIN: Calling renderPlaylist");
-        await renderPlaylist();
-        console.log("Finished AWAITING renderPlaylist.");
+    console.log("Running and AWAITING renderPlaylist...");
+    try {
+            console.log("MAIN: Calling renderPlaylist");
+            await renderPlaylist();
+            console.log("Finished AWAITING renderPlaylist.");
 
-        // --- GSAP INTRO ANIMATION ---
-        console.log("Starting intro animation...");
-        if (typeof gsap !== 'undefined') {
+            // --- GSAP INTRO ANIMATION ---
+            console.log("Starting intro animation...");
+            if (typeof gsap !== 'undefined') {
 
-            const introTl = gsap.timeline({
-                defaults: { duration: 1.5, ease: "power2.out" }
-            });
+                const introTl = gsap.timeline({
+                    defaults: { duration: 1.5, ease: "power2.out" }
+                });
 
-            const leftCol = ".left-column";
-            const rightCol = ".right-column";
-            const middleCol = ".middle-column";
+                const leftCol = ".left-column";
+                const rightCol = ".right-column";
+                const middleCol = ".middle-column";
 
-            introTl
-                .to([leftCol, rightCol], { y: 0, opacity: 1 }, 0)
-                .to(middleCol, { y: 0, opacity: 1 }, 0.4);
+                introTl
+                    .to([leftCol, rightCol], { y: 0, opacity: 1 }, 0)
+                    .to(middleCol, { y: 0, opacity: 1 }, 0.4);
 
-        } else {
-            console.error("GSAP not loaded! Cannot run intro animation.");
-            document.querySelectorAll('.left-column, .right-column, .middle-column').forEach(el => {
-                el.style.opacity = '1';
-                el.style.transform = 'translateY(0px)';
-            });
-        }
+            } else {
+                console.error("GSAP not loaded! Cannot run intro animation.");
+                document.querySelectorAll('.left-column, .right-column, .middle-column').forEach(el => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0px)';
+                });
+            }
 
-  } catch (error) {
-      console.error("ERROR during renderPlaylist or attaching listeners:", error);
-  }
+    } catch (error) {
+        console.error("ERROR during renderPlaylist or attaching listeners:", error);
+    }
+
+    // --- DARK MODE TOGGLE ---
+    initializeDarkModeToggle();
 
    console.log("All initializations in load handler complete.");
 });
@@ -76,4 +79,25 @@ async function loadAndInjectSVGSprite() {
     } catch (error) {
         console.error("Error loading or injecting SVG sprite:", error);
     }
+}
+
+function initializeDarkModeToggle() {
+    console.log("Initializing dark mode toggle...");
+  const toggleButton = document.getElementById('darkModeToggle');
+
+  if (!toggleButton) {
+    console.warn("Dark mode toggle button not found.");
+    return;
+  }
+
+  // Set initial state based on localStorage
+  const prefersDark = localStorage.getItem('darkMode') === 'true';
+  if (prefersDark) {
+    document.body.classList.add('dark-mode');
+  }
+
+  toggleButton.addEventListener('click', () => {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', isDark);
+  });
 }

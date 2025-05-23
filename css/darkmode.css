@@ -1,0 +1,65 @@
+/* Dark mode styles */
+/* Apply dark background and text color site-wide */
+body.dark-mode,
+html.dark-mode {
+  background-color: var(--clr-background-darkmode);
+  color: var(--clr-text-primary-darkmode);
+}
+
+/* Make all links change in dark mode */
+.dark-mode a {
+  color: var(--clr-text-primary-darkmode);
+}
+
+.dark-mode .menu-toggle-button {
+    color: var(--clr-text-primary-darkmode);
+}
+
+/* Style the menu toggle button */
+.dark-mode-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 999;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark-mode svg {
+    color: var(--clr-text-primary-darkmode);
+}
+
+/* Icons default state */
+.dark-mode-toggle-btn svg {
+  width: 24px;
+  height: 24px;
+  transition: opacity 1s ease, transform 1ss ease;
+  position: absolute;
+}
+
+/* Show sun icon in light mode, hide moon */
+.dark-mode-toggle-btn .icon-sun {
+  opacity: 1;
+  transform: rotate(0deg);
+}
+.dark-mode .dark-mode-toggle-btn .icon-sun {
+  opacity: 0;
+  transform: rotate(360deg);
+}
+
+/* Show moon icon in dark mode, hide sun */
+.dark-mode-toggle-btn .icon-moon {
+  opacity: 0;
+  transform: rotate(-180deg);
+}
+.dark-mode .dark-mode-toggle-btn .icon-moon {
+  opacity: 1;
+  transform: rotate(360deg);
+}

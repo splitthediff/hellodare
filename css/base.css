@@ -14,6 +14,8 @@ html, body {
   font-size: var(--font-size-base);
   line-height: var(--line-height-base);
   font-weight: var(--font-weight-regular);
+
+  transition: background-color 4s ease, color 2s ease;
 }
 
 /* Basic Link Styling (if needed globally) */
@@ -24,4 +26,12 @@ a {
 a:hover {
   /* Define a subtle global hover if desired */
   /* text-decoration: underline; */
+}
+
+.site-footer {
+  position: fixed;
+  bottom: 20px;
+  right: 2%; /* default fallback */
+  font-size: var(--font-size-xsmall);
+  z-index: 100;
 }

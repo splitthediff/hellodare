@@ -46,6 +46,7 @@ export async function renderPlaylist() {
             if (currentVideos && currentVideos.length > 0) {
                  currentVideos.forEach(video => {
                     positionSingleInfoOverlay(video.id);
+                    //positionFooterToAlignWithVideo(video.id)
                  });
             }
             updateTitleStyleBasedOnViewport();
@@ -231,6 +232,19 @@ export function positionSingleInfoOverlay(videoId) {
     overlay.style.width = `${wrapper.offsetWidth}px`;
     overlay.style.maxWidth = '100%'; // prevent overflow
 }
+/*
+export function positionFooterToAlignWithVideo(videoId) {
+    const item = document.querySelector(`${config.selectors.scrollItem}.video-item[data-video-id="${videoId}"]`);
+    const footer = document.querySelector('.site-footer');
+    if (!item || !footer) return;
+
+    const wrapper = item.querySelector('.video-aspect-wrapper');
+    if (!wrapper || item.offsetHeight === 0) return;
+
+    // --- Align footer left edge with video left edge ---
+    const footerLeft = wrapper.offsetLeft - (wrapper.offsetWidth / 2);
+    footer.style.left = `${footerLeft}px`;
+}*/
 
 function renderNavigationMenu(videoData, infoSectionName = "Info") {
     console.log("--- Rendering Navigation Menu ---");
@@ -250,9 +264,10 @@ function renderNavigationMenu(videoData, infoSectionName = "Info") {
 
     // Add link for the Info section
     const infoIndex = videoData.length; // Index after the last video
-    if (checkForMobile()){
+    /*if (checkForMobile()){
         navHTML += `<li><a href="#" class="nav-link" data-index="${infoIndex}">${infoSectionName}</a></li>`;
-    }
+    }*/
+    navHTML += `<li><a href="#" class="nav-link" data-index="${infoIndex}">${infoSectionName}</a></li>`;
 
     navHTML += '</ul>'; // End list
 

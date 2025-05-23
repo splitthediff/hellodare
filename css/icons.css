@@ -15,7 +15,7 @@
 }
 
 .menu-toggle-button {
-    color: var(--clr-text-primary, magenta);
+    color: var(--clr-text-primary, black);
     line-height: 0;
 }
   
