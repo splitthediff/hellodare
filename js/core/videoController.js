@@ -125,32 +125,13 @@ export function resetInfoAnimation() {
 /** Helper function to apply volume */
 async function applyGlobalVolume() {
      for (const video of controlledVideos) {
-        const soundButton = document.getElementById(`soundButton-${video.id}`);
-        let volumeOnWrapper = null;
-        let volumeOffWrapper = null;
-
-        if (soundButton) {
-            volumeOnWrapper = soundButton.querySelector('.icon-volume-on-wrapper');
-            volumeOffWrapper = soundButton.querySelector('.icon-volume-off-wrapper');
-        }
-
          try {
-            const player = await video.initializePlayer(); await player.setVolume(globalVolumeLevel);
-            if (soundButton && volumeOnWrapper && volumeOffWrapper) { // Check elements exist
-                const isMuted = globalVolumeLevel === 0;
-                volumeOffWrapper.classList.toggle('is-hidden', !isMuted); // Show if muted
-                volumeOnWrapper.classList.toggle('is-hidden', isMuted);  // Hide if muted
-                soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute'); // Update label
-            }
+            const player = await video.initializePlayer(); 
+            await player.setVolume(globalVolumeLevel);
+            video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI based on global volume
          } catch (error) {
             console.warn(`[ApplyVol ${video.id}] Error: ${error.message}`);
-            // Update icons based on INTENDED state even if API fails
-            if (soundButton && volumeOnWrapper && volumeOffWrapper) {
-                const isMuted = globalVolumeLevel === 0;
-                volumeOffWrapper.classList.toggle('is-hidden', !isMuted);
-                volumeOnWrapper.classList.toggle('is-hidden', isMuted);
-                soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');
-            }
+            video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI even if API fails
         }
     }
 }
@@ -292,14 +273,14 @@ async function _activateVideoPlayback(video) {
         if (video.hasPlayedOnce) { // Check flag (from timeupdate end simulation)
             console.log(`%c[VideoController ${video.id}] Activate SKIPPED (hasPlayedOnce). Ensuring pause.`, "color: blue;");
             video._updatePlayPauseButtonUI(true); // Force paused state if hasPlayedOnce
-            if (soundButton && volumeOnWrapper && volumeOffWrapper) { const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute'); }
+            video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI based on global volume
              await player.pause().catch(e => {/* ignore non-critical errors */}); // Ensure paused
              await player.setVolume(globalVolumeLevel); // Still set volume
 
         } else { // Activate normally
             // console.log(`[VideoController ${video.id}] Activating Video ${video.id}.`);
             await player.setVolume(globalVolumeLevel);
-            if (soundButton && volumeOnWrapper && volumeOffWrapper) { const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute'); }
+            video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI based on global volume
             await player.play();
             video._updatePlayPauseButtonUI(false); // Force playing state
         }
@@ -312,7 +293,7 @@ async function _activateVideoPlayback(video) {
         const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
         const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
         video._updatePlayPauseButtonUI(true); // Assume paused on error
-        if (soundButton && volumeOnWrapper && volumeOffWrapper){ const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');}
+        video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI on error    
     }
 }
 
@@ -331,7 +312,7 @@ function _deactivateVideoPlayback(video) {
         const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
         const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
          // Update Icons for Paused State
-        if (soundButton && volumeOnWrapper && volumeOffWrapper) { const isMuted = globalVolumeLevel === 0; volumeOffWrapper.classList.toggle('is-hidden', !isMuted); volumeOnWrapper.classList.toggle('is-hidden', isMuted); soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute'); }
+        video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI based on global volume
         video._updatePlayPauseButtonUI(true); // Video is being deactivated, so set to paused state
     } catch (e) { console.warn(`[VideoController ${video.id}] Error during deactivation: ${e.message}`); }
 

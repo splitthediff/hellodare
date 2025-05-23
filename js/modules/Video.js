@@ -261,6 +261,21 @@ export class Video {
             }
         };
 
+        // Helper to update the sound button's icons and aria-label
+        _updateSoundButtonUI = (isMuted) => {
+            const soundButton = document.getElementById(`soundButton-${this.id}`);
+            const volumeOnWrapper = soundButton?.querySelector('.icon-volume-on-wrapper');
+            const volumeOffWrapper = soundButton?.querySelector('.icon-volume-off-wrapper');
+
+            if (soundButton && volumeOnWrapper && volumeOffWrapper) {
+                volumeOffWrapper.classList.toggle('is-hidden', !isMuted); // Show if muted
+                volumeOnWrapper.classList.toggle('is-hidden', isMuted);  // Hide if muted
+                soundButton.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute'); // Update label
+            } else {
+                console.warn(`[Video ${this.id}] Sound button elements not found for UI update.`);
+            }
+        };
+
     updateVideoSizes(containerWidth) { if (this.aspectRatio > 0 && containerWidth > 0) { this.videoWidth = containerWidth; this.videoHeight = containerWidth / this.aspectRatio; } else { this.videoWidth = 0; this.videoHeight = 0; } }
 
     /**
