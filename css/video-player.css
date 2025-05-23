@@ -100,9 +100,8 @@
   width: auto; max-width: auto; box-sizing: border-box;
   z-index: var(--z-index-info-overlay);
   padding: 0; text-align: left;
-  /* Initial state */
-  opacity: 0; visibility: hidden; transform: translateY(5px); pointer-events: none;
-  /* Transition */
+ 
+  opacity: 0; visibility: hidden; transform: translateY(4px); pointer-events: none;
   transition: opacity var(--transition-duration) var(--transition-ease),
               visibility 0s linear var(--transition-duration),
               transform var(--transition-duration) var(--transition-ease),
@@ -110,6 +109,7 @@
               top var(--transition-duration) var(--transition-ease),
               left var(--transition-duration) var(--transition-ease);
 }
+
 .video-info-overlay .video-info-title {
   font-size: var(--font-size-xsmall); font-weight: var(--font-weight-regular);
   margin: var(--space-l) 0 var(--space-xs) 0; line-height: var(--line-height-heading);

@@ -291,7 +291,7 @@ export function blurActiveElement(activeItemElement){
     if (activeVideoContent) blurTargets.push(activeVideoContent);
     if (activeInfoOverlay) blurTargets.push(activeInfoOverlay);
 
-    if (blurTargets.length > 0 && typeof gsap !== 'undefined') {
+    if (blurTargets.length > 0) {
         if (InputManager.NavMenuOpen() && InputManager.checkForMobile()) { // If menu is currently hidden (about to become open)
             console.log("SCROLL: Applying blur/opacity to active video content.");
             gsap.to(blurTargets, {

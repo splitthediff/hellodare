@@ -170,4 +170,12 @@
     .info-column .recognition-item { margin-bottom: var(--space-m); }
     .info-column .recognition-details { font-size: calc(var(--font-size-small) * 0.85); }
 
+    .site-footer {
+      position: fixed;
+      bottom: 20px;
+      text-align: center;
+      font-size: var(--font-size-xsmall);
+      z-index: 100;
+    }
+
   }

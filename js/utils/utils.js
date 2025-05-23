@@ -64,7 +64,7 @@ export function getAspectRatio(videoWidth, videoHeight) {
     }
 }
 
-export function _logMissingElements(contentElement, context = '') {
+export function logMissingElements(contentElement, context = '') {
     if (!contentElement || typeof contentElement !== 'object') {
         console.warn(`[${context}] contentElement is missing or invalid:`, contentElement);
         return;

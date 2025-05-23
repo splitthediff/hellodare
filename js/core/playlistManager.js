@@ -232,19 +232,6 @@ export function positionSingleInfoOverlay(videoId) {
     overlay.style.width = `${wrapper.offsetWidth}px`;
     overlay.style.maxWidth = '100%'; // prevent overflow
 }
-/*
-export function positionFooterToAlignWithVideo(videoId) {
-    const item = document.querySelector(`${config.selectors.scrollItem}.video-item[data-video-id="${videoId}"]`);
-    const footer = document.querySelector('.site-footer');
-    if (!item || !footer) return;
-
-    const wrapper = item.querySelector('.video-aspect-wrapper');
-    if (!wrapper || item.offsetHeight === 0) return;
-
-    // --- Align footer left edge with video left edge ---
-    const footerLeft = wrapper.offsetLeft - (wrapper.offsetWidth / 2);
-    footer.style.left = `${footerLeft}px`;
-}*/
 
 function renderNavigationMenu(videoData, infoSectionName = "Info") {
     console.log("--- Rendering Navigation Menu ---");

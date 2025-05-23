@@ -3,7 +3,7 @@
 import { config } from '../config.js';
 import { positionSingleInfoOverlay } from './playlistManager.js';
 import * as InputManager from '../modules/inputManager.js';
-import { _logMissingElements } from '../utils/utils.js'
+import { logMissingElements } from '../utils/utils.js'
 // --- Module State ---
 let controlledVideos = []; // Stores the Video class instances
 let globalVolumeLevel = 0.0;
@@ -53,7 +53,7 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
 
         // --- Action for the CURRENT item being scrolled TO ---
         if (index === currentIdx) {
-            if (contentElement && animationParameters && typeof gsap !== 'undefined') {
+            if (contentElement && animationParameters) {
                 _activateItemAnimation(contentElement, isVideoIndex, animationParameters, video);
             }
 
@@ -65,7 +65,7 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
         }
         else {
             // --- Reset Content Out ---
-            if (contentElement && typeof gsap !== 'undefined') {
+            if (contentElement) {
                 _deactivateItemAnimation(contentElement, isVideoIndex, animationParameters);
             }
 
@@ -83,8 +83,6 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
 
 /** Animates the info section content into view */
 export function animateInfoIn() {
-    // Ensure GSAP is available (if not using modules for GSAP)
-    if (typeof gsap === 'undefined') { console.error("GSAP not available for info animation."); return; }
 
     const infoBlocks = gsap.utils.toArray(`${config.selectors.infoSectionId} .info-block`);
 
@@ -108,8 +106,6 @@ export function animateInfoIn() {
 
 /** Resets the info section content animation state */
 export function resetInfoAnimation() {
-    if (typeof gsap === 'undefined') { return; }
-
     const infoBlocks = gsap.utils.toArray(`${config.selectors.infoSectionId} .info-block`);
     if (infoBlocks.length > 0) {
         //console.log("[VideoController] Resetting Info Section Animation");
@@ -219,8 +215,8 @@ function _getAnimationParameters(isVideoIndex) {
 /** Animate content IN when item becomes current. */
 
 function _activateItemAnimation(contentElement, isVideoIndex, animationParameters, video) {
-    _logMissingElements(contentElement, '_activateItemAnimation');
-    if (!contentElement || typeof gsap === 'undefined') return;
+    logMissingElements(contentElement, '_activateItemAnimation');
+    if (!contentElement) return;
 
     const { setBlur, resetBlur, setOpacity, resetOpacity, initialYOffset, setScale } = animationParameters;
 
@@ -263,8 +259,8 @@ function _activateItemAnimation(contentElement, isVideoIndex, animationParameter
 
 /** Reset/Animate content OUT when item is scrolled away. */
 function _deactivateItemAnimation(contentElement, isVideoIndex, animationParameters) {
-    _logMissingElements(contentElement, '_deactivateItemAnimation');
-    if (!contentElement || typeof gsap === 'undefined') return;
+    logMissingElements(contentElement, '_deactivateItemAnimation');
+    if (!contentElement) return;
     const { setBlur, resetBlur, setOpacity, resetOpacity, initialYOffset, setScale } = animationParameters;
 
     // --- Reset OUT Animation ---

@@ -74,14 +74,12 @@ export class Video {
         }*/
         // Construct Local Thumbnail URL
         if (this.thumbnailFilename) {
-            this.thumbnailUrl = `${config.video.localThumbnailBasePath || LOCAL_THUMBNAIL_BASE_PATH}${this.thumbnailFilename}`; // Use config or local constant
-            // console.log(`[Video ${this.id}] Constructed local thumbnail URL: ${this.thumbnailUrl}`);
+            this.thumbnailUrl = `${config.video.localThumbnailBasePath}${this.thumbnailFilename}`;
         } else {
             this.thumbnailUrl = '';
             console.warn(`[Video ${this.id}] No thumbnail filename provided.`);
         }
 
-        // Always set iframe src
         this.iframeSrc = `https://player.vimeo.com/video/${this.id}?${config.video.vimeoParams}&quality=${config.video.vimeoQuality}`;
     }
 
@@ -121,15 +119,6 @@ export class Video {
     
                         // Attach all event listeners
                         this._attachPlayerListeners();
-
-                      /*  // --- CALL POSITIONING FUNCTION FOR THIS VIDEO ---
-                        console.log(`[Player Init ${this.id}] Player ready, calling positionSingleInfoOverlay.`);
-                        try {
-                            positionSingleInfoOverlay(this.id); // Call exported function
-                        } catch (posError) {
-                        console.error(`[Player Init ${this.id}] Error calling positionSingleInfoOverlay:`, posError);
-                        }
-                        // --- END POSITIONING CALL ---*/
     
                         resolve(this.player); // Resolve the main promise
                     }).catch((error) => {
