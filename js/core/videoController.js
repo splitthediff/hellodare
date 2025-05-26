@@ -83,15 +83,15 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
 
 /** Animates the info section content into view */
 export function animateInfoIn() {
-
+    console.log("[VideoController] animateInfoIn called.");
     const infoBlocks = gsap.utils.toArray(`${config.selectors.infoSectionId} .info-block`);
 
     if (infoBlocks.length > 0) {
          console.log("[VideoController] Animating Info Section IN");
          gsap.to(infoBlocks, {
             opacity: 1,
-
             y: 0,
+            filter: config.animation.blurReset,
             duration: 1,
             ease: "power1.out",
             stagger: {

@@ -250,13 +250,14 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
                         if (typeof closeNavMenu === 'function') {
                             console.log("Nav link clicked, calling closeNavMenu.");
                             const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');     
-                            updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, closeIconWrapper, menuToggleButton);
+                            updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, closeIconWrapper, menuToggleButton);                         
                             closeNavMenu(); // <<< Call the function to close the menu
-                            const activeItemElement = document.querySelector('.scroll-item.video-item.active-scroll-item');
-                                if (activeItemElement){
-                                    console.log ('ACTIVE ITEM ELEMENT TRIGGERED');
-                                    blurActiveElement(activeItemElement);
-                                }
+                            /*const activeItemElement = document.querySelector('.scroll-item.active-scroll-item'); // Changed from '.scroll-item.video-item.active-scroll-item'
+                            if (activeItemElement){
+                                console.log ('%cACTIVE ITEM ELEMENT TRIGGERED FROM PLAYLIST MANAGER.JS', 'color: cyan; font-weight: bold;');
+                                blurActiveElement(activeItemElement);
+                            }*/
+                     
                         } else {
                             console.error("closeNavMenu function not available in playlistManager.js scope.");
                         }

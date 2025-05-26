@@ -160,5 +160,8 @@ export function checkForMobile() {
 }
 
 export function NavMenuOpen() {
-    return document.getElementById(config.selectors.navigationContainerId).classList.contains('is-visible');
+    const navMenuElement = document.getElementById(config.selectors.navigationContainerId);
+    const isVisible = navMenuElement ? navMenuElement.classList.contains('is-visible') : false;
+    console.log(`INPUT_MANAGER: NavMenuOpen() called. Current navMenu.classList.contains('is-visible') = ${isVisible}`); // ADD THIS LOG
+    return isVisible;
 }

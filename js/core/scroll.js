@@ -176,26 +176,29 @@ function attachButtonListeners() {
     // Check if all required elements exist for the Menu Toggle
     if (menuToggleButton && navMenu && menuIconWrapper && closeIconWrapper) {
            menuToggleButton.addEventListener('click', () => {
-               const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');
+                const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');
+                console.log(`SCROLL: Menu toggle clicked. menuIsCurrentlyVisible (before action): ${menuIsCurrentlyVisible}`); // ADD/UPDATE THIS LOG
 
-               updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, closeIconWrapper, menuToggleButton);
+                updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, closeIconWrapper, menuToggleButton);
 
-               // --- Trigger Open/Close Sequence ---
-               if (!menuIsCurrentlyVisible) { // If menu is currently hidden (about to become visible)
+                // --- Trigger Open/Close Sequence ---
+                if (!menuIsCurrentlyVisible) { // If menu is currently hidden (about to become visible)
                     console.log("SCROLL: Triggering Menu OPEN sequence from button.");
                     openNavMenu(navMenu);
                 } else { // If menu is currently visible (about to become hidden)
                     console.log("SCROLL: Triggering Menu CLOSE sequence from button.");
-                    closeNavMenu(); 
+                    closeNavMenu();
                 }
 
-                const activeItemElement = document.querySelector('.scroll-item.video-item.active-scroll-item');
+                console.log(`SCROLL: Nav menu state after toggle call: navMenu.classList.contains('is-visible') = ${navMenu.classList.contains('is-visible')}`);
+
+                /*const activeItemElement = document.querySelector('.scroll-item.active-scroll-item');
                 if (activeItemElement){
-                    console.log ('ACTIVE ITEM ELEMENT TRIGGERED');
+                    console.log ('%cACTIVE ITEM ELEMENT TRIGGERED FROM SROLL.JS', 'color: magenta; font-weight: bold;');
                     blurActiveElement(activeItemElement);
                     updateTitleStyleBasedOnViewport();
-                }
-           });
+                }*/
+            });
            console.log("SCROLL: Menu toggle button listener attached.");
     } else {
         console.log("ABL: Menu Toggle Condition Failed.");
@@ -208,8 +211,16 @@ function attachButtonListeners() {
 }
 
 function openNavMenu(navMenu){
+    console.log("SCROLL: Entering openNavMenu."); 
     navMenu.classList.remove('is-hidden'); // Remove hidden class
     navMenu.classList.add('is-visible');   // Add visible class
+    console.log(`SCROLL: Inside openNavMenu. navMenu.classList.contains('is-visible') = ${navMenu.classList.contains('is-visible')}`);
+
+    const activeItemElement = document.querySelector('.scroll-item.active-scroll-item');
+    if (activeItemElement) {
+        console.log('SCROLL: Calling blurActiveElement from openNavMenu.');
+        blurActiveElement(activeItemElement);
+    }
 
     const navLinks = navMenu.querySelectorAll('.nav-link');
     if (navLinks.length > 0) {
@@ -234,7 +245,7 @@ function openNavMenu(navMenu){
 }
 
 export function closeNavMenu() {
-    console.log("SCROLL: --- Running closeNavMenu START ---");
+    console.log("SCROLL: Entering closeNavMenu.");
 
     const navMenu = document.getElementById(config.selectors.navigationContainerId);
     const menuToggleButton = document.getElementById(config.selectors.menuToggleButtonId);
@@ -258,6 +269,13 @@ export function closeNavMenu() {
     navMenu.classList.remove('is-visible'); // Trigger CSS transition to hide
     navMenu.classList.add('is-hidden');    // Add the hidden class back
     navMenu.style.overflowY = 'hidden'; // Ensure overflow hidden immediately
+    console.log(`SCROLL: Inside closeNavMenu. navMenu.classList.contains('is-visible') = ${navMenu.classList.contains('is-visible')}`);
+
+    const activeItemElement = document.querySelector('.scroll-item.active-scroll-item');
+    if (activeItemElement) {
+        console.log('SCROLL: Calling blurActiveElement from closeNavMenu.');
+        blurActiveElement(activeItemElement); // This call will now result in unblur
+    }
 
     // Hide Nav Links (instant reset) via GSAP (if they animate in)
     if (navLinks && navLinks.length > 0) {
@@ -274,30 +292,42 @@ export function closeNavMenu() {
 }
 
 export function blurActiveElement(activeItemElement){
-    const activeVideoContent = activeItemElement.querySelector('.video-aspect-wrapper');
-    const activeInfoOverlay = activeItemElement.querySelector('.video-info-overlay');
     const blurTargets = [];
+
+    // Video item targets
+    const activeVideoContent = activeItemElement.querySelector('.video-aspect-wrapper');
+    const activeVideoInfoOverlay = activeItemElement.querySelector('.video-info-overlay');
     if (activeVideoContent) blurTargets.push(activeVideoContent);
-    if (activeInfoOverlay) blurTargets.push(activeInfoOverlay);
+    if (activeVideoInfoOverlay) blurTargets.push(activeVideoInfoOverlay);
+
+    // --- UPDATED LOGIC FOR INFO SECTION ---
+    if (activeItemElement.id === config.selectors.infoSectionId.substring(1)) {
+        // Target the main info content container directly
+        const infoContentContainer = activeItemElement.querySelector('.info-content');
+        if (infoContentContainer) {
+            blurTargets.push(infoContentContainer); // Add the info-content div itself
+        }
+    }
+    // --- END UPDATED LOGIC ---
 
     if (blurTargets.length > 0) {
-        if (InputManager.NavMenuOpen() && InputManager.checkForMobile()) { // If menu is currently hidden (about to become open)
-            console.log("SCROLL: Applying blur/opacity to active video content.");
+        if (InputManager.NavMenuOpen() && InputManager.checkForMobile()) {
+            console.log("SCROLL: Applying blur/opacity to active content (nav open).");
             gsap.to(blurTargets, {
                 filter: config.animation.blurNavOpen,
-                opacity: config.animation.opacityNavOpen, 
+                opacity: config.animation.opacityNavOpen,
                 duration: 0.3,
                 ease: "power1.out",
-                overwrite: true, // Crucial: Overwrite any ongoing ScrollTrigger animation
+                overwrite: true,
             });
-        } else { // If menu is currently visible (about to become hidden)
-            console.log("SCROLL: Removing blur/opacity from active video content.");
+        } else {
+            console.log("SCROLL: Removing blur/opacity from active content (nav closed).");
             gsap.to(blurTargets, {
-                filter: config.animation.blurReset, // Target blur (normal)
-                opacity: 1, // Target opacity (normal)
-                duration: 0.3, 
+                filter: config.animation.blurReset,
+                opacity: 1,
+                duration: 0.3,
                 ease: "power1.out",
-                overwrite: true, // Crucial
+                overwrite: true,
             });
         }
     }
