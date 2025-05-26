@@ -3,6 +3,7 @@
 import { renderPlaylist } from './core/playlistManager.js'; 
 
 window.addEventListener('load', async () => {
+    document.body.classList.add('no-transition');
     console.log("Load event fired. Starting initializations...");
     registerGSAP();
     await loadAndInjectSVGSprite();
@@ -43,6 +44,11 @@ window.addEventListener('load', async () => {
 
     // --- DARK MODE TOGGLE ---
     initializeDarkModeToggle();
+
+    setTimeout(() => {
+        document.body.classList.remove('no-transition');
+        console.log("Transitions re-enabled after initial load.");
+    }, 50);
 
    console.log("All initializations in load handler complete.");
 });

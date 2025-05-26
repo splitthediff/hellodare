@@ -15,12 +15,14 @@ html, body {
   line-height: var(--line-height-base);
   font-weight: var(--font-weight-regular);
 
-  transition: background-color 4s ease, color 2s ease;
+  transition: none; 
 }
 
-/* Suppress transitions during initial page load */
-html[data-theme-init] * {
-  transition: none !important;
+body.no-transition,
+body.no-transition *,
+body.no-transition *::before,
+body.no-transition *::after {
+  transition: none !important; /* Disables all transitions */
 }
 
 /* Basic Link Styling (if needed globally) */
