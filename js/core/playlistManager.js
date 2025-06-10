@@ -8,6 +8,7 @@ import { Video } from '../modules/Video.js';
 import { config } from '../config.js';
 import { paddedNumber } from '../utils/utils.js';
 import { checkForMobile } from '../modules/inputManager.js';
+import { setInitialVideoContentState } from './videoController.js';
 
 // --- Global Variable ---
 let currentVideos = [];
@@ -156,7 +157,12 @@ function renderVideos(videos) {
         videoItemElement.style.position = 'relative';
         const wrapperElement = videoItemElement.querySelector('.video-aspect-wrapper');
         if (wrapperElement && video.nativeWidth > 0 && video.nativeHeight > 0) { wrapperElement.style.aspectRatio = `${video.nativeWidth}/${video.nativeHeight}`; }
+        setInitialVideoContentState(videoItemElement, true, video);
     });
+    const infoSectionElement = document.getElementById(config.selectors.infoSectionId.substring(1)); // Get the info section element by ID
+    if (infoSectionElement) {
+        setInitialVideoContentState(infoSectionElement, false); // false for isVideoIndex, no video object
+    }
 
     console.log("--- Finished renderVideos ---");
 }

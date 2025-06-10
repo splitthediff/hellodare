@@ -151,7 +151,7 @@ export async function toggleGlobalVolume() {
 
 /** Get the element to animate based on item type. */
 
-function _getContentElement(scrollItemElement, isVideoIndex) {
+export function _getContentElement(scrollItemElement, isVideoIndex) {
     const contentElement = {};
 
     if (isVideoIndex) {
@@ -169,7 +169,7 @@ function _getContentElement(scrollItemElement, isVideoIndex) {
 }
 
 /** Determine animation parameters based on mobile and nav state. */
-function _getAnimationParameters(isVideoIndex) {
+export function _getAnimationParameters(isVideoIndex) {
     const initialYOffset = 20;
     let setScale = 1
     let setBlur = config.animation.blurMax;
@@ -193,6 +193,42 @@ function _getAnimationParameters(isVideoIndex) {
 
 /** Animate content IN when item becomes current. */
 
+/**
+ * Applies initial GSAP set properties to a scroll item's content elements.
+ * Used for setting the starting visual state (e.g., off-screen, blurred) for all items.
+ * @param {HTMLElement} scrollItemElement The parent .scroll-item element.
+ * @param {boolean} isVideoIndex True if the item is a video, false if it's the info section.
+ * @param {object} [video=null] The Video instance, if isVideoIndex is true.
+ */
+export function setInitialVideoContentState(scrollItemElement, isVideoIndex, video = null) {
+    const contentElement = _getContentElement(scrollItemElement, isVideoIndex);
+    const animationParameters = _getAnimationParameters(isVideoIndex);
+
+    if (!contentElement || !animationParameters) {
+        console.warn(`[VideoController] setInitialVideoContentState: Missing content or animation params for ${scrollItemElement.id || scrollItemElement.className}.`);
+        return;
+    }
+
+    const { setBlur, setOpacity, initialYOffset, setScale } = animationParameters;
+    const entries = Object.entries(contentElement).filter(([_, el]) => !!el);
+
+    if (entries.length === 0) return;
+
+    gsap.set(entries.map(([_, el]) => el), {
+        y: initialYOffset,
+        scale: setScale,
+        filter: setBlur,
+        opacity: setOpacity,
+        xPercent: isVideoIndex ? -50 : 0, // Only apply -50% for videos
+        yPercent: isVideoIndex ? -50 : 0  // Only apply -50% for videos
+    });
+
+    // Also handle initial positioning for the info overlay specific to videos
+    if (isVideoIndex && video && typeof positionSingleInfoOverlay === 'function') {
+        positionSingleInfoOverlay(video.id); // This ensures the overlay is positioned even if content is hidden
+    }
+}
+
 function _activateItemAnimation(contentElement, isVideoIndex, animationParameters, video) {
     logMissingElements(contentElement, '_activateItemAnimation');
     if (!contentElement) return;
@@ -207,13 +243,14 @@ function _activateItemAnimation(contentElement, isVideoIndex, animationParameter
     // Step 1: Set initial styles per element
     entries.forEach(([key, el]) => {
         gsap.set(el, {
-            x: 0,
+           // x: 0,
             y: initialYOffset,
             scale: setScale,
             filter: setBlur,
             opacity: setOpacity,
             xPercent: key === 'video' && isVideoIndex ? -50 : 0,
-            yPercent: key === 'video' && isVideoIndex ? -50 : 0
+            yPercent: key === 'video' && isVideoIndex ? -50 : 0,
+            transformOrigin: "center center"
         });
     });
 
@@ -251,10 +288,11 @@ function _deactivateItemAnimation(contentElement, isVideoIndex, animationParamet
         filter: setBlur,
         scale: setScale,
         y: initialYOffset,
-        x: 0,
+      //  x: 0,
         duration: 0.7,
         ease: "power1.in",
         overwrite: true,
+        transformOrigin: "center center"
     });
 }
 

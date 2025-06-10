@@ -9,7 +9,7 @@
 
 /* --- Aspect Wrapper --- */
 .video-aspect-wrapper {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  position: absolute; top: 50%; left: 50%; /*transform: translate(-50%, -50%);*/
   width: 100%; overflow: hidden;
   background-color: transparent;
   border-radius: var(--radius-video); flex-shrink: 0;
@@ -17,6 +17,7 @@
   opacity: 0; will-change: opacity, transform;
    /* aspect-ratio set by JS */
   z-index: var(--z-index-video-item, 1);
+  transform-origin: center center;
 }
 
 /* --- Thumbnail --- */
