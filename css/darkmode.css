@@ -20,12 +20,12 @@ html.dark-mode {
   background: none;
   border: none;
   cursor: pointer;
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
+  /*position: fixed;*/
+  /*top: 1rem;
+  right: 1rem;*/
   z-index: 999;
-  width: 40px;
-  height: 40px;
+  width: 15px; 
+  height: 15px; 
   padding: 0;
   display: flex;
   align-items: center;
@@ -38,8 +38,8 @@ html.dark-mode {
 
 /* Icons default state */
 .dark-mode-toggle-btn svg {
-  width: 18px; 
-  width: 18px;
+  width: 15px; 
+  height: 15px;
   transition: opacity 1s ease, transform 1s ease;
   position: absolute;
 }
@@ -56,6 +56,8 @@ html.dark-mode {
 
 /* Show moon icon in dark mode, hide sun */
 .dark-mode-toggle-btn .icon-moon {
+  width: 11px; 
+  height: 11px;
   opacity: 1;
   transform: rotate(0);
 }

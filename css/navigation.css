@@ -4,7 +4,7 @@
 
 /* --- Title (Left Column) --- */
 .title {
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-medium);
     font-weight: var(--font-weight-bold);
     background-color: transparent; display: inline; border: none; padding: 0;
     cursor: pointer;
@@ -37,7 +37,7 @@
   
   /* --- Info Button (Right Column) --- */
   .info { 
-    font-size: var(--font-size-small);
+    font-size: var(--font-size-xsmall);
     font-weight: var(--font-weight-regular);
     background-color: transparent; display: inline; border: none; padding: 0;
     cursor: pointer;

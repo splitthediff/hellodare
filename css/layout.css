@@ -23,11 +23,20 @@
     flex: var(--column-flex-side);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-end;
+    justify-content: space-between;
     padding: var(--padding-columns);
     z-index: var(--z-index-side-columns);
+    height: 100dvh;
   }
+
+  .top-right-elements {
+    display: flex;
+    align-items: center; 
+    gap: var(--space-m); 
+    width: 100%; 
+    justify-content: flex-end; 
+}
 
   .left-column{
     flex: var(--column-flex-side);
