@@ -222,6 +222,13 @@ export class Video {
                     this.hasPlayedOnce = true;
                     console.log(`%c[Player ${this.id}] TIMEUPDATE near end. Pausing & Updating Button Icon.`, "color: purple;");
 
+                    if (this.progressBarFill) {
+                        this.progressBarFill.style.width = '100%';
+                    }
+                    if (this.currentTimeDisplayElement && typeof formatTime === 'function') {
+                        this.currentTimeDisplayElement.textContent = formatTime(this.duration);
+                    }
+
                     // Find button and icon wrappers
                     const btn = this.playPauseButtonElement;
                     const playWrapper = btn?.querySelector('.icon-play-wrapper');
@@ -245,7 +252,7 @@ export class Video {
                         console.warn(`[Player ${this.id}] Could not find button/icons on simulated end.`);
                     }
 
-            } else if (this.isEnding && this.duration > 0 && currentTime < (endTimeTarget - 0.1)) {
+            } else if (this.isEnding && this.duration > 0 && currentTime < (endTimeTarget - 0.05)) {
                     // console.log(`[Player ${this.id}] Time moved away, resetting isEnding.`);
                     this.isEnding = false; // Reset if time moves away
             }

@@ -24,7 +24,7 @@ export async function renderPlaylist() {
     console.log("--- Starting player init trigger ---");
     if (currentVideos && currentVideos.length > 0) {
         currentVideos.forEach(video => {
-            console.log(`[PlaylistManager] Calling initializePlayer for video ${video.id}`); 
+            console.log(`[PlaylistManager] Calling initializePlayer for video ${video.id}`);
             video.initializePlayer().catch(err => console.warn(`Init ${video.id} fail: ${err.message}`));
         });
         console.log("--- Finished player init trigger ---");

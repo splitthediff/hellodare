@@ -23,11 +23,11 @@ export const config = {
 
     // Video Specific Settings
     video: {
-        defaultUnmuteLevel: 0.6, // Volume level when unmuting (0.0 to 1.0)
-        loopLimit: 2,           // Total number of plays allowed (initial + loops)
+        defaultUnmuteLevel: 0.5, // Volume level when unmuting (0.0 to 1.0)
+        loopLimit: 1,           // Total number of plays allowed (initial + loops)
         vimeoQuality: "1080p",  // Preferred Vimeo quality
-        vimeoParams: "muted=1&controls=0", // Default Vimeo iframe params (excluding quality)
-        timeupdateEndThreshold: 0.75,
+        vimeoParams: "muted=1&controls=0&loop=0", // Default Vimeo iframe params (excluding quality)
+        timeupdateEndThreshold: 0.1,
         localThumbnailBasePath: "assets/images/thumbnails/"
     },
 
