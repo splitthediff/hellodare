@@ -89,21 +89,21 @@ async function loadAndInjectSVGSprite() {
 
 function initializeDarkModeToggle() {
     console.log("Initializing dark mode toggle...");
-  const toggleButton = document.getElementById('darkModeToggle');
+    const toggleButton = document.getElementById('darkModeToggle');
 
-  if (!toggleButton) {
-    console.warn("Dark mode toggle button not found.");
-    return;
-  }
+    if (!toggleButton) {
+        console.warn("Dark mode toggle button not found.");
+        return;
+    }
 
-  // Set initial state based on localStorage
-  const prefersDark = localStorage.getItem('darkMode') === 'true';
-  if (prefersDark) {
-    document.body.classList.add('dark-mode');
-  }
+    // Set initial state based on localStorage
+    const prefersDark = localStorage.getItem('darkMode') === 'true';
+    if (prefersDark) {
+        document.body.classList.add('dark-mode');
+    }
 
-  toggleButton.addEventListener('click', () => {
-    const isDark = document.body.classList.toggle('dark-mode');
-    localStorage.setItem('darkMode', isDark);
-  });
+    toggleButton.addEventListener('click', () => {
+        const isDark = document.body.classList.toggle('dark-mode');
+        localStorage.setItem('darkMode', isDark);
+    });
 }

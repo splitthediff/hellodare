@@ -257,7 +257,7 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
                         if (typeof closeNavMenu === 'function') {
                             console.log("Nav link clicked, calling closeNavMenu.");
                             const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');     
-                            updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, closeIconWrapper, menuToggleButton);                         
+                           // updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, closeIconWrapper, menuToggleButton);                         
                             closeNavMenu(); // <<< Call the function to close the menu
                             /*const activeItemElement = document.querySelector('.scroll-item.active-scroll-item'); // Changed from '.scroll-item.video-item.active-scroll-item'
                             if (activeItemElement){

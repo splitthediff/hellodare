@@ -62,7 +62,7 @@
   /* --- Controls & Overlays --- */
   .video-controls {
       bottom: var(--space-s); padding: var(--space-xs) var(--space-s); gap: var(--space-xs);
-      width: calc(100% - var(--space-m) * 2) ; /* Adjust width based on padding */
+      width: calc(100% - var(--space-xs) * 2) ; /* Adjust width based on padding */
   }
   .controls-button { padding: var(--space-xs) var(--space-s); font-size: 0.8em; }
 
