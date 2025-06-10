@@ -3,6 +3,7 @@
 
 import { config } from '../config.js';
 import { formatTime, getAspectRatio } from '../utils/utils.js';
+import { toggleGlobalVolume } from '../core/scroll.js';
 
 export class Video {
     constructor(videoData) {
@@ -129,7 +130,11 @@ export class Video {
         _attachPlayerListeners() {
             if (!this.player) return;
     
-            // console.log(`[Player Listeners ${this.id}] Attaching listeners...`);
+             if (!this.player) {
+                console.warn(`[Video ${this.id}] _attachPlayerListeners: Player not initialized, cannot attach listeners.`);
+                return;
+            }
+            console.log(`%c[Video ${this.id}] _attachPlayerListeners: Attaching all UI button listeners.`, "color: orange;");
     
             // ... clear other listeners (play, pause, error) ...
             this.player.off('play'); this.player.on('play', this._handlePlay);
@@ -140,6 +145,23 @@ export class Video {
             this.player.off('timeupdate'); // Clear all first
             this.player.on('timeupdate', this._handleProgressUpdate);
             this.player.on('timeupdate', this._handleSimulatedEnd);
+
+            // --- Attach click listeners for UI buttons ---
+            if (this.playPauseButtonElement && !this.playPauseButtonElement._listenerAttachedClick) {
+                this.playPauseButtonElement.addEventListener('click', () => {
+                    console.log(`[Video ${this.id}] Play/Pause button CLICKED.`);
+                    this.togglePlayPause(); 
+                });
+                this.playPauseButtonElement._listenerAttachedClick = true; 
+            }
+
+            if (this.soundButtonElement && !this.soundButtonElement._listenerAttachedClick) {
+                this.soundButtonElement.addEventListener('click', () => {
+                    console.log(`[Video ${this.id}] Sound button CLICKED.`);
+                    this.toggleSound(); 
+                });
+                this.soundButtonElement._listenerAttachedClick = true;
+            }
     
             // Attach Seek Listener to Progress Bar Container
             if (this.progressBarContainer && !this.progressBarContainer._seekListenerAttached) {
@@ -147,6 +169,10 @@ export class Video {
                 this.progressBarContainer.addEventListener('click', this._handleSeekClick);
                 this.progressBarContainer._seekListenerAttached = true;
             }
+
+            
+
+
         }
     
         // --- "Private" Event Handler Methods ---
@@ -331,19 +357,13 @@ export class Video {
      * Ensures this video's player is ready first.
 
      */
-    async toggleSound(toggleGlobalVolumeFunction) { // <<< Accept function as argument
+    async toggleSound() { 
         // console.log(`[Toggle Sound ${this.id}] Clicked.`);
         try {
             await this.initializePlayer();
             // console.log(`[Toggle Sound ${this.id}] Player ready. Calling provided toggle function.`);
 
-            // --- Call the PASSED IN function ---
-            if (typeof toggleGlobalVolumeFunction === 'function') {
-                toggleGlobalVolumeFunction(); // <<< Call the argument
-            } else {
-                 console.error("toggleGlobalVolumeFunction was not provided to toggleSound");
-            }
-            // ---
+            toggleGlobalVolume();
         } catch (error) {
             console.warn(`[Toggle Sound ${this.id}] Player not ready: ${error.message}`);
         }
