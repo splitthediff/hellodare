@@ -235,11 +235,6 @@ export class Video {
                     const pauseWrapper = btn?.querySelector('.icon-pause-wrapper');
 
                     if (this.player) {
-                        // --- CORRECTED: Detach itself ---
-                        this.player.off('timeupdate', this._handleSimulatedEnd);
-                        console.log(`[Player Event ${this.id}] Detached _handleSimulatedEnd listener.`);
-                        // --- END CORRECTION ---
-
                         this.player.pause().catch(e => console.warn(`Pause error on timeupdate: ${e.name}`));
                     }
 
