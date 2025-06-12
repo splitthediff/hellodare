@@ -48,10 +48,6 @@ function updateVideoObjectSizes(videos) {
     videos.forEach((video) => { video.updateVideoSizes(currentContainerWidth); });
 }
 
-function updateDOMVideoSizes(videos) {
-    updateVideoObjectSizes(videos);
-}
-
 function renderVideos(videos) {
     console.log("--- Running renderVideos ---");
     let playlistHTML = '';
@@ -250,28 +246,26 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
                     // --- Step 2: Close the menu after scrolling ---
                     // Check if closeNavMenu is imported and callable
                     if (checkForMobile()){
-                        //const menuToggleButton = document.getElementById(config.selectors.menuToggleButtonId);
+
                         const navMenu = document.getElementById(config.selectors.navigationContainerId);
-                        //const menuIconWrapper = menuToggleButton?.querySelector('.icon-menu-wrapper');
-                        //const closeIconWrapper = menuToggleButton?.querySelector('.icon-close-wrapper');*/
+
                         if (typeof closeNavMenu === 'function') {
                             console.log("Nav link clicked, calling closeNavMenu.");
-                            //const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');     
-                           // updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, closeIconWrapper, menuToggleButton);                         
+                                          
                             closeNavMenu(); // <<< Call the function to close the menu
-                            /*const activeItemElement = document.querySelector('.scroll-item.active-scroll-item'); // Changed from '.scroll-item.video-item.active-scroll-item'
+                            const activeItemElement = document.querySelector('.scroll-item.active-scroll-item'); // Changed from '.scroll-item.video-item.active-scroll-item'
                             if (activeItemElement){
                                 console.log ('%cACTIVE ITEM ELEMENT TRIGGERED FROM PLAYLIST MANAGER.JS', 'color: cyan; font-weight: bold;');
                                 blurActiveElement(activeItemElement);
-                            }*/
+                            }
                      
                         } else {
                             console.error("closeNavMenu function not available in playlistManager.js scope.");
                         }
                     }
                 }
-            } // End if targetLink
-        }); // End addEventListener
+            } 
+        }); 
         console.log("Navigation link listener attached.");
     }
 
@@ -313,10 +307,10 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
 
 export function handleAllVideoAndOverlayResizes() {
     console.log("PlaylistManager: Handling all video and overlay resizes.");
-    updateDOMVideoSizes(currentVideos); // Update internal video object sizes
+    updateVideoObjectSizes(currentVideos); // Update internal video object sizes
     if (currentVideos && currentVideos.length > 0) {
         currentVideos.forEach(video => {
-            positionSingleInfoOverlay(video.id); // Reposition each overlay
+            positionSingleInfoOverlay(video.id); 
         });
     }
 }

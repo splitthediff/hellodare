@@ -179,8 +179,6 @@ function attachButtonListeners() {
                 const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');
                 console.log(`SCROLL: Menu toggle clicked. menuIsCurrentlyVisible (before action): ${menuIsCurrentlyVisible}`); // ADD/UPDATE THIS LOG
 
-                updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, closeIconWrapper, menuToggleButton, navMenu);
-
                 // --- Trigger Open/Close Sequence ---
                 if (!menuIsCurrentlyVisible) { 
                     console.log("SCROLL: Triggering Menu OPEN sequence from button.");
