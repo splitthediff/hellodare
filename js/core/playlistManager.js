@@ -250,13 +250,13 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
                     // --- Step 2: Close the menu after scrolling ---
                     // Check if closeNavMenu is imported and callable
                     if (checkForMobile()){
-                        const menuToggleButton = document.getElementById(config.selectors.menuToggleButtonId);
+                        //const menuToggleButton = document.getElementById(config.selectors.menuToggleButtonId);
                         const navMenu = document.getElementById(config.selectors.navigationContainerId);
-                        const menuIconWrapper = menuToggleButton?.querySelector('.icon-menu-wrapper');
-                        const closeIconWrapper = menuToggleButton?.querySelector('.icon-close-wrapper');
+                        //const menuIconWrapper = menuToggleButton?.querySelector('.icon-menu-wrapper');
+                        //const closeIconWrapper = menuToggleButton?.querySelector('.icon-close-wrapper');*/
                         if (typeof closeNavMenu === 'function') {
                             console.log("Nav link clicked, calling closeNavMenu.");
-                            const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');     
+                            //const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');     
                            // updateMenuToggleUI(menuIsCurrentlyVisible, menuIconWrapper, closeIconWrapper, menuToggleButton);                         
                             closeNavMenu(); // <<< Call the function to close the menu
                             /*const activeItemElement = document.querySelector('.scroll-item.active-scroll-item'); // Changed from '.scroll-item.video-item.active-scroll-item'
