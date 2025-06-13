@@ -7,9 +7,7 @@ import {
     setVideos,
     controlVideoPlayback,
     adjustGlobalVolume,
-    toggleGlobalVolume,
-    animateInfoIn,  
-    resetInfoAnimation
+    toggleGlobalVolume, 
 } from './videoController.js';
 import { handleAllVideoAndOverlayResizes } from './playlistManager.js';
 import * as InputManager from '../modules/inputManager.js';
@@ -90,10 +88,7 @@ export function goToIndex(index, immediate = false) {
     console.log(`goToIndex: Updated currentIndex to ${currentIndex}. Previous=${previousIndex}`);
     updateActiveClass();
 
-    const infoSectionIndex = scrollItems.length - 1;
-    // Set callback ONLY if target is the info section
-    const scrollCompleteCallback = (index === infoSectionIndex) ? animateInfoIn : null;
-        controlVideoPlayback(currentIndex, previousIndex, scrollCompleteCallback).catch(err => {
+    controlVideoPlayback(currentIndex, previousIndex, null).catch(err => {
         console.error("[goToIndex] Error controlling video playback:", err);
     });
 
@@ -103,10 +98,6 @@ export function goToIndex(index, immediate = false) {
     if (immediate) {
         gsap.set(videoTrack, { yPercent: targetYPercent });
         isAnimating = false;
-        if (scrollCompleteCallback) {
-            console.log("[goToIndex Immediate] Triggering info animation immediately.");
-            scrollCompleteCallback(); 
-        }
         console.log(`[goToIndex Immediate Set] Target index: ${currentIndex}.`);
     } else {
         gsap.to(videoTrack, {
@@ -278,6 +269,15 @@ export function blurActiveElement(activeItemElement){
     const activeVideoInfoOverlay = activeItemElement.querySelector('.video-info-overlay');
     if (activeVideoContent) blurTargets.push(activeVideoContent);
     if (activeVideoInfoOverlay) blurTargets.push(activeVideoInfoOverlay);
+
+    // --- UPDATED LOGIC FOR INTRO SECTION ---
+    if (activeItemElement.id === config.selectors.introSectionId.substring(1)) {
+        // Target the main info content container directly
+        const infoContentContainer = activeItemElement.querySelector('.info-content');
+        if (infoContentContainer) {
+            blurTargets.push(infoContentContainer); // Add the info-content div itself
+        }
+    }
 
     // --- UPDATED LOGIC FOR INFO SECTION ---
     if (activeItemElement.id === config.selectors.infoSectionId.substring(1)) {

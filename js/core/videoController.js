@@ -17,13 +17,16 @@ const DEFAULT_UNMUTE_LEVEL = config.video.defaultUnmuteLevel;
 export function setVideos(videosArray) {
     controlledVideos = videosArray || [];
     globalVolumeLevel = 0.0;
-    resetInfoAnimation();
+    _resetTextSectionAnimation(config.selectors.introSectionId);
+    _resetTextSectionAnimation(config.selectors.infoSectionId);
 }
 
 export async function controlVideoPlayback(currentIdx, previousIdx, onScrollCompleteCallback = null) {
     if (!controlledVideos) controlledVideos = [];
     const videoCount = controlledVideos.length;
-    const infoSectionIndex = videoCount;
+    const introSectionIndex = 0;
+    const infoSectionIndex = videoCount + 1;
+
     const scrollItems = document.querySelectorAll(config.selectors.scrollItem); 
 
     if (!scrollItems || scrollItems.length === 0) {
@@ -31,12 +34,20 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
         return;
     }
 
-    // --- Handle Info Section ---
     if (currentIdx === infoSectionIndex) {
-        if (typeof onScrollCompleteCallback === 'function') { onScrollCompleteCallback(); }
-        else { animateInfoIn(); }
+        if (typeof onScrollCompleteCallback === 'function') { 
+            onScrollCompleteCallback();
+        } else {
+             _animateTextSection(config.selectors.infoSectionId);
+        }
     } else if (previousIdx === infoSectionIndex && currentIdx !== previousIdx) {
-        resetInfoAnimation();
+        _resetTextSectionAnimation(config.selectors.infoSectionId);
+    }
+    // --- Handle Intro Section ---
+    if (currentIdx === introSectionIndex) {
+         _animateTextSection(config.selectors.introSectionId);
+    } else if (previousIdx === introSectionIndex && currentIdx !== previousIdx) {
+        _resetTextSectionAnimation(config.selectors.introSectionId);
     }
 
     // --- Loop through ALL scroll items to handle fade/reset ---
@@ -44,11 +55,11 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
         const scrollItemElement = scrollItems[index];
         if (!scrollItemElement) continue;
 
-        const isVideoIndex = index < videoCount;
-        const video = isVideoIndex ? controlledVideos[index] : null;
+        const isVideoIndex = index > 0 && index <= videoCount;
+        const video = isVideoIndex ? controlledVideos[index - 1] : null;
 
         // --- Find the primary content element within this scrollItem ---
-        const contentElement = _getContentElement(scrollItemElement, isVideoIndex, infoSectionIndex);
+        const contentElement = _getContentElement(scrollItemElement, isVideoIndex);
         const animationParameters = _getAnimationParameters(isVideoIndex);
 
         // --- Action for the CURRENT item being scrolled TO ---
@@ -59,12 +70,12 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
 
             if (isVideoIndex && video) {
                 _activateVideoPlayback(video);
-            } else if (!isVideoIndex) { // If INFO section
+            } else if (!isVideoIndex) { // If INTRO or INFO section
                 console.log(`[VideoController] Info Section Activated (Index ${index}). Content faded in.`);
             }
         }
         else {
-            // --- Reset Content Out ---
+
             if (contentElement) {
                 _deactivateItemAnimation(contentElement, isVideoIndex, animationParameters);
             }
@@ -78,17 +89,19 @@ export async function controlVideoPlayback(currentIdx, previousIdx, onScrollComp
 }
 
 // ==================================================
-// ANIMATION HELPERS (Internal to this module)
+// ANIMATION HELPERS
 // ==================================================
 
-/** Animates the info section content into view */
-export function animateInfoIn() {
-    console.log("[VideoController] animateInfoIn called.");
-    const infoBlocks = gsap.utils.toArray(`${config.selectors.infoSectionId} .info-block`);
+/**
+ * Animates the .info-block elements within a given section into view.
+ * @param {string} sectionSelector - The CSS selector for the parent section (e.g., '#intro-section').
+ */
+function _animateTextSection(sectionSelector) {
+    console.log(`[VideoController] Animating IN for section: ${sectionSelector}`);
+    const blocks = gsap.utils.toArray(`${sectionSelector} .info-block`);
 
-    if (infoBlocks.length > 0) {
-         console.log("[VideoController] Animating Info Section IN");
-         gsap.to(infoBlocks, {
+    if (blocks.length > 0) {
+         gsap.to(blocks, {
             opacity: 1,
             y: 0,
             filter: config.animation.blurReset,
@@ -99,22 +112,21 @@ export function animateInfoIn() {
                 from: "start"
             },
             overwrite: true,
-            delay: 0.1 // Delay after scroll stops
+            delay: 0.1
         });
-    } else { console.warn("[VideoController] No info blocks found to animate."); }
+    }
 }
 
-/** Resets the info section content animation state */
-export function resetInfoAnimation() {
-    const infoBlocks = gsap.utils.toArray(`${config.selectors.infoSectionId} .info-block`);
-    if (infoBlocks.length > 0) {
-        //console.log("[VideoController] Resetting Info Section Animation");
-        gsap.to(infoBlocks, {
+/**
+ * Resets the animation for .info-block elements within a given section.
+ * @param {string} sectionSelector - The CSS selector for the parent section (e.g., '#intro-section').
+ */
+function _resetTextSectionAnimation(sectionSelector) {
+    const blocks = gsap.utils.toArray(`${sectionSelector} .info-block`);
+    if (blocks.length > 0) {
+        gsap.to(blocks, {
             opacity: 0, 
-            y: 20, // Animate back to the offset position
-            // Keep xPercent/yPercent for consistency if needed, though less critical when opacity is 0
-            //xPercent: isVideoIndex ? -50 : 0,
-            //yPercent: isVideoIndex ? -50 : 0,
+            y: 20,
             duration: 2,
             ease: "power1.in",
             overwrite: true, 
@@ -160,7 +172,10 @@ export function _getContentElement(scrollItemElement, isVideoIndex) {
 
         if (contentVideo) contentElement.video = contentVideo;
         if (contentOverlay) contentElement.overlay = contentOverlay;
-    } else if (scrollItemElement && scrollItemElement.id === 'info-section') {
+    } else if (scrollItemElement && scrollItemElement.id === config.selectors.introSectionId.substring(1)) {
+        const introContent = scrollItemElement.querySelector('.info-content');
+        if (introContent) contentElement.info = introContent;
+    } else if (scrollItemElement && scrollItemElement.id === config.selectors.infoSectionId.substring(1)) {
         const infoContent = scrollItemElement.querySelector('.info-content');
         if (infoContent) contentElement.info = infoContent;
     }

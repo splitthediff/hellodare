@@ -16,10 +16,10 @@ const VIDEO_WRAPPER_SELECTOR = '.video-aspect-wrapper';
 const INFO_OVERLAY_SELECTOR = '.video-info-overlay';
 
 // --- Main Exported Function ---
-export async function renderPlaylist() {
+export async function renderScrollTrack() {
     currentVideos = initializeVideos();
-    renderVideos(currentVideos);
-    renderNavigationMenu(playlist, "Info");
+    renderTrackContent(currentVideos);
+    renderNavigationMenu(playlist, "Intro", "Info");
 
     console.log("--- Starting player init trigger ---");
     if (currentVideos && currentVideos.length > 0) {
@@ -48,12 +48,29 @@ function updateVideoObjectSizes(videos) {
     videos.forEach((video) => { video.updateVideoSizes(currentContainerWidth); });
 }
 
-function renderVideos(videos) {
+function renderTrackContent(videos) {
     console.log("--- Running renderVideos ---");
     let playlistHTML = '';
     if (!videos) { videos = []; }
     const scrollItemClass = config.selectors.scrollItem.substring(1);
 
+    // INTRO SECTION
+    playlistHTML += `
+        <div class="${scrollItemClass} info-section" id="intro-section">
+            <div class="info-content">
+                <div class="info-column info-column-left">
+                    <div class="info-block">
+                        <h2>STUDIO DARE</h2>
+                        <h2>SELECTED WORK</h2>
+                        <h2>SCROLL TO VIEW</h2>
+                    
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // --- Render each video item ---
     videos.forEach((video) => {
         const src = video.iframeSrc;
         const thumbnailHTML = video.thumbnailUrl ? `<img src="${video.thumbnailUrl}" class="video-thumbnail" id="thumbnail-${video.id}" alt="${video.title || 'Video thumbnail'}">` : '';
@@ -95,6 +112,7 @@ function renderVideos(videos) {
         `;
     });
 
+    // INFO SECTION
     playlistHTML += `
         <div class="${scrollItemClass} info-section" id="info-section">
             <div class="info-content">
@@ -147,6 +165,11 @@ function renderVideos(videos) {
     if (!trackElement) { console.error(`renderVideos: '${config.selectors.track}' not found.`); return; }
     trackElement.innerHTML = playlistHTML;
 
+    const introSectionElement = document.getElementById(config.selectors.introSectionId.substring(1));
+    if (introSectionElement) {
+        setInitialVideoContentState(introSectionElement, false);
+    }
+
     videos.forEach((video) => {
         const videoId = video.id;
         const videoItemElement = trackElement.querySelector(`.video-item[data-video-id="${videoId}"]`);
@@ -156,9 +179,10 @@ function renderVideos(videos) {
         if (wrapperElement && video.nativeWidth > 0 && video.nativeHeight > 0) { wrapperElement.style.aspectRatio = `${video.nativeWidth}/${video.nativeHeight}`; }
         setInitialVideoContentState(videoItemElement, true, video);
     });
+
     const infoSectionElement = document.getElementById(config.selectors.infoSectionId.substring(1)); // Get the info section element by ID
     if (infoSectionElement) {
-        setInitialVideoContentState(infoSectionElement, false); // false for isVideoIndex, no video object
+        setInitialVideoContentState(infoSectionElement, false); 
     }
 
     console.log("--- Finished renderVideos ---");
@@ -194,7 +218,7 @@ export function positionSingleInfoOverlay(videoId) {
     overlay.style.maxWidth = '100%'; // prevent overflow
 }
 
-function renderNavigationMenu(videoData, infoSectionName = "Info") {
+function renderNavigationMenu(videoData, introSectionName = "Intro",infoSectionName = "Info") {
     console.log("--- Rendering Navigation Menu ---");
     const navContainer = document.getElementById('main-navigation');
     if (!navContainer) {
@@ -204,14 +228,17 @@ function renderNavigationMenu(videoData, infoSectionName = "Info") {
 
     let navHTML = '<ul class="nav-link-list">';
 
+    // Intro section at index 0
+    navHTML += `<li><a href="#" class="nav-link" data-index="0">${introSectionName}</a></li>`;
+
     // Add link for each video
     videoData.forEach((video, index) => {
-        // Use data-index attribute to store the target scroll index
-        navHTML += `<li><a href="#" class="nav-link" data-index="${index}">${paddedNumber(index)}<span class="nav-space"></span>${video.titleShortName || `Video ${index + 1}`}</a></li>`;
+        const navIndex = index + 1; // start at inex 1 for videos
+        navHTML += `<li><a href="#" class="nav-link" data-index="${navIndex}">${paddedNumber(navIndex)}<span class="nav-space"></span>${video.titleShortName || `Video ${navIndex}`}</a></li>`;
     });
 
     // Add link for the Info section
-    const infoIndex = videoData.length; // Index after the last video
+    const infoIndex = videoData.length + 1; 
     navHTML += `<li><a href="#" class="nav-link" data-index="${infoIndex}">${infoSectionName}</a></li>`;
 
     navHTML += '</ul>'; // End list

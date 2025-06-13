@@ -1,6 +1,6 @@
-// js/main.js (Corrected for Config Keys and querySelector)
+// js/main.js 
 
-import { renderPlaylist } from './core/playlistManager.js'; 
+import { renderScrollTrack } from './core/playlistManager.js'; 
 
 window.addEventListener('load', async () => {
     document.body.classList.add('no-transition');
@@ -8,11 +8,11 @@ window.addEventListener('load', async () => {
     registerGSAP();
     await loadAndInjectSVGSprite();
 
-    console.log("Running and AWAITING renderPlaylist...");
+     console.log("Running and AWAITING renderScrollTrack...");
     try {
-            console.log("MAIN: Calling renderPlaylist");
-            await renderPlaylist();
-            console.log("Finished AWAITING renderPlaylist.");
+            console.log("MAIN: Calling renderScrollTrack");
+            await renderScrollTrack();
+            console.log("Finished AWAITING renderScrollTrack.");
 
             // --- GSAP INTRO ANIMATION ---
             console.log("Starting intro animation...");
