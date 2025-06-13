@@ -63,8 +63,8 @@ function renderTrackContent(videos) {
                         <h2>STUDIO DARE</h2>
                         <h2>SELECTED WORK</h2>
                         <h2>SCROLL TO VIEW</h2>
-                    
                     </div>
+                    <div id="current-date-display" class="date-display"></div>
                 </div>
             </div>
         </div>

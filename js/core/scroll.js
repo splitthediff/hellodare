@@ -287,7 +287,7 @@ export function blurActiveElement(activeItemElement){
             blurTargets.push(infoContentContainer); // Add the info-content div itself
         }
     }
-    // --- END UPDATED LOGIC ---
+    // --- END UPDATED LOGIC --
 
     if (blurTargets.length > 0) {
         if (InputManager.NavMenuOpen() && InputManager.checkForMobile()) {

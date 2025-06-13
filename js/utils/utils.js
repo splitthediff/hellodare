@@ -78,3 +78,23 @@ export function logMissingElements(contentElement, context = '') {
         }
     });
 }
+
+/**
+ * Gets the current date and returns it as a formatted string.
+ * @param {string} format - The desired format ('MM DD YYYY' is the default).
+ * @returns {string} The formatted date string.
+ */
+export function getFormattedDate(format = 'MM DD YYYY') {
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const year = today.getFullYear();
+
+    // In the future, you could add more formats here if needed
+    if (format === 'MM DD YYYY') {
+        return `${month} ${day} ${year}`;
+    }
+    
+    // Default fallback
+    return `${month}/${day}/${year}`;
+}

@@ -1,6 +1,8 @@
 // js/main.js 
 
 import { renderScrollTrack } from './core/playlistManager.js'; 
+import { getFormattedDate } from './utils/utils.js'; 
+
 
 window.addEventListener('load', async () => {
     document.body.classList.add('no-transition');
@@ -44,6 +46,9 @@ window.addEventListener('load', async () => {
 
     // --- DARK MODE TOGGLE ---
     initializeDarkModeToggle();
+
+    // --- DISPLAY CURRENT DATE ---
+    displayCurrentDate();
 
     setTimeout(() => {
         document.body.classList.remove('no-transition');
@@ -106,4 +111,19 @@ function initializeDarkModeToggle() {
         const isDark = document.body.classList.toggle('dark-mode');
         localStorage.setItem('darkMode', isDark);
     });
+}
+
+function displayCurrentDate() {
+    const dateElement = document.getElementById('current-date-display');
+    if (!dateElement) {
+        console.warn('Date display element not found.');
+        return;
+    }
+
+    // Call the utility function to get the string
+    const formattedDate = getFormattedDate('MM DD YYYY');
+
+    // Set the text content of the element
+    dateElement.textContent = formattedDate;
+    console.log(`Current date set to: ${formattedDate}`);
 }

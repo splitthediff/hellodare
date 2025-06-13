@@ -74,3 +74,14 @@
   .info-column a:focus { color: var(--clr-link-hover); outline: none; }
   .info-column a.email-link { /* Optional specific styles */ }
   .info-column a.internal-link { /* Optional specific styles */ }
+
+/* ======================================== */
+/*             DATE DISPLAY          */
+/* ======================================== */
+
+.date-display {
+  font-family: 'Your-Mono-Font', monospace; /* A monospaced font often looks good for dates */
+  font-size: 1rem;
+  text-align: right; /* Align to the right of its column */
+  color: var(--text-color-secondary); /* Use a secondary color */
+}
