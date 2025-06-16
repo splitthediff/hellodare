@@ -61,10 +61,10 @@ function renderTrackContent(videos) {
                 <div class="info-column info-column-left">
                     <div class="info-block">
                         <h2>STUDIO DARE</h2>
+                        <h2 id="current-date-display" class="date-display"></h2>
                         <h2>SELECTED WORK</h2>
                         <h2>SCROLL TO VIEW</h2>
                     </div>
-                    <div id="current-date-display" class="date-display"></div>
                 </div>
             </div>
         </div>

@@ -80,8 +80,4 @@
 /* ======================================== */
 
 .date-display {
-  font-family: 'Your-Mono-Font', monospace; /* A monospaced font often looks good for dates */
-  font-size: 1rem;
-  text-align: right; /* Align to the right of its column */
-  color: var(--text-color-secondary); /* Use a secondary color */
 }

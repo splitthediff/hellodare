@@ -27,10 +27,20 @@ window.addEventListener('load', async () => {
                 const leftCol = ".left-column";
                 const rightCol = ".right-column";
                 const middleCol = ".middle-column";
+                const colContent = ".column-content";
+
+                gsap.set([leftCol, rightCol, middleCol], { y: 20 });
 
                 introTl
-                    .to([leftCol, rightCol], { y: 0, opacity: 1 }, 0)
-                    .to(middleCol, { y: 0, opacity: 1 }, 0.4);
+                    .to([leftCol, rightCol], { y: 0 }, 0)
+                    .to(middleCol, { y: 0 }, 0.2);
+                
+                gsap.to(colContent, {
+                    opacity: 1,
+                    duration: 1.5,
+                    ease: "power2.out",
+                    delay: 0.4 
+                });
 
             } else {
                 console.error("GSAP not loaded! Cannot run intro animation.");

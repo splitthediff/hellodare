@@ -2,63 +2,87 @@
 /*               PAGE LAYOUT                */
 /* ======================================== */
 
-/* --- Page Container --- */
+/* --- Page Container (The Root Layout Context) --- */
 .page-container {
-    display: flex;
-    height: 100dvh;
-    width: 100vw;
-  }
+  display: flex;
+  height: 100dvh;
+  width: 100vw;
   
-  /* --- Columns --- */
-  .left-column, .right-column, .middle-column {
-    /* Initial animation state */
-    opacity: 0;
-    transform: translateY(50px);
-    will-change: transform, opacity;
-    /* Layout */
-    height: 100%;
-    position: relative; /* For z-index */
-  }
- .right-column {
-    flex: var(--column-flex-side);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: space-between;
-    padding: var(--padding-columns);
-    z-index: var(--z-index-side-columns);
-    height: 100dvh;
-  }
-
-  .top-right-elements {
-    display: flex;
-    align-items: center; 
-    gap: var(--space-m); 
-    width: 100%; 
-    justify-content: flex-end; 
+  /* Creates a new stacking context for mix-blend-mode to work reliably. */
+  isolation: isolate; 
 }
 
-  .left-column{
-    flex: var(--column-flex-side);
-    display: block;            
-    padding: var(--padding-columns);
-    height: 100%;
-    position: relative;      
-    z-index: var(--z-index-side-columns);
-  }
+/* --- Base Column Styles (Shared by all three columns) --- */
+.left-column, .right-column, .middle-column {
+  height: 100%;
+  position: relative;
+}
 
-  .middle-column {
-    flex: var(--column-flex-middle);
-    overflow: hidden; /* Clip video track */
-  }
+/* --- Side Columns (Left & Right) --- */
+.left-column, .right-column {
+  flex: var(--column-flex-side);
+  padding: var(--padding-columns);
   
-  /* --- Video Track (inside Middle Column) --- */
-  .video-track {
-    width: 100%; height: 100%; position: relative; will-change: transform;
-  }
+  z-index: 10;
+  mix-blend-mode: exclusion;
+  pointer-events: none; 
+}
+
+/* Re-enable clicks for the actual content inside the side columns. */
+.left-column .column-content, 
+.right-column .column-content {
+  pointer-events: auto;
+}
+
+/* --- Specific Column Layouts --- */
+.left-column {
+  /* This column's content layout is managed by column-content. */
+}
+
+.right-column .column-content {
+  align-items: flex-end;
+}
+
+/* --- Middle Column (Video Player) --- */
+.middle-column {
+  flex: var(--column-flex-middle);
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* --- Column Content Wrapper (For GSAP Animation) --- */
+.column-content {
+  opacity: 0; 
   
-  /* --- Base Scroll Item --- */
-  .scroll-item {
-    width: 100%; height: 100%; position: relative; overflow: hidden;
-    display: flex; justify-content: center; align-items: center; padding: 0px;
-  }
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
+}
+
+.top-right-elements {
+  display: flex;
+  align-items: center; 
+  gap: var(--space-m); 
+  width: 100%; 
+  justify-content: flex-end; 
+}
+
+/* --- Video Track & Scroll Items (Inside Middle Column) --- */
+.video-track {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  will-change: transform;
+}
+  
+.scroll-item {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

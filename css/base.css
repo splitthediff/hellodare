@@ -36,12 +36,11 @@ a:hover {
 }
 
 .site-footer {
-  /*position: fixed;
-  bottom: 20px;
-  right: 2%; */
   margin: 0;
   padding: 0;
   font-size: var(--font-size-xsmall);
   opacity: 50%;
   z-index: 100;
+  display: block;
+  justify-content: flex-end;
 }
