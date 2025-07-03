@@ -155,6 +155,7 @@
     .info-content {
       flex-direction: column; gap: 30px; width: 100%; max-width: 70%;
       transform: none; text-align: center;
+      margin-top: 200px;
     }
     .info-column {
       width: 100%; text-align: center; flex-grow: 0; flex-basis: auto; flex-shrink: 1;

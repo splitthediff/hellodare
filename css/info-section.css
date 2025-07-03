@@ -1,17 +1,33 @@
 /* ======================================== */
+/*          TEXT-BASED SECTIONS             */
+/* ======================================== */
+
+.text-section .info-block { 
+    opacity: 0; 
+    transform: translateY(20px); 
+    will-change: transform, opacity;
+}
+
+.text-section { 
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    padding: var(--space-xxl);
+}
+
+/* ======================================== */
 /*             INFO SECTION STYLES          */
 /* ======================================== */
 
-/* --- Initial state for animation --- */
-.scroll-item.info-section .info-block { /* Target info blocks directly */
+/*
+.scroll-item.info-section .info-block { 
     opacity: 0; transform: translateY(20px); will-change: transform, opacity;
   }
-  
-  /* --- Layout --- */
-  .info-section { /* Is also .scroll-item */
-    display: flex; justify-content: center; align-items: center;
-    padding: var(--space-xxl); /* Overall padding */
-  }
+
+.info-section { 
+  display: flex; justify-content: center; align-items: center;
+  padding: var(--space-xxl); 
+}*/
   .info-content {
     display: flex; flex-direction: row; justify-content: flex-start;
     gap: var(--gap-info-columns); width: 100%;
@@ -52,7 +68,6 @@
   
   /* --- Recognition List --- */
   .info-column .recognition-list { margin-top: var(--space-xl); }
-  .info-column .recognition-list h4 { /* Style if using h4 */ }
   .info-column .recognition-item { margin-bottom: var(--space-m); }
   .info-column .recognition-list .recognition-item:last-child { margin-bottom: 0; }
   .info-column .recognition-award-name {
@@ -74,6 +89,30 @@
   .info-column a:focus { color: var(--clr-link-hover); outline: none; }
   .info-column a.email-link { /* Optional specific styles */ }
   .info-column a.internal-link { /* Optional specific styles */ }
+
+/* ======================================== */
+/*             INTRO SECTION STYLES         */
+/* ======================================== */
+
+  .intro-content {
+    display: flex; flex-direction: row; justify-content: center;
+    gap: var(--gap-info-columns); width: 100%;
+    max-width: var(--content-max-width-info-wide); text-align: center;
+  }
+
+  .intro-section h2 {
+    font-size: var(--font-size-small);
+    font-weight: 700;
+    line-height: 3;
+  }
+
+  .intro-section h3 {
+    font-size: var(--font-size-xxsmall);
+    font-weight: 700;
+    line-height: 3;
+  }
+
+
 
 /* ======================================== */
 /*             DATE DISPLAY          */

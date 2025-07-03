@@ -56,14 +56,14 @@ function renderTrackContent(videos) {
 
     // INTRO SECTION
     playlistHTML += `
-        <div class="${scrollItemClass} info-section" id="intro-section">
-            <div class="info-content">
-                <div class="info-column info-column-left">
+        <div class="${scrollItemClass} intro-section text-section" id="intro-section">
+            <div class="intro-content">
+                <div class="intro-column">
                     <div class="info-block">
                         <h2>STUDIO DARE</h2>
                         <h2 id="current-date-display" class="date-display"></h2>
                         <h2>SELECTED WORK</h2>
-                        <h2>SCROLL TO VIEW</h2>
+                        <h3>SCROLL TO VIEW</h3>
                     </div>
                 </div>
             </div>
@@ -114,7 +114,7 @@ function renderTrackContent(videos) {
 
     // INFO SECTION
     playlistHTML += `
-        <div class="${scrollItemClass} info-section" id="info-section">
+        <div class="${scrollItemClass} info-section text-section" id="info-section">
             <div class="info-content">
                 <div class="info-column info-column-left">
                     <div class="info-block">
