@@ -64,7 +64,8 @@ function updateInfoButtonState() {
     const infoSectionIndex = scrollItems.length - 1;
     const isOnInfoPage = currentIndex === infoSectionIndex;
 
-    infoButtonElement.innerText = isOnInfoPage ? "Work" : "Info";
+    //infoButtonElement.innerText = isOnInfoPage ? "Work" : "Info";  // Toggle text based on current index - currently not used (to change - also need to adjust scroll index in attachButtonListeners)
+    infoButtonElement.innerText = isOnInfoPage ? "Info" : "Info";  // Always shows "Info"
     
     // --- ADD/REMOVE MOBILE HIDE CLASS ---
     infoButtonElement.classList.toggle('is-hidden-on-mobile', isOnInfoPage);
@@ -141,7 +142,8 @@ function attachButtonListeners() {
                 if (!scrollItems || scrollItems.length === 0) return;
                 const infoSectionIndex = scrollItems.length - 1;
                 const currentIdx = getCurrentIndex();
-                goToIndex(currentIdx === infoSectionIndex ? 0 : infoSectionIndex);
+                // goToIndex(currentIdx === infoSectionIndex ? 0 : infoSectionIndex);  // This toggles between info and work - currently not used
+                goToIndex(currentIdx === infoSectionIndex ? infoSectionIndex : infoSectionIndex); // Stays on 'info' section
             });
             console.log("Dynamic Info/Work button listener attached.");
     } else {

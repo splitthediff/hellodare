@@ -229,7 +229,7 @@ function renderNavigationMenu(videoData, introSectionName = "Intro",infoSectionN
     let navHTML = '<ul class="nav-link-list">';
 
     // Intro section at index 0
-    navHTML += `<li><a href="#" class="nav-link" data-index="0">${introSectionName}</a></li>`;
+    //navHTML += `<li><a href="#" class="nav-link" data-index="0">${introSectionName}</a></li>`;
 
     // Add link for each video
     videoData.forEach((video, index) => {
@@ -239,7 +239,7 @@ function renderNavigationMenu(videoData, introSectionName = "Intro",infoSectionN
 
     // Add link for the Info section
     const infoIndex = videoData.length + 1; 
-    navHTML += `<li><a href="#" class="nav-link" data-index="${infoIndex}">${infoSectionName}</a></li>`;
+    //navHTML += `<li><a href="#" class="nav-link" data-index="${infoIndex}">${infoSectionName}</a></li>`;
 
     navHTML += '</ul>'; // End list
 

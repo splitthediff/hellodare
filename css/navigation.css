@@ -26,7 +26,7 @@
     opacity 0.4s ease;
   }
 
-  /* Cornered style for short viewports + menu open */
+/* Cornered style for short viewports + menu open */
 .title-cornered {
   top: var(--padding-columns, 20px);
   transform: none;
@@ -34,17 +34,51 @@
   opacity: 1;
 }
 
+
+/* --- Info & Navigation Button --- */
+.info, .menu-toggle-button{ 
+  font-size: var(--font-size-xsmall);
+  font-weight: var(--font-weight-regular);
+  background-color: transparent; display: inline; border: none; padding: 0;
+  cursor: pointer;
+}
+.info:hover, .menu-toggle-button:hover .button-icon-wrapper { text-decoration: underline; text-underline-offset: 4px; }
+
+/* Work (menu) Toggle Button */
+.menu-toggle-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: inline-block;
+  /*line-height: 0;*/
+  position: fixed;
+  bottom: calc(var(--padding-columns, 20px) + 4*var(--space-m));
+  z-index: 100;
+  padding: 0;
+}
+
+.bottom-left-controls {
+  position: fixed;
+  bottom: var(--padding-columns, 20px);
+  left: var(--padding-columns, 20px);
+  z-index: 98;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+ /* gap: var(--space-l);*/
+}
+
+.info-dark-mode-wrapper {
+  display: flex;
+  flex-direction: column; /* This stacks the items vertically */
+  align-items: flex-start;
+  /*align-items: center;*/
+  gap: var(--space-s);
+}
   
-  /* --- Info Button (Right Column) --- */
-  .info { 
-    font-size: var(--font-size-xsmall);
-    font-weight: var(--font-weight-regular);
-    background-color: transparent; display: inline; border: none; padding: 0;
-    cursor: pointer;
-  }
-  .info:hover { text-decoration: underline; text-underline-offset: 4px; }
-  
-/* --- Navigation Menu (Right Column) --- */
+/* ======================================== */
+/*           NAVIGATION MENU                */
+/* ======================================== */
 .navigation-menu {
   font-size: var(--font-size-navigation);
   font-weight: var(--font-weight-regular); 
@@ -55,7 +89,7 @@
   flex-shrink: 0;
 
   position: fixed;
-  bottom: calc(var(--padding-columns) + 1.5*var(--space-m));
+  bottom: calc(var(--padding-columns, 20px) + 4*var(--space-m));
   /*left: var(--padding-columns, 20px);*/
   padding-top: 0;
   padding-left: 0;
@@ -86,7 +120,6 @@
   max-height: 600px;
   overflow: auto;
   transition-delay: 0s;
-
 }
 
 /* Hide scrollbars in WebKit browsers */
@@ -126,7 +159,6 @@
   opacity: 0.3; /* NEED TO MATCH THIS IN CONFIG, navOpacity */
 }
 
-
 .navigation-menu.is-visible .nav-link {
   transition: opacity 0.5s ease;
 }
@@ -159,15 +191,5 @@
   background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* Menu Toggle Button */
-.menu-toggle-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: inline-block;
-  line-height: 0;
-  position: fixed;
-  bottom: var(--padding-columns, 20px);
-  z-index: 100;
-}
+
 

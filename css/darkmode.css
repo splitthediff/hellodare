@@ -11,19 +11,15 @@ html.dark-mode {
   color: var(--clr-text-primary-darkmode);
 }
 
-.dark-mode .menu-toggle-button {
+.dark-mode .menu-toggle-button,
+.dark-mode .info {
     color: var(--clr-text-primary-darkmode);
 }
 
-/* Style the menu toggle button */
 .dark-mode-toggle-btn {
   background: none;
   border: none;
   cursor: pointer;
-  /*position: fixed;*/
-  /*top: 1rem;
-  right: 1rem;*/
-  z-index: 999;
   width: 15px; 
   height: 15px; 
   padding: 0;

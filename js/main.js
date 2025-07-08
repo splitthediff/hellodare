@@ -10,7 +10,7 @@ window.addEventListener('load', async () => {
     registerGSAP();
     await loadAndInjectSVGSprite();
 
-     console.log("Running and AWAITING renderScrollTrack...");
+    console.log("Running and AWAITING renderScrollTrack...");
     try {
             console.log("MAIN: Calling renderScrollTrack");
             await renderScrollTrack();
