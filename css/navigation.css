@@ -26,14 +26,13 @@
     opacity 0.4s ease;
   }
 
-/* Cornered style for short viewports + menu open */
+/* Cornered style for short viewports */
 .title-cornered {
   top: var(--padding-columns, 20px);
   transform: none;
   font-size: var(--font-size-sm);
   opacity: 1;
 }
-
 
 /* --- Info & Navigation Button --- */
 .info, .menu-toggle-button{ 
