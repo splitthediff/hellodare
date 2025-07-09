@@ -1,6 +1,7 @@
 :root {
     /* === COLORS === */
-    --clr-background: #efede8;
+    /*--clr-background: #efede8;*/
+    --clr-background: #F7F1E7;
     --clr-text-primary: #231F20;
     --clr-text-overlay: #ffffff;         /* For text on dark overlays */
     --clr-text-overlap: var(--clr-background); /* For title overlap */
