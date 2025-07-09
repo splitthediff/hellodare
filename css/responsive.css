@@ -91,6 +91,24 @@
  
   .video-info-overlay .video-info-title { font-size: var(--font-size-xxsmall); }
   .video-info-overlay .video-info-year { font-size: var(--font-size-xxsmall); }
+
+.menu-toggle-button,
+#scroll-to-info-btn, 
+.title,
+.title-cornered, h1  {
+  /* This forces them to have the same vertical space for text */
+  line-height: 1;
+
+  /* This removes any default browser padding from the button */
+  padding-top: 0;
+  padding-bottom: 0;
+
+  margin: 0;
+  margin-block-start: 0;
+  margin-block-end: 0;
+  margin-inline-start: 0;
+  margin-inline-end: 0;
+}
   
     /* --- Title --- */
     .title {
@@ -102,7 +120,7 @@
       text-align: center;
       margin: 0;
       padding: 0; 
-      display: block;
+     /* display: block; */
       mix-blend-mode: difference;
       z-index: 102;
     }
@@ -129,10 +147,15 @@
 
     #scroll-to-info-btn { 
       position: fixed;
-      bottom: var(--padding-columns, 20px);
-      left: var(--padding-columns, 20px);
+      text-align: right;
+      top: var(--padding-columns, 20px);
+      right: var(--padding-columns, 20px);
       z-index: 101;
       width: 60px;
+    }
+
+    .bottom-left-controls {
+      margin: 0;
     }
 
     #scroll-to-info-btn.is-hidden-on-mobile { 
@@ -151,13 +174,19 @@
       position: fixed;
       top: var(--padding-columns, 20px);
       left: var(--padding-columns, 20px);
+      bottom: 0;
       margin: 0;
       padding: 0;
       z-index: 101;
       width: 60px;
       display: flex;
-      align-items: flex-start;
-    }
+    } 
+
+    /*.title, #scroll-to-info-btn, .menu-toggle-button .button-icon-wrapper {
+      line-height: 0px;
+      padding: 0;
+      margin: 0;   
+   }*/
     .navigation-menu.is-visible {
       max-height: 500px;
       overflow: auto;

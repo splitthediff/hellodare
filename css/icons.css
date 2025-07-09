@@ -13,7 +13,7 @@
     color: var(--clr-text-overlay, white); 
     line-height: 0; 
 }
-
+/*
 .menu-toggle-button {
     color: var(--clr-text-primary, black);
     line-height: 0;
@@ -24,7 +24,7 @@
     vertical-align: middle;
     line-height: 0;
     background-color: transparent;
-}
+}*/
 
 .button-icon-wrapper.is-hidden {
     display: none;
