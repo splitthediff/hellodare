@@ -101,15 +101,15 @@
   }
 
   .intro-section h2 {
-    font-size: var(--font-size-small);
+    font-size: var(--font-size-large);
     font-weight: 700;
-    line-height: 3;
+    line-height: 3.5;
   }
 
   .intro-section h3 {
     font-size: var(--font-size-xxsmall);
     font-weight: 700;
-    line-height: 3;
+    line-height: 10;
   }
 
 

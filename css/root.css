@@ -18,6 +18,7 @@
     --font-family-primary: "neue-haas-unica", helvetica, sans-serif;
     --font-family-secondary:"lemonde-journal", serif;
     --font-size-base: 1 em;          /* Base size used on body, title */
+    --font-size-large: calc(var(--font-size-base) * 120.0); 
     --font-size-med: calc(var(--font-size-base) * 10.0);  
     --font-size-small: 0.85em;         /* Smaller text like .info button, paragraph */
     --font-size-xsmall: 0.75em;   

@@ -73,7 +73,7 @@
   .video-info-overlay {
     position: absolute; 
 
-    z-index: var(--z-index-info-overlay, 1);
+    z-index: 103;
     width: auto;
     max-width: 100%;
     padding: 0;
@@ -108,6 +108,7 @@
   margin-block-end: 0;
   margin-inline-start: 0;
   margin-inline-end: 0;
+
 }
   
     /* --- Title --- */
@@ -120,7 +121,7 @@
       text-align: center;
       margin: 0;
       padding: 0; 
-     /* display: block; */
+      display: flex;
       mix-blend-mode: difference;
       z-index: 102;
     }

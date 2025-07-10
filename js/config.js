@@ -8,8 +8,8 @@ export const config = {
         ease: "sine.inOut",    // GSAP easing function for scroll animation
         blurMax: 'blur(1px)', // Maximum blur effect
         blurReset: 'blur(0px)',  // Reset blur effect
-        opacityNavOpen: .4,
-        blurNavOpen: 'blur(3px)',
+        opacityNavOpen: .3,
+        blurNavOpen: 'blur(10px)',
     },
 
     // Input Handling Settings

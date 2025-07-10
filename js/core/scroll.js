@@ -142,8 +142,8 @@ function attachButtonListeners() {
                 if (!scrollItems || scrollItems.length === 0) return;
                 const infoSectionIndex = scrollItems.length - 1;
                 const currentIdx = getCurrentIndex();
-                // goToIndex(currentIdx === infoSectionIndex ? 0 : infoSectionIndex);  // This toggles between info and work - currently not used
-                goToIndex(currentIdx === infoSectionIndex ? infoSectionIndex : infoSectionIndex); // Stays on 'info' section
+                goToIndex(currentIdx === infoSectionIndex ? infoSectionIndex : infoSectionIndex);
+                closeNavMenu();
             });
             console.log("Dynamic Info/Work button listener attached.");
     } else {
@@ -160,6 +160,7 @@ function attachButtonListeners() {
             titleElementForListener.addEventListener('click', (event) => {
                 event.preventDefault();
                 goToIndex(0); // Call goToIndex directly
+                closeNavMenu();
             });
             console.log("Title click listener attached.");
     } else {
