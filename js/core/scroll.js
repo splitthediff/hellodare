@@ -19,6 +19,7 @@ let scrollItems = [];
 let videoTrack = null;
 let isAnimating = false;
 let infoButtonElement = null; 
+let introArrowTween = null;
 
 // --- Module-scoped menu elements ---
 let menuToggleButton = null;
@@ -88,6 +89,17 @@ export function goToIndex(index, immediate = false) {
     currentIndex = index;
     console.log(`goToIndex: Updated currentIndex to ${currentIndex}. Previous=${previousIndex}`);
     updateActiveClass();
+
+    if (index === 0) {
+        // We use a tiny delay to ensure the DOM is ready, especially on first load
+        setTimeout(() => animateIntroIn(scrollItems[0]), 50);
+        startArrowBounce();
+    } 
+    // If we are moving AWAY from the intro section
+    else if (previousIndex === 0) {
+        resetIntroAnimation(scrollItems[0]);
+        stopArrowBounce();
+    }
 
     controlVideoPlayback(currentIndex, previousIndex, null).catch(err => {
         console.error("[goToIndex] Error controlling video playback:", err);
@@ -353,6 +365,86 @@ export function updateMenuToggleUI(menuIsCurrentlyVisible) {
 
     menuToggleButton.setAttribute('aria-expanded', menuIsCurrentlyVisible);
     menuToggleButton.setAttribute('aria-label', menuIsCurrentlyVisible ? 'Close Navigation Menu' : 'Open Navigation Menu');
+}
+
+// ==================================================
+// INTRO ANIMATION FUNCTIONS
+// ==================================================
+
+// --- NEW: Function to animate the intro arrow ---
+function startArrowBounce() {
+    const arrow = document.getElementById('intro-scroll-arrow');
+    if (!arrow) return;
+
+    // Kill any existing animation to prevent conflicts
+    if (introArrowTween) {
+        introArrowTween.kill();
+    }
+
+    // Create the repeating bounce animation
+    introArrowTween = gsap.to(arrow, { 
+        y: 5,                   // How far down it moves
+        duration: 2,          // How long one bounce takes
+        ease: "power1.inOut",   // A smooth ease in and out
+        repeat: -1,             // Repeat forever
+        yoyo: true              // Makes it go back and forth
+    });
+}
+
+// --- NEW: Function to stop the arrow animation ---
+function stopArrowBounce() {
+    if (introArrowTween) {
+        // Kill the animation smoothly and reset the arrow's position
+        gsap.to(introArrowTween, { 
+            timeScale: 3, // Speed up the animation to finish quickly
+            onComplete: () => {
+                introArrowTween.kill();
+                introArrowTween = null;
+                const arrow = document.getElementById('intro-scroll-arrow');
+                if (arrow) gsap.set(arrow, { y: 0 }); // Reset position
+            }
+        });
+    }
+}
+
+function animateIntroIn(introElement) {
+    if (!introElement) return;
+    const introLines = introElement.querySelectorAll('.intro-line');
+    if (introLines.length === 0) return;
+
+    // Use .fromTo() to ensure the animation runs correctly every time
+    gsap.fromTo(introLines, 
+        { // FROM state
+            opacity: 0,
+            y: 25, 
+            filter: 'blur(15px)'
+        },
+        { // TO state
+            opacity: 1,
+            y: 0,
+            filter: 'blur(0px)',
+            duration: 3,
+            ease: 'power2.out',
+            stagger: 0.6,
+            overwrite: 'auto'
+        }
+    );
+}
+
+function resetIntroAnimation(introElement) {
+    if (!introElement) return;
+    const introLines = introElement.querySelectorAll('.intro-line');
+    if (introLines.length === 0) return;
+
+    gsap.to(introLines, { 
+        opacity: 0, 
+        y: -20, // Move them up slightly as they fade out
+        filter: 'blur(8px)',
+        duration: 0.5, // Make the out-animation quick
+        ease: 'power2.in', // An "ease-in" accelerates into the animation
+        stagger: 0.07, // A subtle stagger for the exit
+        overwrite: 'auto'
+    });
 }
 
 // ==================================================

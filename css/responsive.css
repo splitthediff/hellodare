@@ -95,7 +95,7 @@
 .menu-toggle-button,
 #scroll-to-info-btn, 
 .title,
-.title-cornered, h1  {
+.title-cornered  {
   /* This forces them to have the same vertical space for text */
   line-height: 1;
 
@@ -119,8 +119,6 @@
       transform: translateX(-50%);
       width: auto;
       text-align: center;
-      margin: 0;
-      padding: 0; 
       display: flex;
       mix-blend-mode: difference;
       z-index: 102;
@@ -155,14 +153,6 @@
       width: 60px;
     }
 
-    .bottom-left-controls {
-      margin: 0;
-    }
-
-    #scroll-to-info-btn.is-hidden-on-mobile { 
-      /*display: none;*/
-    }
-
     .dark-mode-toggle-btn {
       position: fixed;
       bottom: var(--padding-columns, 20px);
@@ -183,11 +173,6 @@
       display: flex;
     } 
 
-    /*.title, #scroll-to-info-btn, .menu-toggle-button .button-icon-wrapper {
-      line-height: 0px;
-      padding: 0;
-      margin: 0;   
-   }*/
     .navigation-menu.is-visible {
       max-height: 500px;
       overflow: auto;

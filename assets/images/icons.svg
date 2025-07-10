@@ -50,6 +50,11 @@
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </symbol>
 
+    <symbol id="icon-arrow-down" viewBox="0 0 24 24" fill="currentColor">
+      <title>Arrow Down</title>
+      <path d="M18 9.75H23.2588L12 21L0.741211 9.75H6V3H18V9.75Z"/>
+    </symbol>
+
 </svg>
 
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">

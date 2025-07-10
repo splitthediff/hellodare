@@ -29,3 +29,10 @@
 .button-icon-wrapper.is-hidden {
     display: none;
 }
+
+.intro-arrow-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--clr-text-primary); /* This will set the 'fill' or 'stroke' color */
+  margin-bottom: 2rem;
+}

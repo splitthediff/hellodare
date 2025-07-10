@@ -107,10 +107,19 @@
   }
 
   .intro-section h3 {
-    font-size: var(--font-size-xxsmall);
-    font-weight: 700;
-    line-height: 10;
+    font-size: var(--font-size-xxxsmall);
+    font-weight: 500;
+    line-height: 3.5;
   }
+
+  .intro-arrow-container { 
+    display: flex; 
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;
+    padding-top: var(--space-xl);
+  
+}
 
 
 /* ======================================== */

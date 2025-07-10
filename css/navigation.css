@@ -69,9 +69,8 @@
 
 .info-dark-mode-wrapper {
   display: flex;
-  flex-direction: column; /* This stacks the items vertically */
+  flex-direction: column;
   align-items: flex-start;
-  /*align-items: center;*/
   gap: var(--space-s);
 }
   
@@ -88,8 +87,7 @@
   flex-shrink: 0;
 
   position: fixed;
-  bottom: calc(var(--padding-columns, 20px) + 4*var(--space-m));
-  /*left: var(--padding-columns, 20px);*/
+  bottom: calc(var(--padding-columns, 20px) + 4.75*var(--space-m));
   padding-top: 0;
   padding-left: 0;
   z-index: 99;
