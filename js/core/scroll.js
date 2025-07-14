@@ -288,7 +288,7 @@ export function blurActiveElement(activeItemElement){
     // --- UPDATED LOGIC FOR INTRO SECTION ---
     if (activeItemElement.id === config.selectors.introSectionId.substring(1)) {
         // Target the main info content container directly
-        const infoContentContainer = activeItemElement.querySelector('.info-content');
+        const infoContentContainer = activeItemElement.querySelector('.intro-content');
         if (infoContentContainer) {
             blurTargets.push(infoContentContainer); // Add the info-content div itself
         }
