@@ -24,8 +24,6 @@ let introArrowTween = null;
 // --- Module-scoped menu elements ---
 let menuToggleButton = null;
 let navMenu = null;
-let menuIconWrapper = null;
-let closeIconWrapper = null;
 
 // --- Config Variables ---
 let animationDuration = config.animation.desktopDuration;
@@ -180,7 +178,7 @@ function attachButtonListeners() {
     }
 
     // --- Menu Toggle Button Listener ---
-    if (menuToggleButton && navMenu && menuIconWrapper && closeIconWrapper) {
+    if (menuToggleButton && navMenu) {
            menuToggleButton.addEventListener('click', () => {
                 const menuIsCurrentlyVisible = navMenu.classList.contains('is-visible');
                 console.log(`SCROLL: Menu toggle clicked. menuIsCurrentlyVisible (before action): ${menuIsCurrentlyVisible}`); // ADD/UPDATE THIS LOG
@@ -206,7 +204,7 @@ function attachButtonListeners() {
 function openNavMenu(){ 
     console.log("SCROLL: Entering openNavMenu.");
 
-    if (!menuToggleButton || !navMenu || !menuIconWrapper || !closeIconWrapper) { 
+    if (!menuToggleButton || !navMenu) { 
         console.warn("SCROLL: Menu toggle elements not found in openNavMenu. Cannot proceed.");
         return;
     }
@@ -245,7 +243,7 @@ export function closeNavMenu() {
 
     const navLinks = navMenu?.querySelectorAll('.nav-link');
 
-    if (!navMenu || !menuToggleButton || !menuIconWrapper || !closeIconWrapper) {
+    if (!navMenu || !menuToggleButton) {
         console.warn("SCROLL: Cannot close menu - elements not found in closeNavMenu.");
         return;
     }
@@ -345,7 +343,7 @@ export function updateTitleStyleBasedOnViewport() {
 
 export function updateMenuToggleUI(menuIsCurrentlyVisible) { 
 
-    if (!menuToggleButton || !navMenu || !menuIconWrapper || !closeIconWrapper) { // Safety check
+    if (!menuToggleButton || !navMenu) { // Safety check
         console.warn("SCROLL: Cannot update menu UI; one or more global menu elements not found.");
         return;
     }
@@ -359,9 +357,6 @@ export function updateMenuToggleUI(menuIsCurrentlyVisible) {
         navMenu.classList.add('is-hidden');
         navMenu.style.overflowY = 'hidden';
     }
-
-    menuIconWrapper.classList.toggle('is-hidden', menuIsCurrentlyVisible);
-    closeIconWrapper.classList.toggle('is-hidden', !menuIsCurrentlyVisible);
 
     menuToggleButton.setAttribute('aria-expanded', menuIsCurrentlyVisible);
     menuToggleButton.setAttribute('aria-label', menuIsCurrentlyVisible ? 'Close Navigation Menu' : 'Open Navigation Menu');
@@ -464,8 +459,6 @@ export function initializeGsapScroll(videos) {
     // --- Initialize module-scoped menu elements
     menuToggleButton = document.getElementById(config.selectors.menuToggleButtonId);
     navMenu = document.getElementById(config.selectors.navigationContainerId);
-    menuIconWrapper = menuToggleButton?.querySelector('.icon-menu-wrapper');
-    closeIconWrapper = menuToggleButton?.querySelector('.icon-close-wrapper');
 
     if (scrollItems.length === 0) { 
         console.error(`Scroll Init Failed: No '${config.selectors.scrollItem}' children found.`); return; 
@@ -490,7 +483,7 @@ export function initializeGsapScroll(videos) {
     const resizeCallback = () => {
         goToIndex(currentIndex, true);
 
-        if (menuToggleButton && navMenu && menuIconWrapper && closeIconWrapper) {
+        if (menuToggleButton && navMenu) {
             console.log("SCROLL: Resizing. Forcing menu state to CLOSED.");
             updateMenuToggleUI(false); 
         } else {
@@ -526,7 +519,7 @@ export function initializeGsapScroll(videos) {
     updateInfoButtonState();
     attachButtonListeners();
 
-    if (menuToggleButton && navMenu && menuIconWrapper && closeIconWrapper) {
+    if (menuToggleButton && navMenu) {
         updateMenuToggleUI(false); 
     } else {
         console.error(`%c[SCROLL] Menu Toggle Initial State FAILED: One or more menu elements not found!`, "color: red; font-weight: bold;");

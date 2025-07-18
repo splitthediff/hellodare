@@ -41,19 +41,13 @@
   background-color: transparent; display: inline; border: none; padding: 0;
   cursor: pointer;
 }
-.info:hover, .menu-toggle-button:hover .button-icon-wrapper { text-decoration: underline; text-underline-offset: 4px; }
+.info:hover, .menu-toggle-button:hover { text-decoration: underline; text-underline-offset: 4px; }
 
 /* Work (menu) Toggle Button */
 .menu-toggle-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: inline-block;
-  /*line-height: 0;*/
   position: fixed;
-  bottom: calc(var(--padding-columns, 20px) + 4*var(--space-m));
+  bottom: calc(var(--padding-columns, 20px) + 4 * var(--space-m));
   z-index: 100;
-  padding: 0;
 }
 
 .bottom-left-controls {
