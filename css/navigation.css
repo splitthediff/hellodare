@@ -35,19 +35,44 @@
 }
 
 /* --- Info & Navigation Button --- */
-.info, .menu-toggle-button{ 
+.menu-toggle-button,
+.info {
+  /* Reset button appearance */
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  
+  /* Set consistent typography */
+  font-family: inherit; /* Use the body's font */
   font-size: var(--font-size-xsmall);
   font-weight: var(--font-weight-regular);
-  background-color: transparent; display: inline; border: none; padding: 0;
+  color: var(--clr-text-primary); /* Ensures dark mode will work */
+  text-align: left;
+  
+  /* Standard interactive styles */
   cursor: pointer;
+  -webkit-appearance: none; /* Removes default OS styling */
+  appearance: none;
 }
-.info:hover, .menu-toggle-button:hover { text-decoration: underline; text-underline-offset: 4px; }
 
-/* Work (menu) Toggle Button */
-.menu-toggle-button {
+/* Shared hover state */
+.menu-toggle-button:hover,
+.info:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* --- Positioning for the parent container --- */
+.bottom-left-controls {
   position: fixed;
-  bottom: calc(var(--padding-columns, 20px) + 4 * var(--space-m));
-  z-index: 100;
+  bottom: var(--padding-columns, 20px);
+  left: var(--padding-columns, 20px);
+  z-index: 98;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-s);
 }
 
 .bottom-left-controls {
