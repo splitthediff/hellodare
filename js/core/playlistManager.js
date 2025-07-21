@@ -172,7 +172,7 @@ function renderTrackContent(videos) {
 
     const introSectionElement = document.getElementById(config.selectors.introSectionId.substring(1));
     if (introSectionElement) {
-        setInitialVideoContentState(introSectionElement, false);
+       // setInitialVideoContentState(introSectionElement, false);
     }
 
     videos.forEach((video) => {

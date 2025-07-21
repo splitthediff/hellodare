@@ -22,6 +22,7 @@
     background-color: transparent; 
     z-index: 101; 
     pointer-events: none;
+    align-items: baseline;
   }
 
    .right-column {
@@ -56,7 +57,31 @@
     height: auto;
   }
 
- 
+  .left-column .column-content{
+    align-items: baseline;
+  }
+
+  .left-column .title {
+  margin: 0;
+}
+
+.title {
+  /* 1. Override desktop positioning */
+  position: fixed !important;
+  top: 30px !important;/* <<< Fine-tune this pixel value for perfect alignment */
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  
+  /* 2. Override desktop typography */
+ /*font-size: var(--font-size-xsmall) !important; 
+  font-weight: var(--font-weight-regular) !important;*/
+  
+  /* 3. Reset any conflicting properties */
+  margin: 0 !important;
+  line-height: 1 !important;
+  mix-blend-mode: normal !important;
+  align-items: baseline; 
+}
 
   /* --- Video Item --- */
 
