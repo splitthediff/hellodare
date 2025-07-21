@@ -21,7 +21,7 @@
     height: 100%; 
     background-color: transparent; 
     z-index: 101; 
-    pointer-events: none; /* Allow clicks to pass through empty areas */
+    pointer-events: none;
   }
 
    .right-column {
@@ -44,17 +44,22 @@
     height: 100%;
     order: 2;
     overflow: hidden;
-    position: relative; /* Keep relative for track positioning */
+    position: relative;
 
-    /* --- Center the video track within it --- */
     display: flex;
-    justify-content: center; /* Center track horizontally */
-    align-items: center;     /* Center track vertically */
+    justify-content: center;
+    align-items: center; 
+  }
+
+  .left-column .column-content,
+  .right-column .column-content {
+    height: auto;
   }
 
  
 
   /* --- Video Item --- */
+
   .scroll-item.video-item {
       padding: 10px; /* Add back padding around wrapper on mobile */
   }
@@ -65,7 +70,7 @@
   /* --- Controls & Overlays --- */
   .video-controls {
       bottom: var(--space-s); padding: var(--space-xs) var(--space-s); gap: var(--space-xs);
-      width: calc(100% - var(--space-xs) * 2) ; /* Adjust width based on padding */
+      width: calc(100% - var(--space-xs)) ; /* Adjust width based on padding */
       z-index: 105;
   }
   .controls-button { padding: var(--space-xs) var(--space-s); font-size: 0.8em; z-index: 105; }
@@ -166,12 +171,8 @@
       position: fixed;
       top: var(--padding-columns, 20px);
       left: var(--padding-columns, 20px);
-      bottom: 0;
-      margin: 0;
-      padding: 0;
       z-index: 101;
       width: 60px;
-      display: flex;
     } 
 
     .navigation-menu.is-visible {
