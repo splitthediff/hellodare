@@ -132,6 +132,8 @@ export function goToIndex(index, immediate = false) {
     if (!videoTrack || !scrollItems || scrollItems.length === 0) { return; }
     if (index < 0 || index >= scrollItems.length) { return; }
     const previousIndex = currentIndex;
+    const outroIndex = scrollItems.length - 1;
+
     if (index === previousIndex && !immediate) { return; }
 
     isAnimating = !immediate;
@@ -141,8 +143,15 @@ export function goToIndex(index, immediate = false) {
     // The intro animation now plays every time, as requested.
     if (index === 0) {
         setTimeout(() => animateIntroIn(scrollItems[0]), 50);
-    } else if (previousIndex === 0) {
+    } else if (index === outroIndex) {
+        setTimeout(() => animateOutroIn(scrollItems[outroIndex]), 50);
+    }
+
+    // Handle OUT animations (when scrolling AWAY from a slide)
+    if (previousIndex === 0 && index !== 0) {
         resetIntroAnimation(scrollItems[0]);
+    } else if (previousIndex === outroIndex && index !== outroIndex) {
+        resetOutroAnimation(scrollItems[outroIndex]);
     }
 
     controlVideoPlayback(currentIndex, previousIndex, null).catch(err => {
@@ -484,6 +493,41 @@ function resetIntroAnimation(introElement) {
         duration: 0.5, // Make the out-animation quick
         ease: 'power2.in', // An "ease-in" accelerates into the animation
         stagger: 0.07, // A subtle stagger for the exit
+        overwrite: 'auto'
+    });
+}
+
+function animateOutroIn(outroElement) {
+    if (!outroElement) return;
+    const outroLines = outroElement.querySelectorAll('.outro-line');
+    if (outroLines.length === 0) return;
+
+    gsap.fromTo(outroLines, 
+        { opacity: 0, y: 25, filter: 'blur(15px)' },
+        {
+            opacity: 1,
+            y: 0,
+            filter: 'blur(0px)',
+            duration: 3,
+            ease: 'power2.out',
+            stagger: 0.6,
+            overwrite: 'auto'
+        }
+    );
+}
+
+function resetOutroAnimation(outroElement) {
+    if (!outroElement) return;
+    const outroLines = outroElement.querySelectorAll('.outro-line');
+    if (outroLines.length === 0) return;
+
+    gsap.to(outroLines, { 
+        opacity: 0, 
+        y: -20,
+        filter: 'blur(8px)',
+        duration: 0.5,
+        ease: 'power2.in',
+        stagger: 0.07,
         overwrite: 'auto'
     });
 }

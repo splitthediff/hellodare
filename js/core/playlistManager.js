@@ -121,7 +121,7 @@ function renderTrackContent(videos) {
     playlistHTML += `
         <div class="${scrollItemClass} outro-section text-section" id="outro-section">
             <div class="outro-content">
-                <h2>THANK YOU</h2>
+                <h2 class="outro-line">THANK YOU</h2>
             </div>
         </div>
     `;
