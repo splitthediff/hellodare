@@ -232,10 +232,8 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
                 
                 if (!isNaN(targetIndex) && typeof goToIndex === 'function') {
                     console.log(`Nav link clicked: Scrolling to index ${targetIndex}`);
-                    // --- Step 1: Scroll to the target index ---
                     goToIndex(targetIndex);
 
-                    // --- Step 2: Close the menu after scrolling ---
                     if (checkForMobile()){
 
                         const navMenu = document.getElementById(config.selectors.navigationContainerId);

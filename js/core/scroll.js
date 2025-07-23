@@ -74,7 +74,7 @@ function updateInfoButtonState() {
 // ==================================================
 // CORE SCROLL & ANIMATION LOGIC
 // ==================================================
-export function goToIndex(index, immediate = false) {
+/*export function goToIndex(index, immediate = false) {
     // Boundary checks
     if (!videoTrack || !scrollItems || scrollItems.length === 0) { return; }
     if (index < 0 || index >= scrollItems.length) { return; }
@@ -122,6 +122,45 @@ export function goToIndex(index, immediate = false) {
             },
             onInterrupt: () => {
                 // console.warn(`[goToIndex Animation INTERRUPTED] Target index: ${currentIndex}.`);
+                isAnimating = false;
+            }
+        });
+    }
+}*/
+
+export function goToIndex(index, immediate = false) {
+    if (!videoTrack || !scrollItems || scrollItems.length === 0) { return; }
+    if (index < 0 || index >= scrollItems.length) { return; }
+    const previousIndex = currentIndex;
+    if (index === previousIndex && !immediate) { return; }
+
+    isAnimating = !immediate;
+    currentIndex = index;
+    updateActiveClass(); 
+    
+    // The intro animation now plays every time, as requested.
+    if (index === 0) {
+        setTimeout(() => animateIntroIn(scrollItems[0]), 50);
+    } else if (previousIndex === 0) {
+        resetIntroAnimation(scrollItems[0]);
+    }
+
+    controlVideoPlayback(currentIndex, previousIndex, null).catch(err => {
+        console.error("[goToIndex] Error controlling video playback:", err);
+    });
+
+    const targetYPercent = -currentIndex * 100;
+
+    if (immediate) {
+        gsap.set(videoTrack, { yPercent: targetYPercent });
+        isAnimating = false;
+    } else {
+        gsap.to(videoTrack, {
+            yPercent: targetYPercent,
+            duration: animationDuration,
+            ease: config.animation.ease,
+            overwrite: "auto",
+            onComplete: () => {
                 isAnimating = false;
             }
         });
@@ -238,7 +277,7 @@ function openNavMenu(){
     }
 }
 
-export function closeNavMenu() {
+/*export function closeNavMenu() {
     console.log("SCROLL: Entering closeNavMenu.");
 
     const navLinks = navMenu?.querySelectorAll('.nav-link');
@@ -272,43 +311,45 @@ export function closeNavMenu() {
     }
 
     console.log("SCROLL: --- closeNavMenu FINISHED ---");
+}*/
+
+export function closeNavMenu() {
+    console.log("SCROLL: Entering closeNavMenu.");
+    if (!navMenu || !menuToggleButton) { return; }
+    if (!navMenu.classList.contains('is-visible')) {
+        console.log("SCROLL: closeNavMenu called, but menu already hidden.");
+        return;
+    }
+
+    updateMenuToggleUI(false);
+    
+    // Un-blur the current slide when the menu is closed.
+    const activeItemElement = document.querySelector('.scroll-item.active-scroll-item');
+    if (activeItemElement) {
+        blurActiveElement(activeItemElement);
+    }
 }
 
 export function blurActiveElement(activeItemElement){
-    const blurTargets = [];
-
+    // --- This function now ignores the Intro and Outro sections ---
     const isTextSection = 
-    activeItemElement.id === config.selectors.introSectionId.substring(1) || 
-    activeItemElement.id === config.selectors.ontroSectionId.substring(1);
+        activeItemElement.id === config.selectors.introSectionId.substring(1) || 
+        activeItemElement.id === config.selectors.outroSectionId.substring(1);
 
-    // Video item targets
+    if (isTextSection) {
+        console.log("blurActiveElement: Ignoring blur for a text section.");
+        return; // Exit early
+    }
+
+    const blurTargets = [];
     const activeVideoContent = activeItemElement.querySelector('.video-aspect-wrapper');
     const activeVideoInfoOverlay = activeItemElement.querySelector('.video-info-overlay');
     if (activeVideoContent) blurTargets.push(activeVideoContent);
     if (activeVideoInfoOverlay) blurTargets.push(activeVideoInfoOverlay);
 
-    // --- UPDATED LOGIC FOR INTRO SECTION ---
-    if (activeItemElement.id === config.selectors.introSectionId.substring(1)) {
-        // Target the main info content container directly
-        const infoContentContainer = activeItemElement.querySelector('.intro-content');
-        if (infoContentContainer) {
-            blurTargets.push(infoContentContainer); // Add the info-content div itself
-        }
-    }
-
-    // --- UPDATED LOGIC FOR INFO SECTION ---
-    if (activeItemElement.id === config.selectors.infoSectionId.substring(1)) {
-        // Target the main info content container directly
-        const infoContentContainer = activeItemElement.querySelector('.info-content');
-        if (infoContentContainer) {
-            blurTargets.push(infoContentContainer); // Add the info-content div itself
-        }
-    }
-    // --- END UPDATED LOGIC --
-
     if (blurTargets.length > 0) {
         if (InputManager.NavMenuOpen() && InputManager.checkForMobile()) {
-            console.log("SCROLL: Applying blur/opacity to active content (nav open).");
+            // Apply blur
             gsap.to(blurTargets, {
                 filter: config.animation.blurNavOpen,
                 opacity: config.animation.opacityNavOpen,
@@ -317,11 +358,12 @@ export function blurActiveElement(activeItemElement){
                 overwrite: true,
             });
         } else {
-            console.log("SCROLL: Removing blur/opacity from active content (nav closed).");
+            // Remove blur
             gsap.to(blurTargets, {
                 filter: config.animation.blurReset,
                 opacity: 1,
-                duration: 0.3,
+                // FIX: The un-blur duration is now synced with the scroll duration
+                duration: animationDuration, 
                 ease: "power1.out",
                 overwrite: true,
             });
