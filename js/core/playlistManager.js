@@ -117,51 +117,11 @@ function renderTrackContent(videos) {
         `;
     });
 
-    // INFO SECTION
+    // OUTRO SECTION
     playlistHTML += `
-        <div class="${scrollItemClass} info-section text-section" id="info-section">
-            <div class="info-content">
-                <div class="info-column info-column-left">
-                    <div class="info-block">
-                        <div class="info-header">
-                            <h2>AT STUDIO DARE<br>WE MAKE FUN AND THOUGHTFUL THINGS<br>AND WE LIKE HAIKUS</h2>
-                        </div>
-                    </div>
-                    <div class="info-block">
-                        <h2>About</h2>
-                        <p>Our expertise spans design, animation, live action direction, photography, and creative direction for film, television, commercials, branding, and social media. We believe design and storytelling can make the world a better place, and we will always give our absolute best shot whenever we have the chance to prove it.</p>
-                    </div>     
-                    <div class="info-block">             
-                        <div class="recognition-list">
-                            <h3>Recognition</h3>
-
-                            <div class="recognition-item">
-                                <p class="recognition-award-name">Emmy Award - Outstanding Motion Design</p>
-                                <p class="recognition-details">Inside Bill's Brain: Decoding Bill Gates - Netflix - 2020</p>
-                            </div>
-
-                            <div class="recognition-item">
-                                <p class="recognition-award-name">Emmy Award - Outstanding Motion Design</p>
-                                <p class="recognition-details">13th - Netflix - 2017</p>
-                            </div>
-
-                            <div class="recognition-item">
-                                <p class="recognition-award-name">Emmy Nomination - Outstanding Main Title Design </p>
-                                <p class="recognition-details">Masters of Sex - Showtime - 2012</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="info-column info-column-right">
-                    <div class="info-block">
-                        <h3>Contact</h3>
-                        <p><a href="mailto:studio@hellodare.com" class="email-link" target="_blank" rel="noopener noreferrer">studio@hellodare.com</a></p>
-                    </div>
-                    <div class="info-block">
-                        <h3>Links</h3>
-                        <p><a href="https://vimeo.com/hellodare" class="internal-link" target="_blank" rel="noopener noreferrer">Vimeo</a></p>
-                    </div>
-                </div>
+        <div class="${scrollItemClass} outro-section text-section" id="outro-section">
+            <div class="outro-content">
+                <h2>THANK YOU</h2>
             </div>
         </div>
     `;
@@ -276,7 +236,6 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
                     goToIndex(targetIndex);
 
                     // --- Step 2: Close the menu after scrolling ---
-                    // Check if closeNavMenu is imported and callable
                     if (checkForMobile()){
 
                         const navMenu = document.getElementById(config.selectors.navigationContainerId);
@@ -285,7 +244,7 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
                             console.log("Nav link clicked, calling closeNavMenu.");
                                           
                             closeNavMenu(); // <<< Call the function to close the menu
-                            const activeItemElement = document.querySelector('.scroll-item.active-scroll-item'); // Changed from '.scroll-item.video-item.active-scroll-item'
+                            const activeItemElement = document.querySelector('.scroll-item.active-scroll-item'); 
                             if (activeItemElement){
                                 console.log ('%cACTIVE ITEM ELEMENT TRIGGERED FROM PLAYLIST MANAGER.JS', 'color: cyan; font-weight: bold;');
                                 blurActiveElement(activeItemElement);

@@ -46,6 +46,7 @@ export const config = {
         titleElementId: "main-page-title",  
         infoSectionId: "#info-section",      
         introSectionId: "#intro-section",
+        outroSectionId: "#outro-section",
         menuToggleButtonId: "menu-toggle-btn",     
         navigationContainerId: "main-navigation",
      

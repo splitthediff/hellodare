@@ -277,6 +277,10 @@ export function closeNavMenu() {
 export function blurActiveElement(activeItemElement){
     const blurTargets = [];
 
+    const isTextSection = 
+    activeItemElement.id === config.selectors.introSectionId.substring(1) || 
+    activeItemElement.id === config.selectors.ontroSectionId.substring(1);
+
     // Video item targets
     const activeVideoContent = activeItemElement.querySelector('.video-aspect-wrapper');
     const activeVideoInfoOverlay = activeItemElement.querySelector('.video-info-overlay');
