@@ -4,7 +4,8 @@ import { renderScrollTrack } from './core/playlistManager.js';
 import { getFormattedDate } from './utils/utils.js'; 
 
 
-window.addEventListener('load', async () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log("1. DOMContentLoaded FIRED");
     document.body.classList.add('no-transition');
     console.log("Load event fired. Starting initializations...");
     registerGSAP();
@@ -12,9 +13,9 @@ window.addEventListener('load', async () => {
 
     console.log("Running and AWAITING renderScrollTrack...");
     try {
-            console.log("MAIN: Calling renderScrollTrack");
+            console.log("2. MAIN: Calling renderScrollTrack");
             await renderScrollTrack();
-            console.log("Finished AWAITING renderScrollTrack.");
+            console.log("5. Finished AWAITING renderScrollTrack.");
 
             // --- GSAP INTRO ANIMATION ---
             console.log("Starting intro animation...");

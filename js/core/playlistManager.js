@@ -17,6 +17,7 @@ const INFO_OVERLAY_SELECTOR = '.video-info-overlay';
 
 // --- Main Exported Function ---
 export async function renderScrollTrack() {
+    console.log("3. INSIDE renderScrollTrack");
     currentVideos = initializeVideos();
     renderTrackContent(currentVideos);
     renderNavigationMenu(playlist, "Intro", "Info");
@@ -29,7 +30,7 @@ export async function renderScrollTrack() {
         });
         console.log("--- Finished player init trigger ---");
     }
-
+    console.log("4. About to call initializeGsapScroll"); 
     initializeGsapScroll(currentVideos);
 }
 

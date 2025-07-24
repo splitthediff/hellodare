@@ -14,7 +14,7 @@ export const config = {
 
     // Input Handling Settings
     input: {
-        desktopThrottle: 200,   // Throttle interval for wheel/keyboard on desktop (ms)
+        desktopThrottle: 1500,   // Throttle interval for wheel/keyboard on desktop (ms)
         mobileThrottle: 200,    // Throttle interval for wheel/touch on mobile (ms)
         touchSensitivityY: 30,  // Minimum vertical distance for touch swipe (pixels)
         touchSensitivityX: 100, // Maximum horizontal distance allowed during vertical swipe (pixels)

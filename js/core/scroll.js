@@ -560,6 +560,8 @@ export function initializeGsapScroll(videos) {
     animationDuration = isTouchDevice ? config.animation.mobileDuration : config.animation.desktopDuration;
     const throttleInterval = isTouchDevice ? config.input.mobileThrottle : config.input.desktopThrottle;
 
+
+    console.log("CRITICAL CHECK - Throttle Interval being used:", throttleInterval);
     // Define Input -> Scroll Logic
     const processScrollInput = (delta) => {
         let newIndex = currentIndex;
