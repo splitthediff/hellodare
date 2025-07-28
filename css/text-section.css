@@ -96,23 +96,40 @@
 
   .intro-content,
   .outro-content {
-    display: flex; flex-direction: row; justify-content: center;
-    gap: var(--gap-info-columns); width: 100%;
+    display: flex; flex-direction: column; justify-content: center; width: 100%;
     max-width: var(--content-max-width-info-wide); text-align: center;
   }
 
-  .intro-section h2,
-  .outro-content h2 {
+  .intro-content {
+    gap: var(--gap-info-columns);
+  }
+
+  .outro-content {
+    gap: calc(var(--gap-info-columns)/2);
+  }
+
+  .intro-section h2{
     font-size: var(--font-size-large);
     font-weight: 700;
     line-height: 3.5;
   }
 
-  .intro-section h3,
-  .outro-content h3 {
+  .outro-content h2 {
+    font-size: var(--font-size-large);
+    font-weight: 700;
+    line-height: 2.5;
+  }
+
+  .intro-section h3{
     font-size: var(--font-size-xxxsmall);
     font-weight: 500;
     line-height: 3.5;
+  }
+
+  .outro-content h3 {
+    font-size: var(--font-size-xsmall);
+    font-weight: 400;
+    line-height: 2.5;
   }
 
   .intro-arrow-container { 
