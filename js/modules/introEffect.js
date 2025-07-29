@@ -30,7 +30,9 @@ export function initIntroEffect(containerSelector) {
   container.appendChild(renderer.view);
 
   // Create Displacement Sprite & Filter
-  displacementSprite = PIXI.Sprite.from('https://s3-us-west-2.amazonaws.com/s.cdpn.io/39255/displacement-cross-2.jpg');
+  displacementSprite = PIXI.Sprite.from(
+    "https://s3-us-west-2.amazonaws.com/s.cdpn.io/39255/displacement-cross-2.jpg"
+  );
   displacementSprite.texture.baseTexture.wrapMode = PIXI.WRAP_MODES.REPEAT;
   displacementFilter = new PIXI.filters.DisplacementFilter(displacementSprite);
   displacementFilter.scale.x = 0; // Start with no distortion
@@ -41,13 +43,13 @@ export function initIntroEffect(containerSelector) {
   const style = new PIXI.TextStyle({
     fontFamily: '"neue-haas-unica", helvetica, sans-serif',
     fontSize: 24, // Adjust as needed
-    fontWeight: '600',
-    fill: '#231F20', // Your primary text color
-    align: 'center',
+    fontWeight: "600",
+    fill: "#231F20", // Your primary text color
+    align: "center",
     wordWrap: true,
     wordWrapWidth: width * 0.8,
   });
-  text = new PIXI.Text('STUDIO DARE\nSELECTED WORK\n\nSCROLL TO VIEW', style);
+  text = new PIXI.Text("STUDIO DARE\nSELECTED WORK\n\nSCROLL TO VIEW", style);
   text.anchor.set(0.5);
   text.x = width / 2;
   text.y = height / 2;
@@ -56,7 +58,7 @@ export function initIntroEffect(containerSelector) {
 
   // Mouse tracking for distortion
   let mouse = { x: width / 2, y: height / 2 };
-  container.addEventListener('mousemove', (e) => {
+  container.addEventListener("mousemove", (e) => {
     mouse.x = e.clientX - container.getBoundingClientRect().left;
     mouse.y = e.clientY - container.getBoundingClientRect().top;
   });
