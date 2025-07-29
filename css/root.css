@@ -1,3 +1,5 @@
+/* === root.css === */
+
 :root {
     /* === COLORS === */
     /*--clr-background: #efede8;*/
@@ -72,7 +74,7 @@
   
     /* === SIZING === */
     --content-max-width-middle: 1500;
-    --content-max-width-info: 900px;
+    --content-max-width-info: 500px;
     --content-max-width-info-wide: 1000px; /* For 2-column */
     --column-flex-side: 1;
     --column-flex-middle: 3;

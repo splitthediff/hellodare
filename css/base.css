@@ -1,13 +1,18 @@
-/* ======================================== */
-/*             BASE & GLOBAL                */
-/* ======================================== */
+/* === base.css === */
 
-/* Universal reset */
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-/* Body and html reset */
-html, body {
-  height: 100%; width: 100%; overflow: hidden;
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
   background-color: var(--clr-background);
   color: var(--clr-text-primary);
   font-family: var(--font-family-primary);
@@ -17,24 +22,19 @@ html, body {
 
   scroll-behavior: smooth;
 
-  transition: none; 
+  transition: none;
 }
 
 body.no-transition,
 body.no-transition *,
 body.no-transition *::before,
 body.no-transition *::after {
-  transition: none !important; /* Disables all transitions */
+  transition: none !important;
 }
 
-/* Basic Link Styling (if needed globally) */
 a {
-  color: var(--clr-text-primary); /* Or a specific link color variable */
-  text-decoration: none; /* Example: remove default underline */
-}
-a:hover {
-  /* Define a subtle global hover if desired */
-  /* text-decoration: underline; */
+  color: var(--clr-text-primary);
+  text-decoration: none;
 }
 
 .site-footer {
@@ -42,7 +42,7 @@ a:hover {
   bottom: var(--padding-columns, 20px);
   right: var(--padding-columns, 20px);
   z-index: 100;
-  
+
   margin: 0;
   padding: 0;
   font-size: var(--font-size-xsmall);

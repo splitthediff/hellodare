@@ -1,30 +1,26 @@
-/* ======================================== */
-/*           SIDE COLUMN CONTENT            */
-/* ======================================== */
+/* === navigation.css === */
 
-/* --- Title (Left Column) --- */
 .title {
-    font-size: var(--font-size-medium);
-    font-weight: var(--font-weight-bold);
-    background-color: transparent; display: inline; border: none; padding: 0;
-    cursor: pointer;
-    
-    position: absolute; 
-    top: 50%;                
-    transform: translateY(-50%); 
-    width: auto; 
-    max-width: 90%; 
-    /*left: var(--padding-columns, 20px);*/
-    text-align: left;
-    margin: 0;
-    padding: 0;
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-bold);
+  background-color: transparent;
+  display: inline;
+  border: none;
+  padding: 0;
+  cursor: pointer;
 
-    transition: 
-    top 0.4s ease,
-    transform 0.8s ease,
-    font-size 0.4s ease,
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: auto;
+  max-width: 90%;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+
+  transition: top 0.4s ease, transform 0.8s ease, font-size 0.4s ease,
     opacity 0.4s ease;
-  }
+}
 
 /* Cornered style for short viewports */
 .title-cornered {
@@ -37,33 +33,28 @@
 /* --- Info & Navigation Button --- */
 .menu-toggle-button,
 .info {
-  /* Reset button appearance */
   background: none;
   border: none;
   padding: 0;
   margin: 0;
-  
-  /* Set consistent typography */
-  font-family: inherit; /* Use the body's font */
+
+  font-family: inherit;
   font-size: var(--font-size-xsmall);
   font-weight: var(--font-weight-regular);
-  color: var(--clr-text-primary); /* Ensures dark mode will work */
+  color: var(--clr-text-primary);
   text-align: left;
-  
-  /* Standard interactive styles */
+
   cursor: pointer;
   -webkit-appearance: none; /* Removes default OS styling */
   appearance: none;
 }
 
-/* Shared hover state */
 .menu-toggle-button:hover,
 .info:hover {
   text-decoration: underline;
   text-underline-offset: 4px;
 }
 
-/* --- Positioning for the parent container --- */
 .bottom-left-controls {
   position: fixed;
   bottom: var(--padding-columns, 20px);
@@ -83,7 +74,6 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
- /* gap: var(--space-l);*/
 }
 
 .info-dark-mode-wrapper {
@@ -92,13 +82,13 @@
   align-items: flex-start;
   gap: var(--space-s);
 }
-  
+
 /* ======================================== */
 /*           NAVIGATION MENU                */
 /* ======================================== */
 .navigation-menu {
   font-size: var(--font-size-navigation);
-  font-weight: var(--font-weight-regular); 
+  font-weight: var(--font-weight-regular);
 
   width: 90%;
   max-width: 400px;
@@ -106,7 +96,7 @@
   flex-shrink: 0;
 
   position: fixed;
-  bottom: calc(var(--padding-columns, 20px) + 4.75*var(--space-m));
+  bottom: calc(var(--padding-columns, 20px) + 4.75 * var(--space-m));
   padding-top: 0;
   padding-left: 0;
   z-index: 99;
@@ -139,14 +129,12 @@
 }
 
 /* Hide scrollbars in WebKit browsers */
-
 .navigation-menu::-webkit-scrollbar,
 .navigation-menu::-webkit-scrollbar-thumb {
   display: none;
   width: 0;
   background: transparent;
 }
-
 
 /* Navigation spacing and list */
 .nav-space {
@@ -178,14 +166,15 @@
 .navigation-menu.is-visible .nav-link {
   transition: opacity 0.5s ease;
 }
-  
+
 .navigation-menu.is-visible .nav-link.active {
-  opacity: 1.0; 
-  text-decoration: underline; text-underline-offset: 6px; 
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 6px;
 }
-  
+
 .navigation-menu.is-visible .nav-link:hover {
-  opacity: .9; 
+  opacity: 0.9;
 }
 
 .nav-controls {
@@ -206,6 +195,3 @@
 .nav-button:hover {
   background-color: rgba(0, 0, 0, 0.05);
 }
-
-
-
