@@ -122,8 +122,9 @@ function renderTrackContent(videos) {
     playlistHTML += `
         <div class="${scrollItemClass} outro-section text-section" id="outro-section">
             <div class="outro-content">
-                <h2>AT STUDIO DARE<br>WE MAKE FUN AND THOUGHTFUL THINGS<br>AND WE LIKE HAIKUS</h2>
-                <h3>Our expertise spans design, animation, live action direction, photography, and creative direction for film, television, commercials, branding, and social media. We believe design and storytelling can make the world a better place, and we will always give our absolute best shot whenever we have the chance to prove it.</h3>
+                <h2 class="outro-line">AT STUDIO DARE<br>WE MAKE FUN AND THOUGHTFUL THINGS<br>AND WE LIKE HAIKUS</h2>
+                <h3 class="outro-line">Our expertise spans design, animation, live-action direction, photography, and creative direction for film, television, commercials, branding, and media content. We believe thoughtful design and storytelling can make the world a better place—and we bring our best every time we get the chance to prove it.</h3>
+      <h3 class="outro-line"><a href="mailto:studio@hellodare.com" class="email-link" target="_blank" rel="noopener noreferrer">studio@hellodare.com</a></h3>
             </div>
         </div>
     `;

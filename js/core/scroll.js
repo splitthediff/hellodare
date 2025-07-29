@@ -234,6 +234,7 @@ function attachButtonListeners() {
                 // --- Trigger Open/Close Sequence ---
                 if (!menuIsCurrentlyVisible) { 
                     console.log("SCROLL: Triggering Menu OPEN sequence from button.");
+                    goToIndex(0);
                     openNavMenu();
                 } else { 
                     console.log("SCROLL: Triggering Menu CLOSE sequence from button.");
@@ -285,42 +286,6 @@ function openNavMenu(){
         });
     }
 }
-
-/*export function closeNavMenu() {
-    console.log("SCROLL: Entering closeNavMenu.");
-
-    const navLinks = navMenu?.querySelectorAll('.nav-link');
-
-    if (!navMenu || !menuToggleButton) {
-        console.warn("SCROLL: Cannot close menu - elements not found in closeNavMenu.");
-        return;
-    }
-
-    if (!navMenu.classList.contains('is-visible')) {
-        console.log("SCROLL: closeNavMenu called, but menu already hidden.");
-        return;
-    }
-
-    updateMenuToggleUI(false); 
-    console.log(`SCROLL: Inside closeNavMenu. navMenu.classList.contains('is-visible') = ${navMenu.classList.contains('is-visible')}`); 
-
-    const activeItemElement = document.querySelector('.scroll-item.active-scroll-item');
-    if (activeItemElement) {
-        console.log('SCROLL: Calling blurActiveElement from closeNavMenu.');
-        blurActiveElement(activeItemElement); // This call will now result in unblur
-    }
-
-    // Hide Nav Links (instant reset) via GSAP (if they animate in)
-    if (navLinks && navLinks.length > 0) {
-       gsap.to(navLinks, { opacity: 0, y: -5, duration: 0.8, ease: "power2.out", stagger: 0.03, delay: 0.1, overwrite: true , 
-            onComplete: () => {
-                navLinks.forEach(link => link.style.removeProperty('transform'));
-            }
-        });
-    }
-
-    console.log("SCROLL: --- closeNavMenu FINISHED ---");
-}*/
 
 export function closeNavMenu() {
     console.log("SCROLL: Entering closeNavMenu.");

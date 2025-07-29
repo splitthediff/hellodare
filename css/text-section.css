@@ -117,7 +117,7 @@
   .outro-content h2 {
     font-size: var(--font-size-large);
     font-weight: 700;
-    line-height: 2.5;
+    line-height: 2;
   }
 
   .intro-section h3{
@@ -128,8 +128,15 @@
 
   .outro-content h3 {
     font-size: var(--font-size-xsmall);
-    font-weight: 400;
-    line-height: 2.5;
+    font-weight: 300;
+    line-height: 2;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .outro-content a {
+    font-weight: 500;
   }
 
   .intro-arrow-container { 

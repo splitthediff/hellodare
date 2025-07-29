@@ -172,7 +172,7 @@
   cursor: pointer;
   display: inline-block;
 
-  opacity: 0.3; /* NEED TO MATCH THIS IN CONFIG, navOpacity */
+  opacity: 0.5; /* NEED TO MATCH THIS IN CONFIG, navOpacity */
 }
 
 .navigation-menu.is-visible .nav-link {
@@ -185,7 +185,7 @@
 }
   
 .navigation-menu.is-visible .nav-link:hover {
-  opacity: .8; 
+  opacity: .9; 
 }
 
 .nav-controls {
