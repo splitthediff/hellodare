@@ -74,59 +74,6 @@ function updateInfoButtonState() {
 // ==================================================
 // CORE SCROLL & ANIMATION LOGIC
 // ==================================================
-/*export function goToIndex(index, immediate = false) {
-    // Boundary checks
-    if (!videoTrack || !scrollItems || scrollItems.length === 0) { return; }
-    if (index < 0 || index >= scrollItems.length) { return; }
-    if (isAnimating && !immediate) { return; }
-    const previousIndex = currentIndex;
-    if (index === previousIndex && !immediate) { return; }
-
-    // Update state
-    isAnimating = !immediate;
-    currentIndex = index;
-    console.log(`goToIndex: Updated currentIndex to ${currentIndex}. Previous=${previousIndex}`);
-    updateActiveClass();
-
-    if (index === 0) {
-        // We use a tiny delay to ensure the DOM is ready, especially on first load
-        setTimeout(() => animateIntroIn(scrollItems[0]), 50);
-        startArrowBounce();
-    } 
-    // If we are moving AWAY from the intro section
-    else if (previousIndex === 0) {
-        resetIntroAnimation(scrollItems[0]);
-        stopArrowBounce();
-    }
-
-    controlVideoPlayback(currentIndex, previousIndex, null).catch(err => {
-        console.error("[goToIndex] Error controlling video playback:", err);
-    });
-
-    const targetYPercent = -currentIndex * 100;
-
-    // Perform Scroll Animation / Set
-    if (immediate) {
-        gsap.set(videoTrack, { yPercent: targetYPercent });
-        isAnimating = false;
-        console.log(`[goToIndex Immediate Set] Target index: ${currentIndex}.`);
-    } else {
-        gsap.to(videoTrack, {
-            yPercent: targetYPercent,
-            duration: animationDuration,
-            ease: config.animation.ease,
-            overwrite: "auto",
-            onComplete: () => {
-                // console.log(`[goToIndex Animation COMPLETE] Target index: ${currentIndex}.`);
-                isAnimating = false;
-            },
-            onInterrupt: () => {
-                // console.warn(`[goToIndex Animation INTERRUPTED] Target index: ${currentIndex}.`);
-                isAnimating = false;
-            }
-        });
-    }
-}*/
 
 export function goToIndex(index, immediate = false) {
   if (!videoTrack || !scrollItems || scrollItems.length === 0) {

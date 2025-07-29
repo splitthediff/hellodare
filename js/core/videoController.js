@@ -197,13 +197,13 @@ export function _getContentElement(scrollItemElement, isVideoIndex) {
     if (contentOverlay) contentElement.overlay = contentOverlay;
   } else if (
     scrollItemElement &&
-    scrollItemElement.id === config.selectors.introSectionId.substring(1)
+    scrollItemElement.id === config.selectors.introSectionId
   ) {
     const introContent = scrollItemElement.querySelector(".info-content");
     if (introContent) contentElement.info = introContent;
   } else if (
     scrollItemElement &&
-    scrollItemElement.id === config.selectors.infoSectionId.substring(1)
+    scrollItemElement.id === config.selectors.infoSectionId
   ) {
     const infoContent = scrollItemElement.querySelector(".info-content");
     if (infoContent) contentElement.info = infoContent;
