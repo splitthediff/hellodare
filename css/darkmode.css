@@ -28,7 +28,7 @@ html.dark-mode {
 }
 
 .dark-mode .nav-link {
-  opacity: 0.7;
+  opacity: 0.6; /* NEED TO MATCH THIS IN CONFIG, navOpacity */
 }
 
 .dark-mode .navigation-menu.is-visible .nav-link {

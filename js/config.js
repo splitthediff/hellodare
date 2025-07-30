@@ -5,8 +5,6 @@ export const config = {
   animation: {
     desktopDuration: 1.3, // Duration of scroll animation on desktop (seconds)
     mobileDuration: 0.7, // Duration of scroll animation on mobile (seconds)
-    ease: "sine.inOut", // GSAP easing function for scroll animation
-    blurMax: "blur(1px)", // Maximum blur effect
     blurReset: "blur(0px)", // Reset blur effect
     opacityNavOpen: 0.3,
     blurNavOpen: "blur(10px)",
@@ -32,7 +30,7 @@ export const config = {
   },
 
   navigation: {
-    navOpacity: 0.3, // used in openNavMenu in playlsitManager.js
+    navOpacity: 0.6, // used in openNavMenu in playlsitManager.js
   },
 
   // DOM Selectors & Class Names
