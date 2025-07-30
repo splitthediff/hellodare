@@ -34,9 +34,6 @@ export async function controlVideoPlayback(
   const scrollItems = document.querySelectorAll(config.selectors.scrollItem);
 
   if (!scrollItems || scrollItems.length === 0) {
-    console.error(
-      "[VideoController] Cannot control playback/fade: scrollItems not found."
-    );
     return;
   }
 
@@ -81,12 +78,7 @@ export async function controlVideoPlayback(
 
       if (isVideoIndex && video) {
         _activateVideoPlayback(video);
-      } else if (!isVideoIndex) {
-        // If INTRO or INFO section
-        console.log(
-          `[VideoController] Info Section Activated (Index ${index}). Content faded in.`
-        );
-      }
+      } 
     } else {
       if (contentElement) {
         _deactivateItemAnimation(
@@ -113,7 +105,6 @@ export async function controlVideoPlayback(
  * @param {string} sectionSelector - The CSS selector for the parent section (e.g., '#intro-section').
  */
 function _animateTextSection(sectionSelector) {
-  console.log(`[VideoController] Animating IN for section: ${sectionSelector}`);
   const blocks = gsap.utils.toArray(`${sectionSelector} .info-block`);
 
   if (blocks.length > 0) {
@@ -158,7 +149,6 @@ async function applyGlobalVolume() {
       await player.setVolume(globalVolumeLevel);
       video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI based on global volume
     } catch (error) {
-      console.warn(`[ApplyVol ${video.id}] Error: ${error.message}`);
       video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI even if API fails
     }
   }
@@ -406,10 +396,6 @@ async function _activateVideoPlayback(video) {
 
     if (video.hasPlayedOnce) {
       // Check flag (from timeupdate end simulation)
-      console.log(
-        `%c[VideoController ${video.id}] Activate SKIPPED (hasPlayedOnce). Ensuring pause.`,
-        "color: blue;"
-      );
       video._updatePlayPauseButtonUI(true); // Force paused state if hasPlayedOnce
       video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI based on global volume
       await player.pause().catch((e) => {
@@ -417,8 +403,6 @@ async function _activateVideoPlayback(video) {
       }); // Ensure paused
       await player.setVolume(globalVolumeLevel); // Still set volume
     } else {
-      // Activate normally
-      // console.log(`[VideoController ${video.id}] Activating Video ${video.id}.`);
       await player.setVolume(globalVolumeLevel);
       video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI based on global volume
       await player.play();
@@ -436,7 +420,6 @@ async function _activateVideoPlayback(video) {
 /** Deactivate video playback and update icons. */
 function _deactivateVideoPlayback(video) {
   if (!video || !video.player) return; // Only pause if player instance exists
-  // console.log(`[VideoController ${video.id}] Deactivating Video.`);
   try {
     video.player.pause().catch((e) => {
       /* ignore non-critical errors */

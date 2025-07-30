@@ -139,18 +139,10 @@ export function getCurrentIndex() {
 
 /** Attaches button listeners managed by scroll module */
 function attachButtonListeners() {
-  console.log("--- Running attachButtonListeners from scroll.js ---");
-
   // --- Info Button Listener ---
-  console.log(
-    "ABL: Attempting getElementById for Info Button:",
-    config.selectors.infoButtonId
-  );
   infoButtonElement = document.getElementById(config.selectors.infoButtonId);
 
   if (infoButtonElement) {
-    // Check the variable reference
-    console.log("ABL: Found Info Button.", infoButtonElement); // Check flag on the element
     infoButtonElement.style.cursor = "pointer";
     infoButtonElement.addEventListener("click", (event) => {
       event.preventDefault();
@@ -162,75 +154,40 @@ function attachButtonListeners() {
       );
       closeNavMenu();
     });
-    console.log("Dynamic Info/Work button listener attached.");
-  } else {
-    console.warn(
-      `ABL: Info button ('#${config.selectors.infoButtonId}') not found.`
-    );
-  }
+  } 
 
   // --- Title Listener ---
-  console.log(
-    "ABL: Attempting getElementById for Title:",
-    config.selectors.titleElementId
-  );
   const titleElementForListener = document.getElementById(
     config.selectors.titleElementId
   );
 
   if (titleElementForListener) {
     // Check the variable reference
-    console.log("ABL: Found Title Element.", titleElementForListener);
     titleElementForListener.style.cursor = "pointer";
     titleElementForListener.addEventListener("click", (event) => {
       event.preventDefault();
       goToIndex(0); // Call goToIndex directly
       closeNavMenu();
     });
-    console.log("Title click listener attached.");
-  } else {
-    console.warn(
-      `ABL: Main title ('#${config.selectors.titleElementId}') not found.`
-    );
   }
 
   // --- Menu Toggle Button Listener ---
   if (menuToggleButton && navMenu) {
     menuToggleButton.addEventListener("click", () => {
       const menuIsCurrentlyVisible = navMenu.classList.contains("is-visible");
-      console.log(
-        `SCROLL: Menu toggle clicked. menuIsCurrentlyVisible (before action): ${menuIsCurrentlyVisible}`
-      ); // ADD/UPDATE THIS LOG
-
       // --- Trigger Open/Close Sequence ---
       if (!menuIsCurrentlyVisible) {
-        console.log("SCROLL: Triggering Menu OPEN sequence from button.");
         goToIndex(0);
         openNavMenu();
       } else {
-        console.log("SCROLL: Triggering Menu CLOSE sequence from button.");
         closeNavMenu();
       }
-      console.log(
-        `SCROLL: Nav menu state after toggle call: navMenu.classList.contains('is-visible') = ${navMenu.classList.contains(
-          "is-visible"
-        )}`
-      );
     });
-    console.log("SCROLL: Menu toggle button listener attached.");
-  } else {
-    console.log("ABL: Menu Toggle Condition Failed.");
-  }
-  console.log("--- attachButtonListeners finished running ---");
+  } 
 }
 
 function openNavMenu() {
-  console.log("SCROLL: Entering openNavMenu.");
-
   if (!menuToggleButton || !navMenu) {
-    console.warn(
-      "SCROLL: Menu toggle elements not found in openNavMenu. Cannot proceed."
-    );
     return;
   }
 
@@ -240,7 +197,6 @@ function openNavMenu() {
     ".scroll-item.active-scroll-item"
   );
   if (activeItemElement) {
-    console.log("SCROLL: Calling blurActiveElement from openNavMenu.");
     blurActiveElement(activeItemElement);
   }
 
@@ -266,12 +222,10 @@ function openNavMenu() {
 }
 
 export function closeNavMenu() {
-  console.log("SCROLL: Entering closeNavMenu.");
   if (!navMenu || !menuToggleButton) {
     return;
   }
   if (!navMenu.classList.contains("is-visible")) {
-    console.log("SCROLL: closeNavMenu called, but menu already hidden.");
     return;
   }
 
@@ -293,7 +247,6 @@ export function blurActiveElement(activeItemElement) {
     activeItemElement.id === config.selectors.outroSectionId.substring(1);
 
   if (isTextSection) {
-    console.log("blurActiveElement: Ignoring blur for a text section.");
     return; // Exit early
   }
 
@@ -525,7 +478,6 @@ export function initializeGsapScroll(videos) {
     );
     return;
   }
-  console.log(`Scroll Initializing...`);
 
   // Determine Config (Hardcoded values)
   const isTouchDevice = detectTouchDevice();
@@ -535,11 +487,6 @@ export function initializeGsapScroll(videos) {
   const throttleInterval = isTouchDevice
     ? config.input.mobileThrottle
     : config.input.desktopThrottle;
-
-  console.log(
-    "CRITICAL CHECK - Throttle Interval being used:",
-    throttleInterval
-  );
   // Define Input -> Scroll Logic
   const processScrollInput = (delta) => {
     let newIndex = currentIndex;
@@ -563,14 +510,8 @@ export function initializeGsapScroll(videos) {
     goToIndex(currentIndex, true);
 
     if (menuToggleButton && navMenu) {
-      console.log("SCROLL: Resizing. Forcing menu state to CLOSED.");
       updateMenuToggleUI(false);
-    } else {
-      console.error(
-        `%c[SCROLL] Menu Toggle Resize Sync FAILED: One or more menu elements not found!`,
-        "color: red; font-weight: bold;"
-      );
-    }
+    } 
 
     updateTitleStyleBasedOnViewport();
   };
@@ -616,8 +557,6 @@ export function initializeGsapScroll(videos) {
   }
 
   updateTitleStyleBasedOnViewport();
-
-  console.log("GSAP Scroll Initialization complete.");
 }
 
 // --- Re-exports ---

@@ -26,24 +26,17 @@ const INFO_OVERLAY_SELECTOR = ".video-info-overlay";
 
 // --- Main Exported Function ---
 export async function renderScrollTrack() {
-  console.log("3. INSIDE renderScrollTrack");
   currentVideos = initializeVideos();
   renderTrackContent(currentVideos);
   renderNavigationMenu(playlist, "Intro", "Info");
 
-  console.log("--- Starting player init trigger ---");
   if (currentVideos && currentVideos.length > 0) {
     currentVideos.forEach((video) => {
-      console.log(
-        `[PlaylistManager] Calling initializePlayer for video ${video.id}`
-      );
       video
         .initializePlayer()
         .catch((err) => console.warn(`Init ${video.id} fail: ${err.message}`));
     });
-    console.log("--- Finished player init trigger ---");
   }
-  console.log("4. About to call initializeGsapScroll");
   initializeGsapScroll(currentVideos);
 }
 
@@ -65,7 +58,6 @@ function updateVideoObjectSizes(videos) {
 }
 
 function renderTrackContent(videos) {
-  console.log("--- Running renderVideos ---");
   let playlistHTML = "";
   if (!videos) {
     videos = [];
@@ -203,8 +195,6 @@ function renderTrackContent(videos) {
   if (infoSectionElement) {
     setInitialVideoContentState(infoSectionElement, false);
   }
-
-  console.log("--- Finished renderVideos ---");
 }
 
 function getDynamicWidth() {
@@ -246,7 +236,6 @@ function renderNavigationMenu(
   introSectionName = "Intro",
   infoSectionName = "Info"
 ) {
-  console.log("--- Rendering Navigation Menu ---");
   const navContainer = document.getElementById("main-navigation");
   if (!navContainer) {
     console.error("Navigation container #main-navigation not found.");
@@ -275,9 +264,6 @@ function renderNavigationMenu(
   navHTML += "</ul>"; // End list
 
   navContainer.innerHTML = navHTML;
-  console.log("Navigation menu HTML rendered.");
-
-  // --- Attach Event Listeners AFTER rendering ---
   attachNavigationListeners(navContainer, infoIndex); // Pass infoIndex for boundary checks
 }
 
@@ -298,7 +284,6 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
         const targetIndex = parseInt(targetLink.dataset.index, 10);
 
         if (!isNaN(targetIndex) && typeof goToIndex === "function") {
-          console.log(`Nav link clicked: Scrolling to index ${targetIndex}`);
           goToIndex(targetIndex);
 
           if (checkForMobile()) {
@@ -307,29 +292,18 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
             );
 
             if (typeof closeNavMenu === "function") {
-              console.log("Nav link clicked, calling closeNavMenu.");
-
               closeNavMenu(); // <<< Call the function to close the menu
               const activeItemElement = document.querySelector(
                 ".scroll-item.active-scroll-item"
               );
               if (activeItemElement) {
-                console.log(
-                  "%cACTIVE ITEM ELEMENT TRIGGERED FROM PLAYLIST MANAGER.JS",
-                  "color: cyan; font-weight: bold;"
-                );
                 blurActiveElement(activeItemElement);
               }
-            } else {
-              console.error(
-                "closeNavMenu function not available in playlistManager.js scope."
-              );
             }
           }
         }
       }
     });
-    console.log("Navigation link listener attached.");
   }
 
   // Listener for Prev Button
@@ -342,14 +316,10 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
       ) {
         const currentIdx = getCurrentIndex();
         if (currentIdx > 0) {
-          console.log("Nav Prev clicked: Scrolling to index", currentIdx - 1);
           goToIndex(currentIdx - 1);
-        } else {
-          console.log("Nav Prev clicked: Already at first item.");
         }
       }
     });
-    console.log("Navigation Prev button listener attached.");
   }
 
   // Listener for Next Button
@@ -363,19 +333,14 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
         const currentIdx = getCurrentIndex();
         // Use lastItemIndex passed in (which includes the info section)
         if (currentIdx < lastItemIndex) {
-          console.log("Nav Next clicked: Scrolling to index", currentIdx + 1);
           goToIndex(currentIdx + 1);
-        } else {
-          console.log("Nav Next clicked: Already at last item.");
         }
       }
     });
-    console.log("Navigation Next button listener attached.");
   }
 }
 
 export function handleAllVideoAndOverlayResizes() {
-  console.log("PlaylistManager: Handling all video and overlay resizes.");
   updateVideoObjectSizes(currentVideos); // Update internal video object sizes
   if (currentVideos && currentVideos.length > 0) {
     currentVideos.forEach((video) => {
