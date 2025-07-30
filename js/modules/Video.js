@@ -9,7 +9,7 @@ export class Video {
   constructor(videoData) {
     this.id = videoData.vimeoid;
     this.title = videoData.title;
-    this.titleShortName = videoData.titleShortName || videoData.title || ""; // Fallback to title if short name is not provided
+    this.titleShortName = videoData.titleShortName || videoData.title || "";
     this.year = videoData.year;
     this.client = videoData.client;
 
@@ -32,8 +32,8 @@ export class Video {
 
     // --- State for Play Once & Time Update Workaround ---
     this.hasPlayedOnce = false; // Flag indicating the video reached its simulated end via timeupdate
-    this.duration = 0; // Video duration in seconds
-    this.timeupdateThreshold = config.video.timeupdateEndThreshold; // How close to end (in seconds) counts as "ended"
+    this.duration = 0; 
+    this.timeupdateThreshold = config.video.timeupdateEndThreshold; 
     this.isEnding = false; // Flag to prevent multiple end simulations from timeupdate
 
     // ---Progress Bar Element References ---
@@ -110,7 +110,6 @@ export class Video {
     return this.playerInitializationPromise;
   }
 
-  // --- "Private" Helper Methods for Player Setup ---
   _findPlayerUIElements() {
     const videoItemElement = document.querySelector(
       `${config.selectors.scrollItem}.video-item[data-video-id="${this.id}"]`
@@ -406,7 +405,7 @@ export class Video {
 
       if (paused) {
         this.hasPlayedOnce = false;
-        this.isEnding = false; // Reset flags
+        this.isEnding = false; 
         if (wasAtSimulatedEnd && this.duration > 0) {
           try {
             await player.setCurrentTime(0);
@@ -417,11 +416,11 @@ export class Video {
         }
         await player.play();
         // Show Pause icon, hide Play icon
-        this._updatePlayPauseButtonUI(false); // Pass 'false' because it's now playing (not paused)
+        this._updatePlayPauseButtonUI(false); 
       } else {
         await player.pause();
         // Show Play icon, hide Pause icon
-        this._updatePlayPauseButtonUI(true); // Pass 'true' because it's now paused
+        this._updatePlayPauseButtonUI(true); 
       }
     } catch (error) {
       console.error(`[Toggle Play ${this.id}] API error:`, error.name);

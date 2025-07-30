@@ -157,11 +157,10 @@ function attachButtonListeners() {
   );
 
   if (titleElementForListener) {
-    // Check the variable reference
     titleElementForListener.style.cursor = "pointer";
     titleElementForListener.addEventListener("click", (event) => {
       event.preventDefault();
-      goToIndex(0); // Call goToIndex directly
+      goToIndex(0); 
       closeNavMenu();
     });
   }
@@ -170,7 +169,6 @@ function attachButtonListeners() {
   if (menuToggleButton && navMenu) {
     menuToggleButton.addEventListener("click", () => {
       const menuIsCurrentlyVisible = navMenu.classList.contains("is-visible");
-      // --- Trigger Open/Close Sequence ---
       if (!menuIsCurrentlyVisible) {
         goToIndex(0);
         openNavMenu();
@@ -257,7 +255,7 @@ export function blurActiveElement(activeItemElement) {
 
   if (blurTargets.length > 0) {
     if (InputManager.NavMenuOpen() && InputManager.checkForMobile()) {
-      // Apply blur
+      // Apply blur and opacity when the menu is open
       gsap.to(blurTargets, {
         filter: config.animation.blurNavOpen,
         opacity: config.animation.opacityNavOpen,
@@ -270,7 +268,6 @@ export function blurActiveElement(activeItemElement) {
       gsap.to(blurTargets, {
         filter: config.animation.blurReset,
         opacity: 1,
-        // FIX: The un-blur duration is now synced with the scroll duration
         duration: animationDuration,
         ease: "power1.out",
         overwrite: true,
@@ -339,25 +336,23 @@ function startArrowBounce() {
 
   // Create the repeating bounce animation
   introArrowTween = gsap.to(arrow, {
-    y: 5, // How far down it moves
-    duration: 2, // How long one bounce takes
-    ease: "power1.inOut", // A smooth ease in and out
-    repeat: -1, // Repeat forever
-    yoyo: true, // Makes it go back and forth
+    y: 5, 
+    duration: 2,
+    ease: "power1.inOut", 
+    repeat: -1, 
+    yoyo: true, 
   });
 }
 
-// --- NEW: Function to stop the arrow animation ---
 function stopArrowBounce() {
   if (introArrowTween) {
-    // Kill the animation smoothly and reset the arrow's position
     gsap.to(introArrowTween, {
       timeScale: 3, // Speed up the animation to finish quickly
       onComplete: () => {
         introArrowTween.kill();
         introArrowTween = null;
         const arrow = document.getElementById("intro-scroll-arrow");
-        if (arrow) gsap.set(arrow, { y: 0 }); // Reset position
+        if (arrow) gsap.set(arrow, { y: 0 });
       },
     });
   }
@@ -368,7 +363,6 @@ function animateIntroIn(introElement) {
   const introLines = introElement.querySelectorAll(".intro-line");
   if (introLines.length === 0) return;
 
-  // Use .fromTo() to ensure the animation runs correctly every time
   gsap.fromTo(
     introLines,
     {
@@ -397,11 +391,11 @@ function resetIntroAnimation(introElement) {
 
   gsap.to(introLines, {
     opacity: 0,
-    y: -20, // Move them up slightly as they fade out
+    y: -20, 
     filter: "blur(8px)",
-    duration: 0.5, // Make the out-animation quick
-    ease: "power2.in", // An "ease-in" accelerates into the animation
-    stagger: 0.07, // A subtle stagger for the exit
+    duration: 0.5, 
+    ease: "power2.in", 
+    stagger: 0.07,
     overwrite: "auto",
   });
 }
@@ -448,17 +442,15 @@ function resetOutroAnimation(outroElement) {
 export function initializeGsapScroll(videos) {
   setVideos(videos);
 
-  // Find DOM Elements (Hardcoded selectors)
   videoTrack = document.querySelector(config.selectors.track);
   if (!videoTrack) {
-    console.error(`Scroll Init Failed: '${config.selectors.track}' not found.`);
     return;
   }
   scrollItems = gsap.utils
     .toArray(videoTrack.children)
     .filter((el) =>
       el.classList.contains(config.selectors.scrollItem.substring(1))
-    ); // Remove leading '.' for classList check
+    ); 
   infoButtonElement = document.querySelector(config.selectors.infoButtonId);
 
   // --- Initialize module-scoped menu elements
@@ -512,7 +504,6 @@ export function initializeGsapScroll(videos) {
   };
   const getActiveVideoFn = () =>
     currentIndex < videos.length ? videos[currentIndex] : null;
-  // Define togglePlayPauseFn wrapper here or ensure Video class method is robust
   const togglePlayPauseFn = (video, button) => {
     if (video && typeof video.togglePlayPause === "function") {
       video
@@ -521,7 +512,6 @@ export function initializeGsapScroll(videos) {
     }
   };
 
-  // Initialize Input Manager - Pass hardcoded values for now
   InputManager.initializeInput(
     throttledScrollProcessor,
     resizeCallback,

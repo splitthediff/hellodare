@@ -1,16 +1,10 @@
 // js/playlistManager.js
 
-// --- Imports ---
-// Adjust paths as needed
 import {
   initializeGsapScroll,
-  toggleGlobalVolume,
   goToIndex,
-  getCurrentIndex,
   closeNavMenu,
   blurActiveElement,
-  updateMenuToggleUI,
-  updateTitleStyleBasedOnViewport,
 } from "./scroll.js";
 import { playlist } from "../data/playlistData.js";
 import { Video } from "../modules/Video.js";
@@ -259,8 +253,6 @@ function renderNavigationMenu(videoData) {
 
 function attachNavigationListeners(navContainer, lastItemIndex) {
   const linkList = navContainer.querySelector(".nav-link-list");
-  const prevButton = navContainer.querySelector("#nav-prev-btn");
-  const nextButton = navContainer.querySelector("#nav-next-btn");
 
   // Listener for Links (using event delegation)
   if (linkList) {
@@ -269,7 +261,7 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
       const targetLink = event.target.closest(".nav-link");
       if (targetLink) {
         // Ensure a nav-link was clicked or is an ancestor
-        event.preventDefault(); // Prevent default link behavior
+        event.preventDefault();
 
         const targetIndex = parseInt(targetLink.dataset.index, 10);
 
@@ -282,7 +274,7 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
             );
 
             if (typeof closeNavMenu === "function") {
-              closeNavMenu(); // <<< Call the function to close the menu
+              closeNavMenu(); 
               const activeItemElement = document.querySelector(
                 ".scroll-item.active-scroll-item"
               );
@@ -291,39 +283,6 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
               }
             }
           }
-        }
-      }
-    });
-  }
-
-  // Listener for Prev Button
-  if (prevButton) {
-    prevButton.addEventListener("click", (event) => {
-      event.preventDefault();
-      if (
-        typeof getCurrentIndex === "function" &&
-        typeof goToIndex === "function"
-      ) {
-        const currentIdx = getCurrentIndex();
-        if (currentIdx > 0) {
-          goToIndex(currentIdx - 1);
-        }
-      }
-    });
-  }
-
-  // Listener for Next Button
-  if (nextButton) {
-    nextButton.addEventListener("click", (event) => {
-      event.preventDefault();
-      if (
-        typeof getCurrentIndex === "function" &&
-        typeof goToIndex === "function"
-      ) {
-        const currentIdx = getCurrentIndex();
-        // Use lastItemIndex passed in (which includes the info section)
-        if (currentIdx < lastItemIndex) {
-          goToIndex(currentIdx + 1);
         }
       }
     });
