@@ -44,9 +44,7 @@ function updateActiveClass() {
   if (navLinks.length > 0) {
     navLinks.forEach((link) => {
       const linkIndex = parseInt(link.dataset.index, 10);
-      // Remove active class from all first (safer)
       link.classList.remove("active");
-      // Add active class if index matches current scroll index
       if (!isNaN(linkIndex) && linkIndex === currentIndex) {
         link.classList.add("active");
       }
@@ -64,8 +62,7 @@ function updateInfoButtonState() {
   const infoSectionIndex = scrollItems.length - 1;
   const isOnInfoPage = currentIndex === infoSectionIndex;
 
-  //infoButtonElement.innerText = isOnInfoPage ? "Work" : "Info";  // Toggle text based on current index - currently not used (to change - also need to adjust scroll index in attachButtonListeners)
-  infoButtonElement.innerText = isOnInfoPage ? "Info" : "Info"; // Always shows "Info"
+  infoButtonElement.innerText = "Info";
 
   // --- ADD/REMOVE MOBILE HIDE CLASS ---
   infoButtonElement.classList.toggle("is-hidden-on-mobile", isOnInfoPage);
@@ -149,9 +146,7 @@ function attachButtonListeners() {
       if (!scrollItems || scrollItems.length === 0) return;
       const infoSectionIndex = scrollItems.length - 1;
       const currentIdx = getCurrentIndex();
-      goToIndex(
-        currentIdx === infoSectionIndex ? infoSectionIndex : infoSectionIndex
-      );
+      goToIndex(infoSectionIndex); 
       closeNavMenu();
     });
   } 

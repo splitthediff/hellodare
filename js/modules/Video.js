@@ -235,12 +235,12 @@ export class Video {
 
   _handleProgressUpdate = (data) => {
     if (!data) return;
-    // Update Progress Bar Fill
+
     if (this.progressBarFill && this.duration > 0) {
       const progressPercent = (data.percent * 100).toFixed(2);
       this.progressBarFill.style.width = `${progressPercent}%`;
     }
-    // Update Current Time Display
+
     if (this.currentTimeDisplayElement) {
       if (typeof formatTime === "function") {
         this.currentTimeDisplayElement.textContent = formatTime(data.seconds);
@@ -330,40 +330,26 @@ export class Video {
   };
 
   _updatePlayPauseButtonUI = (isPaused) => {
-    const playPauseButton = this.playPauseButtonElement;
-    const playWrapper = playPauseButton?.querySelector(".icon-play-wrapper");
-    const pauseWrapper = playPauseButton?.querySelector(".icon-pause-wrapper");
+    if (!this.playPauseButtonElement) return;
 
-    if (playPauseButton && playWrapper && pauseWrapper) {
-      playWrapper.classList.toggle("is-hidden", !isPaused); // Hide play if not paused
-      pauseWrapper.classList.toggle("is-hidden", isPaused); // Hide pause if paused
-      playPauseButton.setAttribute("aria-label", isPaused ? "Play" : "Pause");
-    } else {
-      console.warn(
-        `[Video ${this.id}] Play/Pause button elements not found for UI update.`
-      );
-    }
+    const playWrapper = this.playPauseButtonElement.querySelector(".icon-play-wrapper");
+    const pauseWrapper = this.playPauseButtonElement.querySelector(".icon-pause-wrapper");
+
+    playWrapper.classList.toggle("is-hidden", !isPaused);
+    pauseWrapper.classList.toggle("is-hidden", isPaused);
+    this.playPauseButtonElement.setAttribute("aria-label", isPaused ? "Play" : "Pause");
   };
 
   _updateSoundButtonUI = (isMuted) => {
-    const soundButton = this.soundButtonElement;
-    const volumeOnWrapper = soundButton?.querySelector(
-      ".icon-volume-on-wrapper"
-    );
-    const volumeOffWrapper = soundButton?.querySelector(
-      ".icon-volume-off-wrapper"
-    );
+    if (!this.soundButtonElement) return;
 
-    if (soundButton && volumeOnWrapper && volumeOffWrapper) {
-      volumeOffWrapper.classList.toggle("is-hidden", !isMuted); // Show if muted
-      volumeOnWrapper.classList.toggle("is-hidden", isMuted); // Hide if muted
-      soundButton.setAttribute("aria-label", isMuted ? "Unmute" : "Mute"); // Update label
-    } else {
-      console.warn(
-        `[Video ${this.id}] Sound button elements not found for UI update.`
-      );
-    }
-  };
+    const volumeOnWrapper = this.soundButtonElement.querySelector(".icon-volume-on-wrapper");
+    const volumeOffWrapper = this.soundButtonElement.querySelector(".icon-volume-off-wrapper");
+
+    volumeOffWrapper.classList.toggle("is-hidden", !isMuted);
+    volumeOnWrapper.classList.toggle("is-hidden", isMuted);
+    this.soundButtonElement.setAttribute("aria-label", isMuted ? "Unmute" : "Mute");
+};
 
   updateVideoSizes(containerWidth) {
     if (this.aspectRatio > 0 && containerWidth > 0) {

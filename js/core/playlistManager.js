@@ -28,7 +28,7 @@ const INFO_OVERLAY_SELECTOR = ".video-info-overlay";
 export async function renderScrollTrack() {
   currentVideos = initializeVideos();
   renderTrackContent(currentVideos);
-  renderNavigationMenu(playlist, "Intro", "Info");
+  renderNavigationMenu(playlist); 
 
   if (currentVideos && currentVideos.length > 0) {
     currentVideos.forEach((video) => {
@@ -231,11 +231,7 @@ export function positionSingleInfoOverlay(videoId) {
   overlay.style.maxWidth = "100%"; // prevent overflow
 }
 
-function renderNavigationMenu(
-  videoData,
-  introSectionName = "Intro",
-  infoSectionName = "Info"
-) {
+function renderNavigationMenu(videoData) {
   const navContainer = document.getElementById("main-navigation");
   if (!navContainer) {
     console.error("Navigation container #main-navigation not found.");
@@ -244,12 +240,8 @@ function renderNavigationMenu(
 
   let navHTML = '<ul class="nav-link-list">';
 
-  // Intro section at index 0
-  //navHTML += `<li><a href="#" class="nav-link" data-index="0">${introSectionName}</a></li>`;
-
-  // Add link for each video
   videoData.forEach((video, index) => {
-    const navIndex = index + 1; // start at inex 1 for videos
+    const navIndex = index + 1;
     navHTML += `<li><a href="#" class="nav-link" data-index="${navIndex}">${paddedNumber(
       navIndex
     )}<span class="nav-space"></span>${
@@ -257,14 +249,12 @@ function renderNavigationMenu(
     }</a></li>`;
   });
 
-  // Add link for the Info section
   const infoIndex = videoData.length + 1;
-  //navHTML += `<li><a href="#" class="nav-link" data-index="${infoIndex}">${infoSectionName}</a></li>`;
 
-  navHTML += "</ul>"; // End list
+  navHTML += "</ul>";
 
   navContainer.innerHTML = navHTML;
-  attachNavigationListeners(navContainer, infoIndex); // Pass infoIndex for boundary checks
+  attachNavigationListeners(navContainer, infoIndex);
 }
 
 function attachNavigationListeners(navContainer, lastItemIndex) {
