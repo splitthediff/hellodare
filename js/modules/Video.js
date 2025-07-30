@@ -61,7 +61,6 @@ export class Video {
       return this.playerInitializationPromise;
     if (this.player) return Promise.resolve(this.player);
 
-    // console.log(`%c[Player Init ${this.id}] Starting new initialization...`, "color: green;");
     this.playerInitializationPromise = new Promise((resolve, reject) => {
       const iframe = document.getElementById(`iframe-${this.id}`);
       if (!iframe) {
@@ -76,7 +75,6 @@ export class Video {
         playerInstance
           .ready()
           .then(async () => {
-            // console.log(`%c[Player Init ${this.id}] Ready.`, "color: green; font-weight: bold;");
             this.player = playerInstance; // Assign player
             this.isEnding = false; // Reset state
 
@@ -114,7 +112,6 @@ export class Video {
 
   // --- "Private" Helper Methods for Player Setup ---
   _findPlayerUIElements() {
-    // console.log(`[Player UI ${this.id}] Finding elements...`);
     const videoItemElement = document.querySelector(
       `${config.selectors.scrollItem}.video-item[data-video-id="${this.id}"]`
     );
@@ -146,12 +143,9 @@ export class Video {
     this.currentTimeDisplayElement = videoItemElement.querySelector(
       `#current-time-display-${this.id}`
     );
-
-    // console.log(`[Player UI ${this.id}] Elements found and assigned.`);
   }
 
   _resetPlayerUI() {
-    // console.log(`[Player UI ${this.id}] Resetting elements...`);
     if (this.progressBarFill) this.progressBarFill.style.width = "0%";
     if (this.currentTimeDisplayElement)
       this.currentTimeDisplayElement.textContent = "0:00";
@@ -166,10 +160,6 @@ export class Video {
       );
       return;
     }
-    console.log(
-      `%c[Video ${this.id}] _attachPlayerListeners: Attaching all UI button listeners.`,
-      "color: orange;"
-    );
 
     // ... clear other listeners (play, pause, error) ...
     this.player.off("play");
@@ -190,7 +180,6 @@ export class Video {
       !this.playPauseButtonElement._listenerAttachedClick
     ) {
       this.playPauseButtonElement.addEventListener("click", () => {
-        console.log(`[Video ${this.id}] Play/Pause button CLICKED.`);
         this.togglePlayPause();
       });
       this.playPauseButtonElement._listenerAttachedClick = true;
@@ -201,7 +190,6 @@ export class Video {
       !this.soundButtonElement._listenerAttachedClick
     ) {
       this.soundButtonElement.addEventListener("click", () => {
-        console.log(`[Video ${this.id}] Sound button CLICKED.`);
         this.toggleSound();
       });
       this.soundButtonElement._listenerAttachedClick = true;
@@ -246,7 +234,6 @@ export class Video {
   };
 
   _handleProgressUpdate = (data) => {
-    // console.log(`[TimeUpdate ${this.id}] Progress Update. Percent: ${data?.percent}`);
     if (!data) return;
     // Update Progress Bar Fill
     if (this.progressBarFill && this.duration > 0) {
@@ -266,7 +253,6 @@ export class Video {
   };
 
   _handleSimulatedEnd = (data) => {
-    // console.log(`[TimeUpdate ${this.id}] End Simulation Check. Time: ${data?.seconds}`);
     if (!data || !this.duration) return; // Add duration check
     const currentTime = data.seconds;
     // Define endTimeTarget locally for clarity
@@ -275,10 +261,6 @@ export class Video {
     if (currentTime >= endTimeTarget && !this.isEnding) {
       this.isEnding = true;
       this.hasPlayedOnce = true;
-      console.log(
-        `%c[Player ${this.id}] TIMEUPDATE near end. Pausing & Updating Button Icon.`,
-        "color: purple;"
-      );
 
       if (this.progressBarFill) {
         this.progressBarFill.style.width = "100%";
@@ -313,13 +295,11 @@ export class Video {
       this.duration > 0 &&
       currentTime < endTimeTarget - 0.05
     ) {
-      // console.log(`[Player ${this.id}] Time moved away, resetting isEnding.`);
       this.isEnding = false; // Reset if time moves away
     }
   };
 
   _handleSeekClick = (event) => {
-    // console.log(`[Seek Click ${this.id}]`);
     if (!this.duration || !this.player || !this.progressBarContainer) return;
     const rect = this.progressBarContainer.getBoundingClientRect();
     const offsetX = event.clientX - rect.left;
@@ -327,7 +307,6 @@ export class Video {
     if (barWidth > 0) {
       const seekFraction = Math.max(0, Math.min(offsetX / barWidth, 1)); // Clamp fraction 0-1
       const seekTime = this.duration * seekFraction;
-      // console.log(`[Seek Click ${this.id}] Seeking to: ${seekTime.toFixed(2)}s`);
       this.isEnding = false; // Reset ending flag on seek
       this.hasPlayedOnce = false; // Reset play flag on seek
       this.player
@@ -470,10 +449,8 @@ export class Video {
 
      */
   async toggleSound() {
-    // console.log(`[Toggle Sound ${this.id}] Clicked.`);
     try {
       await this.initializePlayer();
-      // console.log(`[Toggle Sound ${this.id}] Player ready. Calling provided toggle function.`);
 
       toggleGlobalVolume();
     } catch (error) {

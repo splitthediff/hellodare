@@ -60,9 +60,6 @@ export function getAspectRatio(videoWidth, videoHeight) {
   if (videoWidth > 0 && videoHeight > 0) {
     return videoWidth / videoHeight;
   } else {
-    console.warn(
-      `Invalid dimensions for getAspectRatio (${videoWidth}x${videoHeight}), defaulting to 16/9.`
-    );
     return 16 / 9; // Default fallback aspect ratio
   }
 }

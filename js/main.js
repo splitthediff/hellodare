@@ -4,20 +4,14 @@ import { renderScrollTrack } from "./core/playlistManager.js";
 import { getFormattedDate } from "./utils/utils.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("1. DOMContentLoaded FIRED");
   document.body.classList.add("no-transition");
-  console.log("Load event fired. Starting initializations...");
   registerGSAP();
   await loadAndInjectSVGSprite();
 
-  console.log("Running and AWAITING renderScrollTrack...");
   try {
-    console.log("2. MAIN: Calling renderScrollTrack");
     await renderScrollTrack();
-    console.log("5. Finished AWAITING renderScrollTrack.");
 
     // --- GSAP INTRO ANIMATION ---
-    console.log("Starting intro animation...");
     if (typeof gsap !== "undefined") {
       const introTl = gsap.timeline({
         defaults: { duration: 1.5, ease: "power2.out" },
@@ -39,7 +33,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         delay: 0.4,
       });
     } else {
-      console.error("GSAP not loaded! Cannot run intro animation.");
       document
         .querySelectorAll(".left-column, .right-column, .middle-column")
         .forEach((el) => {
@@ -59,10 +52,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   setTimeout(() => {
     document.body.classList.remove("no-transition");
-    console.log("Transitions re-enabled after initial load.");
   }, 50);
-
-  console.log("All initializations in load handler complete.");
 });
 
 function registerGSAP() {
@@ -72,9 +62,7 @@ function registerGSAP() {
     typeof CSSPlugin !== "undefined"
   ) {
     gsap.registerPlugin(ScrollTrigger, CSSPlugin);
-    console.log("GSAP and plugins registered.");
   } else {
-    console.error("GSAP or plugins not loaded!");
     return;
   }
 }
@@ -94,21 +82,16 @@ async function loadAndInjectSVGSprite() {
       svgElement.style.display = "none";
       svgElement.setAttribute("aria-hidden", "true"); // Hide from screen readers
       document.body.insertAdjacentElement("afterbegin", svgElement); // Inject at start of body
-      console.log("SVG sprite injected into body.");
-    } else {
-      console.error("Could not find SVG element within fetched sprite file.");
-    }
+    } 
   } catch (error) {
     console.error("Error loading or injecting SVG sprite:", error);
   }
 }
 
 function initializeDarkModeToggle() {
-  console.log("Initializing dark mode toggle...");
   const toggleButton = document.getElementById("darkModeToggle");
 
   if (!toggleButton) {
-    console.warn("Dark mode toggle button not found.");
     return;
   }
 
@@ -127,14 +110,10 @@ function initializeDarkModeToggle() {
 function displayCurrentDate() {
   const dateElement = document.getElementById("current-date-display");
   if (!dateElement) {
-    console.warn("Date display element not found.");
     return;
   }
 
-  // Call the utility function to get the string
   const formattedDate = getFormattedDate("MM DD YYYY");
 
-  // Set the text content of the element
   dateElement.textContent = formattedDate;
-  console.log(`Current date set to: ${formattedDate}`);
 }

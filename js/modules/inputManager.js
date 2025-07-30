@@ -30,15 +30,11 @@ async function handleKeyDown(event) {
     case " ":
     case "Spacebar":
       event.preventDefault();
-      console.log("[InputMgr] Spacebar detected."); // Log detection
       if (getActiveVideoCallback && togglePlayPauseCallback) {
         const activeVideo = getActiveVideoCallback();
-        console.log("[InputMgr] Active video:", activeVideo); // Log the video object
         if (activeVideo) {
-          console.log("[InputMgr] Calling togglePlayPauseCallback wrapper...");
           togglePlayPauseCallback(activeVideo); // Call the wrapper
         } else {
-          console.log("[InputMgr] Spacebar ignored: No active video returned.");
         }
       } else {
         console.warn("[InputMgr] Spacebar ignored: Callbacks not initialized.");
@@ -122,7 +118,6 @@ function createResizeHandler(scrollPositionResizeCb, globalResizeHandler) {
       // Call the comprehensive resize handler (from playlistManager.js)
       globalResizeHandler(); // **NEW CALL**
       updateTitleStyleBasedOnViewport();
-      console.log("[InputMgr] Resize debounced and handled.");
     }, config.input.resizeDebounce); // Use the debounce time from config
   };
 }
@@ -171,9 +166,6 @@ export function initializeInput(
     // This is the WRAPPER called by handleKeyDown
     if (video && typeof togglePlayPauseFn === "function") {
       try {
-        console.log(
-          `[InputMgr] Wrapper calling original togglePlayPauseFn for video ${video.id}`
-        );
         togglePlayPauseFn(video); // Call original fn without the button
       } catch (e) {
         console.error("Error calling togglePlayPauseFn from wrapper:", e);
@@ -197,7 +189,6 @@ export function initializeInput(
     globalResizeHandler
   ); // **UPDATED**
   attachEventListeners(touchHandlers, resizeHandler);
-  console.log("Input Manager Initialized.");
 }
 
 export function checkForMobile() {
@@ -211,8 +202,5 @@ export function NavMenuOpen() {
   const isVisible = navMenuElement
     ? navMenuElement.classList.contains("is-visible")
     : false;
-  console.log(
-    `INPUT_MANAGER: NavMenuOpen() called. Current navMenu.classList.contains('is-visible') = ${isVisible}`
-  ); // ADD THIS LOG
-  return isVisible;
+    return isVisible;
 }
