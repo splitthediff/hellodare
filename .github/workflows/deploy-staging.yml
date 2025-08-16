@@ -1,0 +1,42 @@
+name: Deploy to GitHub Pages (Staging)
+
+# This workflow runs whenever you push code to the 'develop' branch
+on:
+  push:
+    branches:
+      - develop
+
+# Allow this job to clone the repo and create a page deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18' # Use a recent LTS version of Node.js
+          cache: 'npm'
+
+      - name: Install dependencies 📦
+        run: npm install
+
+      - name: Build project 🏗️
+        # The VITE_BASE_PATH is crucial for the deployment script to work correctly
+        run: npm run build
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+
+      - name: Deploy to GitHub Pages 🚀
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # This is the directory that the build script generates
+          publish_dir: ./dist
