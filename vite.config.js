@@ -4,7 +4,7 @@ export default defineConfig({
 
   root: 'src',
 
-  base: '/splitthediff/',
+  base: '/hellodare/',
 
   build: {
     outDir: '../dist',
