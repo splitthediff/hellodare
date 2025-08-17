@@ -33,9 +33,10 @@ jobs:
       - name: Build project 🏗️
         run: npm run build
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload artifact for inspection
+        uses: actions/upload-artifact@v3
         with:
+          name: github-pages
           path: ./dist
 
   deploy:
