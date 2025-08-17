@@ -1,4 +1,4 @@
-// js/main.js
+// ./js/main.js
 
 import { renderScrollTrack } from "./core/playlistManager.js";
 import { getFormattedDate } from "./utils/utils.js";
@@ -69,7 +69,7 @@ function registerGSAP() {
 
 async function loadAndInjectSVGSprite() {
   try {
-    const response = await fetch("assets/images/icons.svg");
+    const response = await fetch("./assets/images/icons.svg");
     if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
     const svgText = await response.text();
 

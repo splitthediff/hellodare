@@ -1,4 +1,4 @@
-// js/core/scroll.js
+// ./js/core/scroll.js
 
 // --- Imports ---
 // Assuming utils, videoController, inputManager are in correct relative paths

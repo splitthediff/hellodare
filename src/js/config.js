@@ -1,4 +1,4 @@
-// js/config.js - Central configuration settings
+// ./js/config.js - Central configuration settings
 
 export const config = {
   // Animation & Timing Settings
@@ -26,7 +26,7 @@ export const config = {
     vimeoQuality: "1080p", // Preferred Vimeo quality
     vimeoParams: "muted=1&controls=0&loop=0", // Default Vimeo iframe params (excluding quality)
     timeupdateEndThreshold: 0.1,
-    localThumbnailBasePath: "assets/images/thumbnails/",
+    localThumbnailBasePath: "./assets/images/thumbnails/",
   },
 
   navigation: {

@@ -1,4 +1,4 @@
-// js/core/videoController.js - Manages video playback and volume
+// ./js/core/videoController.js - Manages video playback and volume
 
 import { config } from "../config.js";
 import { positionSingleInfoOverlay } from "./playlistManager.js";

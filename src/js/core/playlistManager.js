@@ -1,4 +1,4 @@
-// js/playlistManager.js
+// ./js/playlistManager.js
 
 import {
   initializeGsapScroll,
