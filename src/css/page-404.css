@@ -1,0 +1,36 @@
+/* === page-404.css === */
+
+.page-404-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+  text-align: center;
+  font-family: var(--font-family-primary);
+  color: var(--clr-text-primary);
+}
+
+.error-title {
+  font-size: var(--font-size-large);
+  font-weight: bold;
+  margin-bottom: 100px;
+}
+
+.error-haiku {
+  font-weight: bold;
+  font-size: var(--font-size-xsmall);
+  color: var(--primary-color);
+  margin-bottom: 30px;
+}
+
+.back-to-home-404-btn {
+  display: inline-block;
+  margin-top: 100px;
+  font-size: var(--font-size-xsmall);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}

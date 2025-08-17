@@ -1,0 +1,26 @@
+/* === icons.css === */
+
+.icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+  stroke-width: 0;
+  pointer-events: none;
+  stroke: none !important;
+}
+
+.controls-button {
+  color: var(--clr-text-overlay, white);
+  line-height: 0;
+}
+
+.button-icon-wrapper.is-hidden {
+  display: none;
+}
+
+.intro-arrow-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--clr-text-primary);
+  margin-bottom: 2rem;
+}

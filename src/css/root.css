@@ -1,0 +1,103 @@
+/* === root.css === */
+
+:root {
+    /* === COLORS === */
+    /*--clr-background: #efede8;*/
+    --clr-background: #F7F1E7;
+    --clr-text-primary: #231F20;
+    --clr-text-overlay: #ffffff;         /* For text on dark overlays */
+    --clr-text-overlap: var(--clr-background); /* For title overlap */
+    --clr-overlay-bg: rgba(0, 0, 0, 0.5); /* Controls background */
+    --clr-info-overlay-bg: rgba(0, 0, 0, 0.6); /* Video info overlay background */
+    --clr-button-hover-bg: rgba(255, 255, 255, 0.15); /* Controls button hover */
+    --clr-link-hover: #ff00e1; /* Link hover color */
+
+    --clr-background-darkmode: #000000;
+    --clr-text-primary-darkmode: #efede8;
+
+  
+    /* === FONTS === */
+    --font-family-primary: "neue-haas-unica", helvetica, sans-serif;
+    --font-family-secondary:"lemonde-journal", serif;
+    --font-size-base: 1 em;          /* Base size used on body, title */
+    --font-size-large: calc(var(--font-size-base) * 120.0); 
+    --font-size-med: calc(var(--font-size-base) * 10.0);  
+    --font-size-small: 0.85em;         /* Smaller text like .info button, paragraph */
+    --font-size-xsmall: 0.75em;   
+    --font-size-xxsmall: 0.65em; 
+    --font-size-xxxsmall: 0.50em;     
+    --font-size-controls: 0.9em;
+    --font-size-info-title: .9em;      /* Video info overlay title */
+    --font-size-info-h2: var(--font-size-small); /* Info section H2 */
+    --font-size-info-p: var(--font-size-xsmall); /* Info section P */
+    --font-size-mobile-small: var(--font-size-small); /* Info section H2 */
+    --font-size-mobile-xsmall: var(--font-size-xsmall); /* Info section P */
+    --font-size-navigation: var(--font-size-small); /* Navigation menu */
+  
+    --font-weight-light: 300;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 600; 
+    --font-weight-heavy: 700;         
+  
+    --line-height-base: 1.2em;   
+    --line-height-big: 1.2em;      
+    --line-height-heading: 1.5em;       
+    --line-height-tight: 1.5em;         
+    --line-height-info-p: var(--line-height-tight);       
+  
+    /* === SPACING === */
+    --space-unit: 1.0em;
+    --space-xs: calc(var(--space-unit) * 0.5);  
+    --space-s: var(--space-unit);             
+    --space-m: calc(var(--space-unit) * 1.5);
+    --space-l: calc(var(--space-unit) * 2);  
+    --space-xl: calc(var(--space-unit) * 2.5); 
+    --space-xxl: calc(var(--space-unit) * 5);  
+  
+    --gap-controls: var(--space-s);      
+    --gap-info-columns: var(--space-xxl);           
+
+    --space-after-heading: var(--space-s);
+    --space-between-paragraphs: var(--space-s);
+    --space-paragraph-before-heading: var(--space-xl);
+    --space-after-video: var(--space-s);
+  
+    --padding-columns: var(--space-xl);  
+    --padding-controls-y: var(--space-s); 
+    --padding-controls-x: var(--space-s); 
+    --padding-controls-button-y: var(--space-xs);    
+    --padding-controls-button-x: var(--space-m); 
+    --padding-info-overlay-y: var(--space-s);  
+    --padding-info-overlay-x: var(--space-xs);  
+    --padding-info-section: var(--space-xxl); 
+  
+    /* === SIZING === */
+    --content-max-width-middle: 1500;
+    --content-max-width-info: 500px;
+    --content-max-width-info-wide: 1000px; /* For 2-column */
+    --column-flex-side: 1;
+    --column-flex-middle: 3;
+    --info-column-left-grow: 3;   /* Your 3:1 ratio */
+    --info-column-right-grow: 1;  /* Your 3:1 ratio */
+  
+    /* === BORDERS === */
+    --radius-video: 0em;
+    --radius-controls: 6px;
+    --radius-overlay: 4px;
+    --radius-button-hover: 4px;
+  
+    /* === TRANSITIONS === */
+    --transition-duration: 1s;
+    --transition-duration-fast: 0.4s;
+    --transition-duration-slow: 2.5s;
+    --transition-ease: ease-in-out;
+    --transition-ease-power: power2.out; /* Example for GSAP consistency */
+  
+    /* === LAYERS (Z-INDEX) === */
+    --z-index-iframe: 2;
+    --z-index-thumbnail: 3;
+    --z-index-info-overlay: 1;
+    --z-index-controls: 4;
+    --z-index-side-columns: 20;
+  }

@@ -1,0 +1,184 @@
+/* === text-section.css === */
+
+/* ======================================== */
+/*          TEXT-BASED SECTIONS             */
+/* ======================================== */
+
+.text-section .info-block {
+  opacity: 0;
+  transform: translateY(20px);
+  will-change: transform, opacity;
+}
+
+.text-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-xxl);
+}
+
+/* ======================================== */
+/*             INFO SECTION STYLES          */
+/* ======================================== */
+
+.info-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: var(--gap-info-columns);
+  width: 100%;
+  max-width: var(--content-max-width-info-wide);
+  text-align: left;
+}
+.info-column {
+  box-sizing: border-box;
+  text-align: left;
+  flex-basis: 0;
+  flex-shrink: 1;
+}
+.info-column-left {
+  flex-grow: var(--info-column-left-grow);
+}
+.info-column-right {
+  flex-grow: var(--info-column-right-grow);
+}
+
+.info-column h2,
+.info-column h3 {
+  font-size: var(--font-size-xxsmall);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-after-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.info-column .info-header h2 {
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-heading);
+  margin-bottom: var(--space-after-heading);
+}
+
+.info-column p {
+  font-size: var(--font-size-info-p);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-info-p);
+  margin-bottom: var(--space-between-paragraphs);
+}
+
+.info-column .info-block:not(:first-child) h2,
+.info-column .info-block:not(:first-child) h3 {
+  margin-top: var(--space-paragraph-before-heading);
+}
+
+.info-column .info-block p:last-child {
+  margin-bottom: 0;
+}
+
+.info-column > .info-block:last-child {
+  margin-bottom: 0;
+}
+
+.info-column .recognition-list {
+  margin-top: var(--space-xl);
+}
+.info-column .recognition-item {
+  margin-bottom: var(--space-m);
+}
+.info-column .recognition-list .recognition-item:last-child {
+  margin-bottom: 0;
+}
+.info-column .recognition-award-name {
+  font-size: var(--font-size-xsmall);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-heading);
+  margin: 0;
+}
+.info-column .recognition-details {
+  font-family: var(--font-family-primary);
+  font-size: calc(var(--font-size-xsmall) * 0.9);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-tight);
+  opacity: 0.6;
+  margin: 0;
+}
+
+.info-column a {
+  background-color: transparent;
+  text-decoration: none;
+  transition: color var(--transition-duration-fast) ease;
+  cursor: pointer;
+}
+.info-column a:hover,
+.info-column a:focus {
+  color: var(--clr-link-hover);
+  outline: none;
+}
+
+/* ======================================== */
+/*     INTRO / OUTRO SECTION STYLES         */
+/* ======================================== */
+
+.intro-content,
+.outro-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: var(--content-max-width-info-wide);
+  text-align: center;
+}
+
+.intro-content {
+  gap: var(--gap-info-columns);
+}
+
+.outro-content {
+  gap: calc(var(--gap-info-columns) / 2);
+}
+
+.intro-section h2 {
+  font-size: var(--font-size-large);
+  font-weight: 700;
+  line-height: 3.5;
+}
+
+.outro-content h2 {
+  font-size: var(--font-size-large);
+  font-weight: 700;
+  line-height: 2;
+}
+
+.intro-section h3 {
+  font-size: var(--font-size-xxxsmall);
+  font-weight: 500;
+  line-height: 3.5;
+}
+
+.outro-content h3 {
+  font-size: var(--font-size-xsmall);
+  font-weight: 300;
+  line-height: 2;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.outro-content a {
+  font-weight: 500;
+}
+
+.intro-arrow-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: var(--space-xl);
+}
+
+/* ======================================== */
+/*             DATE DISPLAY          */
+/* ======================================== */
+
+.date-display {
+}

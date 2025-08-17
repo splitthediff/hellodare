@@ -1,0 +1,53 @@
+/* === base.css === */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--clr-background);
+  color: var(--clr-text-primary);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  font-weight: var(--font-weight-regular);
+
+  scroll-behavior: smooth;
+
+  transition: none;
+}
+
+body.no-transition,
+body.no-transition *,
+body.no-transition *::before,
+body.no-transition *::after {
+  transition: none !important;
+}
+
+a {
+  color: var(--clr-text-primary);
+  text-decoration: none;
+}
+
+.site-footer {
+  position: fixed;
+  bottom: var(--padding-columns, 20px);
+  right: var(--padding-columns, 20px);
+  z-index: 100;
+
+  margin: 0;
+  padding: 0;
+  font-size: var(--font-size-xsmall);
+  opacity: 50%;
+  z-index: 100;
+  display: block;
+  justify-content: flex-end;
+}

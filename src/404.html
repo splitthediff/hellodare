@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>HelloDare.com / Studio Dare</title>
+
+    <!-- TYPEKIT -->
+    <link rel="stylesheet" href="https://use.typekit.net/kxi2wnm.css">
+
+    <!-- STYLE -->
+    <link rel="stylesheet" href="./css/root.css">
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/icons.css">
+    <link rel="stylesheet" href="./css/layout.css">
+    <link rel="stylesheet" href="./css/navigation.css">
+    <link rel="stylesheet" href="./css/video-player.css">
+    <link rel="stylesheet" href="./css/text-section.css">
+    <link rel="stylesheet" href="./css/responsive.css">
+    <link rel="stylesheet" href="./css/darkmode.css">
+
+    <!-- FAVICON -->
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="57x57"
+      href="favicon/apple-touch-icon-57x57.png"
+    >
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="114x114"
+      href="favicon/apple-touch-icon-114x114.png"
+    >
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="72x72"
+      href="favicon/apple-touch-icon-72x72.png"
+    >
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="144x144"
+      href="favicon/apple-touch-icon-144x144.png"
+    >
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="60x60"
+      href="favicon/apple-touch-icon-60x60.png"
+    >
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="120x120"
+      href="favicon/apple-touch-icon-120x120.png"
+    >
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="76x76"
+      href="favicon/apple-touch-icon-76x76.png"
+    >
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="152x152"
+      href="favicon/apple-touch-icon-152x152.png"
+   >
+    <link
+      rel="icon"
+      type="image/png"
+      href="favicon/favicon-196x196.png"
+      sizes="196x196"
+    >
+    <link
+      rel="icon"
+      type="image/png"
+      href="favicon/favicon-96x96.png"
+      sizes="96x96"
+    >
+    <link
+      rel="icon"
+      type="image/png"
+      href="favicon/favicon-32x32.png"
+      sizes="32x32"
+    >
+    <link
+      rel="icon"
+      type="image/png"
+      href="favicon/favicon-16x16.png"
+      sizes="16x16"
+    >
+    <link
+      rel="icon"
+      type="image/png"
+      href="favicon/favicon-128.png"
+      sizes="128x128"
+    >
+    <meta name="application-name" content="&nbsp;" >
+    <meta name="msapplication-TileColor" content="#FFFFFF" >
+    <meta name="msapplication-TileImage" content="favicon/mstile-144x144.png" >
+    <meta
+      name="msapplication-square70x70logo"
+      content="favicon/mstile-70x70.png"
+    >
+    <meta
+      name="msapplication-square150x150logo"
+      content="favicon/mstile-150x150.png"
+    >
+    <meta
+      name="msapplication-wide310x150logo"
+      content="favicon/mstile-310x150.png"
+    >
+    <meta
+      name="msapplication-square310x310logo"
+      content="favicon/mstile-310x310.png"
+    >
+
+    <script>
+      document.documentElement.setAttribute("data-theme-init", "");
+    </script>
+  </head>
+  <body>
+    <div class="page-container">
+      <!-- Left Column: Logo/Title -->
+      <div class="left-column">
+        <!--TITLE-->
+        <div class="column-content">
+          <h1 class="title" id="main-page-title">Studio Dare</h1>
+
+          <nav class="navigation-menu is-hidden" id="main-navigation">
+            <div class="nav-status"></div>
+          </nav>
+
+          <div class="bottom-left-controls">
+            <div class="info-dark-mode-wrapper">
+              <button class="info" id="scroll-to-info-btn">Info</button>
+              <button
+                class="menu-toggle-button"
+                id="menu-toggle-btn"
+                aria-label="Open Navigation Menu"
+                aria-expanded="false"
+              >
+                Work
+              </button>
+              <button
+                id="darkModeToggle"
+                aria-label="Toggle Dark Mode"
+                class="dark-mode-toggle-btn"
+              >
+                <svg class="icon icon-sun" aria-hidden="true">
+                  <use xlink:href="#icon-sun"></use>
+                </svg>
+                <svg class="icon icon-moon" aria-hidden="true">
+                  <use xlink:href="#icon-moon"></use>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Middle Column: 404 -->
+      <div class="middle-column">
+        <div class="page-404-content">
+          <h2 class="error-title">404</h2>
+          <p class="error-haiku">YOU ARE HERE BECAUSE</p>
+          <p class="error-haiku">THE PAGE YOU SEEK DOES NOT EXIST</p>
+          <p class="error-haiku">PERHAPS SOMEDAY IT WILL</p>
+          <a href="index.html" class="back-to-home-404-btn">BACK</a>
+        </div>
+      </div>
+
+      <!-- Right Column: Info Button -->
+      <div class="right-column">
+        <div class="column-content">
+          <div>
+            <footer class="site-footer">
+              <p>&copy; <span id="current-year"></span></p>
+              <script>
+                // Save this in a separate JS file, e.g., ./js/utils.js
+                export function setCurrentYear(elementId = 'current-year') {
+                  const el = document.getElementById(elementId);
+                  if (el) el.textContent = new Date().getFullYear();
+                }
+              </script>
+            </footer>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://player.vimeo.com/api/player.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script type="module" src="./js/main.js"></script>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", () => {
+        requestAnimationFrame(() => {
+          document.documentElement.removeAttribute("data-theme-init");
+        });
+      });
+    </script>
+  </body>
+</html>
