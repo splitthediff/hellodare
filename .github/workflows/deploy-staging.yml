@@ -21,18 +21,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm' # We still enable caching, but let the action find the file automatically
+          cache: 'npm'
 
       - name: Install dependencies 📦
         run: npm install
-        working-directory: ./hellodare.com
 
       - name: Build project 🏗️
         run: npm run build
-        working-directory: ./hellodare.com
 
       - name: Deploy to GitHub Pages 🚀
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./hellodare.com/dist
+          publish_dir: ./dist
