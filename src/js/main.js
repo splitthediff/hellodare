@@ -69,7 +69,7 @@ function registerGSAP() {
 
 async function loadAndInjectSVGSprite() {
   try {
-    const response = await fetch("/assets/images/icons.svg");
+    const response = await fetch("/images/icons.svg");
     if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
     const svgText = await response.text();
 
