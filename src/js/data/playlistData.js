@@ -1,13 +1,14 @@
 export const playlist = [
   {
     vimeoid: "367537828",
-    title: `Inside Bill's Brain / Main Title Sequence`,
+    title: `Inside Bill\'s Brain / Main Title Sequence`,
     titleShortName: "Inside Bill's Brain / MT",
     client: "Netflix",
     year: "2019",
     thumbnailFilename: "367537828_Inside_Bills_Brain_MT.jpg",
     thumbnailWidth: 2048,
     thumbnailHeight: 1080,
+    alt: 'Inside Bill\'s Brain / Main Title Sequence',
   },
   {
     vimeoid: "535413159",
@@ -18,6 +19,7 @@ export const playlist = [
     thumbnailFilename: "535413159_13th_GFX.jpg",
     thumbnailWidth: 1920,
     thumbnailHeight: 1080,
+    alt: '13th / GFX Reel',
   },
   {
     vimeoid: "535355395",
@@ -28,6 +30,7 @@ export const playlist = [
     thumbnailFilename: "535355395_Icarus_MOE.jpg",
     thumbnailWidth: 1920,
     thumbnailHeight: 1080,
+    alt: 'Icarus / Main on End',
   },
   {
     vimeoid: "535136384",
@@ -38,6 +41,7 @@ export const playlist = [
     thumbnailFilename: "535136384_Amanda_Knox_MT.jpg",
     thumbnailWidth: 1920,
     thumbnailHeight: 1080,
+    alt: 'Amanda Knox / Main Title',
   },
   {
     vimeoid: "423363148",
@@ -48,6 +52,7 @@ export const playlist = [
     thumbnailFilename: "423363148_Trial_by_Media_MT.jpg",
     thumbnailWidth: 2048,
     thumbnailHeight: 972,
+    alt: 'Trial by Media / Main Title',
   },
   {
     vimeoid: "834195660",
@@ -58,6 +63,7 @@ export const playlist = [
     thumbnailFilename: "834195660_WMCJ_MOE.jpg",
     thumbnailWidth: 1920,
     thumbnailHeight: 1080,
+    alt: `White Men Can't Jump / Main on End`,
   },
   {
     vimeoid: "1059558209",
@@ -67,17 +73,19 @@ export const playlist = [
     year: "2024",
     thumbnailFilename: "1059558209_WhereTo_Canada.jpg",
     thumbnailWidth: 1280,
-    thumbnailHeight: 720,
+    thumbnailHeight: 720, 
+    alt: 'WhereTo: Canada Opening Shot',
   },
   {
     vimeoid: "432305926",
-    title: `Inside Bill's Brain / GFX Reel`,
+    title: `Inside Bill\'s Brain / GFX Reel`,
     titleShortName: "Inside Bill's Brain / GFX",
     client: "Netflix",
     year: "2018",
     thumbnailFilename: "432305926_Inside_Bills_Brain_GFX.jpg",
     thumbnailWidth: 2048,
     thumbnailHeight: 1080,
+    alt: 'Inside Bill\'s Brain / GFX Reel',
   },
   {
     vimeoid: "1059557536",
@@ -88,6 +96,7 @@ export const playlist = [
     thumbnailFilename: "1059557536_Willow_Opening.jpg",
     thumbnailWidth: 1920,
     thumbnailHeight: 1080,
+    alt: 'Willow / Book Opening - Episode 1',
   },
   {
     vimeoid: "535137022",
@@ -98,6 +107,7 @@ export const playlist = [
     thumbnailFilename: "535137022_Amanda_Knox_GFX.jpg",
     thumbnailWidth: 1920,
     thumbnailHeight: 1080,
+    alt: 'Amanda Knox / GFX Reel',
   },
   {
     vimeoid: "707339712",
@@ -108,6 +118,40 @@ export const playlist = [
     thumbnailFilename: "707339712_More_Than_Robots_GFX.jpg",
     thumbnailWidth: 3840,
     thumbnailHeight: 1920,
+    alt: 'More Than Robots / GFX Reel',
+  },
+  {
+    vimeoid: "535135353502668216",
+    title: `Icarus / Main Title`,
+    titleShortName: "Icarus MT",
+    client: "Netfix",
+    year: "2017",
+    thumbnailFilename: "535350266_Icarus_MT.jpg",
+    thumbnailWidth: 1920,
+    thumbnailHeight: 1080,
+    alt: 'Icarus / Main Title',
+  },
+  {
+    vimeoid: "535138216",
+    title: `Dave Chappelle: Deep in the Heart of Texas / Main Title`,
+    titleShortName: "Dave Chappelle MT",
+    client: "Disney+",
+    year: "2017",
+    thumbnailFilename: "535138216_Dave_Chappelle_MT.jpg",
+    thumbnailWidth: 1920,
+    thumbnailHeight: 1080,
+    alt: 'Dave Chappelle: Deep in the Heart of Texas / Main Title',
+  },
+  {
+    vimeoid: "423373315",
+    title: `Trial by Media / GFX Reel`,
+    titleShortName: "Trial by Media GFX",
+    client: "Netflix",
+    year: "2020",
+    thumbnailFilename: "423373315_Trial_by_Media_GFX.jpg",
+    thumbnailWidth: 2048,
+    thumbnailHeight: 1024,
+    alt: 'Trial by Media / GFX Reel',
   },
 ];
 
@@ -121,6 +165,7 @@ export const playlistStandby = [
     thumbnailFilename: "535350266_Icarus_MT.jpg",
     thumbnailWidth: 1920,
     thumbnailHeight: 1080,
+    alt: 'Icarus / Main Title',
   },
   {
     vimeoid: "535138216",
@@ -131,6 +176,7 @@ export const playlistStandby = [
     thumbnailFilename: "535138216_Dave_Chappelle_MT.jpg",
     thumbnailWidth: 1920,
     thumbnailHeight: 1080,
+    alt: 'Dave Chappelle: Deep in the Heart of Texas / Main Title',
   },
   {
     vimeoid: "423373315",
@@ -141,5 +187,6 @@ export const playlistStandby = [
     thumbnailFilename: "423373315_Trial_by_Media_GFX.jpg",
     thumbnailWidth: 2048,
     thumbnailHeight: 1024,
+    alt: 'Trial by Media / GFX Reel',
   },
 ];

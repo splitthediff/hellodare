@@ -177,6 +177,16 @@
 }
 
 /* ======================================== */
+/*             404                          */
+/* ======================================== */
+
+#page-404 .middle-column {
+  display: flex;
+  align-items: center;     /* This vertically centers the content */
+  justify-content: center; /* This horizontally centers the content */
+}
+
+/* ======================================== */
 /*             DATE DISPLAY          */
 /* ======================================== */
 
