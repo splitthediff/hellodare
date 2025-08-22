@@ -1,5 +1,5 @@
 // ./js/main.js
-
+/*
 import { renderScrollTrack } from "./core/playlistManager.js";
 import { getFormattedDate } from "./utils/utils.js";
 
@@ -42,7 +42,69 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   } catch (error) {
     console.error("ERROR during renderPlaylist or attaching listeners:", error);
-  }
+  }*/
+
+    import { renderScrollTrack } from './core/playlistManager.js'; 
+import { getFormattedDate } from './utils/utils.js'; 
+
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log("DOM is ready. Initializing application...");
+
+    // Run setup that is common to ALL pages (like dark mode, SVGs)
+    await loadAndInjectSVGSprite();
+    initializeDarkModeToggle();
+
+    // --- THIS IS THE CONDITIONAL LOGIC ---
+    // Check for the flag we added to the 404.html body tag
+    if (document.body.classList.contains('is-404-page')) {
+        // If it's the 404 page, run the 404 logic
+        load404Content();
+    } else {
+        // Otherwise, run all the normal homepage logic
+        initializeHomepage();
+    }
+});
+
+
+// --- Homepage-Specific Logic ---
+async function initializeHomepage() {
+    console.log("Initializing homepage...");
+    document.body.classList.add('no-transition');
+    registerGSAP();
+
+    try {
+        await renderScrollTrack();
+        runIntroAnimation();
+        displayCurrentDate();
+    } catch (error) {
+        console.error("ERROR during homepage setup:", error);
+    }
+    
+    setTimeout(() => {
+        document.body.classList.remove('no-transition');
+    }, 50);
+}
+
+// --- 404 Page-Specific Logic ---
+async function load404Content() {
+    console.log("Initializing 404 page...");
+    const middleColumn = document.querySelector('.middle-column');
+    if (!middleColumn) return;
+
+    try {
+        const response = await fetch('html/_404-content.html');
+        if (!response.ok) throw new Error('404 content file not found');
+        const html = await response.text();
+        middleColumn.innerHTML = html;
+        
+        // You might want a simple fade-in for the content
+        gsap.from(middleColumn.children, { opacity: 0, duration: 1 });
+
+    } catch (error) {
+        console.error("Error loading 404 content:", error);
+        middleColumn.innerHTML = "<h2>Page Not Found</h2>";
+    }
+}
 
   // --- DARK MODE TOGGLE ---
   initializeDarkModeToggle();
