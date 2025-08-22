@@ -44,7 +44,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("ERROR during renderPlaylist or attaching listeners:", error);
   }*/
 
-    import { renderScrollTrack } from './core/playlistManager.js'; 
+// hello
+
+import { renderScrollTrack } from './core/playlistManager.js'; 
 import { getFormattedDate } from './utils/utils.js'; 
 
 document.addEventListener('DOMContentLoaded', async () => {
