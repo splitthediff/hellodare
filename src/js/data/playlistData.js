@@ -83,7 +83,7 @@ export const playlist = [
     year: "2024",
     thumbnailFilename: "1059558209_WhereTo_Canada.jpg",
     thumbnailWidth: 1280,
-    thumbnailHeight: 720, 
+    thumbnailHeight: 720,
     alt: 'WhereTo: Canada Opening Shot',
   },
   {
@@ -137,7 +137,6 @@ export const playlist = [
     thumbnailWidth: 3840,
     thumbnailHeight: 1920,
     alt: 'More Than Robots / GFX Reel',
-  },
   },
 ];
 
