@@ -12,6 +12,10 @@ const input = htmlFiles.reduce((acc, file) => {
 
 export default defineConfig({
   root: 'src',
+  test: {
+    environment: 'jsdom',
+    include: ['../tests/**/*.test.js'],
+  },
   base: '/hellodare/',
   publicDir: '../public',
 
