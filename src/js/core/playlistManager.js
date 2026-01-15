@@ -22,7 +22,7 @@ const INFO_OVERLAY_SELECTOR = ".video-info-overlay";
 export async function renderScrollTrack() {
   currentVideos = initializeVideos();
   renderTrackContent(currentVideos);
-  renderNavigationMenu(playlist); 
+  renderNavigationMenu(playlist);
 
   if (currentVideos && currentVideos.length > 0) {
     currentVideos.forEach((video) => {
@@ -83,11 +83,9 @@ function renderTrackContent(videos) {
   videos.forEach((video) => {
     const src = video.iframeSrc;
     const thumbnailHTML = video.thumbnailUrl
-      ? `<img src="${
-          video.thumbnailUrl
-        }" class="video-thumbnail" id="thumbnail-${video.id}" alt="${
-          video.title || "Video thumbnail"
-        }">`
+      ? `<img src="${video.thumbnailUrl
+      }" class="video-thumbnail" id="thumbnail-${video.id}" alt="${video.title || "Video thumbnail"
+      }">`
       : "";
 
     const playIconRef = `<svg class="icon icon-play"><use xlink:href="#icon-play"></use></svg>`;
@@ -103,36 +101,30 @@ function renderTrackContent(videos) {
         `;
 
     playlistHTML += `
-            <div class="${scrollItemClass} video-item" data-video-id="${
-      video.id
-    }">
-                    <div class="video-aspect-wrapper" id="video-wrapper-${
-                      video.id
-                    }">
+            <div class="${scrollItemClass} video-item" data-video-id="${video.id
+      }">
+                    <div class="video-aspect-wrapper" id="video-wrapper-${video.id
+      }">
                         ${thumbnailHTML}
-                        <iframe src="${src}" id="iframe-${
-      video.id
-    }" ...></iframe>
+                        <iframe src="${src}" id="iframe-${video.id
+      }" ...></iframe>
                         <div class="video-controls">
-                            <button class="controls-button play-pause-button" id="playPauseButton-${
-                              video.id
-                            }" aria-label="Play">
+                            <button class="controls-button play-pause-button" id="playPauseButton-${video.id
+      }" aria-label="Play">
                                 <span class="button-icon-wrapper icon-play-wrapper">${playIconRef}</span>
                                 <span class="button-icon-wrapper icon-pause-wrapper is-hidden">${pauseIconRef}</span>
                             </button>
                             ${progressBarHTML}
-                            <button class="controls-button sound-button" id="soundButton-${
-                              video.id
-                            }" aria-label="Unmute">
+                            <button class="controls-button sound-button" id="soundButton-${video.id
+      }" aria-label="Unmute">
                                 <span class="button-icon-wrapper icon-volume-off-wrapper">${volumeOffIconRef}</span>
                                 <span class="button-icon-wrapper icon-volume-on-wrapper is-hidden">${volumeOnIconRef}</span>
                             </button>
                         </div>
                     </div>
                     <div class="video-info-overlay" id="video-info-${video.id}">
-                        <h3 class="video-info-title">${
-                          video.title || "Untitled"
-                        }</h3>
+                        <h3 class="video-info-title">${video.title || "Untitled"
+      }</h3>
                         <p class="video-info-year">${video.year || ""}</p>
                     </div>
             </div>
@@ -238,9 +230,8 @@ function renderNavigationMenu(videoData) {
     const navIndex = index + 1;
     navHTML += `<li><a href="#" class="nav-link" data-index="${navIndex}">${paddedNumber(
       navIndex
-    )}<span class="nav-space"></span>${
-      video.titleShortName || `Video ${navIndex}`
-    }</a></li>`;
+    )}<span class="nav-space"></span>${video.titleShortName || `Video ${navIndex}`
+      }</a></li>`;
   });
 
   const infoIndex = videoData.length + 1;
@@ -274,7 +265,7 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
             );
 
             if (typeof closeNavMenu === "function") {
-              closeNavMenu(); 
+              closeNavMenu();
               const activeItemElement = document.querySelector(
                 ".scroll-item.active-scroll-item"
               );
