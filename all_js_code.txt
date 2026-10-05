@@ -1,0 +1,2530 @@
+// ==========================================
+// File: src/js/config.js
+// ==========================================
+
+// ./js/config.js - Central configuration settings
+
+export const config = {
+  // Animation & Timing Settings
+  animation: {
+    desktopDuration: 1.3, // Duration of scroll animation on desktop (seconds)
+    mobileDuration: 0.7, // Duration of scroll animation on mobile (seconds)
+    blurReset: "blur(0px)", // Reset blur effect
+    opacityNavOpen: 0.3,
+    blurNavOpen: "blur(10px)",
+  },
+
+  // Input Handling Settings
+  input: {
+    desktopThrottle: 1500, // Throttle interval for wheel/keyboard on desktop (ms)
+    mobileThrottle: 200, // Throttle interval for wheel/touch on mobile (ms)
+    touchSensitivityY: 30, // Minimum vertical distance for touch swipe (pixels)
+    touchSensitivityX: 100, // Maximum horizontal distance allowed during vertical swipe (pixels)
+    resizeDebounce: 250, // Debounce time for window resize handler (ms)
+  },
+
+  // Video Specific Settings
+  video: {
+    defaultUnmuteLevel: 0.5, // Volume level when unmuting (0.0 to 1.0)
+    loopLimit: 1, // Total number of plays allowed (initial + loops)
+    vimeoQuality: "1080p", // Preferred Vimeo quality
+    vimeoParams: "muted=1&controls=0&loop=0", // Default Vimeo iframe params (excluding quality)
+    timeupdateEndThreshold: 0.1,
+    localThumbnailBasePath: `${import.meta.env.BASE_URL}images/thumbnails/`,
+  },
+
+  navigation: {
+    navOpacity: 0.6, // used in openNavMenu in playlsitManager.js
+  },
+
+  // DOM Selectors & Class Names
+  selectors: {
+    // Query Selectors (usually start with . or #)
+    track: ".js-video-track",
+    scrollItem: ".scroll-item",
+    middleColumn: ".middle-column", // Used by getDynamicWidth
+    // IDs (use # for querySelector, or just name for getElementById)
+    infoButtonId: "scroll-to-info-btn",
+    titleElementId: "main-page-title",
+    infoSectionId: "#info-section",
+    introSectionId: "#intro-section",
+    outroSectionId: "#outro-section",
+    menuToggleButtonId: "menu-toggle-btn",
+    navigationContainerId: "main-navigation",
+
+    // Class Names
+    activeScrollItemClass: "active-scroll-item",
+  },
+
+  // Breakpoints
+  breakpoints: {
+    mobileMaxWidth: 1100, // max-width for mobile styles/logic (pixels)
+    minHeight: 900,
+  },
+
+  layout: {
+    overlayOffsetBottom: 15, // Desired offset below video in pixels
+  },
+};
+
+
+// ==========================================
+// File: src/js/core/playlistManager.js
+// ==========================================
+
+// ./js/playlistManager.js
+
+import {
+  initializeGsapScroll,
+  goToIndex,
+  closeNavMenu,
+  blurActiveElement,
+} from "./scroll.js";
+import { playlist } from "../data/playlistData.js";
+import { Video } from "../modules/Video.js";
+import { config } from "../config.js";
+import { paddedNumber } from "../utils/utils.js";
+import { checkForMobile } from "../modules/inputManager.js";
+import { setInitialVideoContentState } from "./videoController.js";
+
+// --- Global Variable ---
+let currentVideos = [];
+const VIDEO_WRAPPER_SELECTOR = ".video-aspect-wrapper";
+const INFO_OVERLAY_SELECTOR = ".video-info-overlay";
+
+// --- Main Exported Function ---
+export async function renderScrollTrack() {
+  currentVideos = initializeVideos();
+  renderTrackContent(currentVideos);
+  renderNavigationMenu(playlist);
+
+  if (currentVideos && currentVideos.length > 0) {
+    currentVideos.forEach((video) => {
+      video
+        .initializePlayer()
+        .catch((err) => console.warn(`Init ${video.id} fail: ${err.message}`));
+    });
+  }
+  initializeGsapScroll(currentVideos);
+}
+
+// --- Helper Functions ---
+function initializeVideos() {
+  const videos = playlist.map((videoData) => {
+    const video = new Video(videoData);
+    return video;
+  });
+  updateVideoObjectSizes(videos);
+  return videos;
+}
+
+function updateVideoObjectSizes(videos) {
+  const currentContainerWidth = getDynamicWidth();
+  videos.forEach((video) => {
+    video.updateVideoSizes(currentContainerWidth);
+  });
+}
+
+function renderTrackContent(videos) {
+  let playlistHTML = "";
+  if (!videos) {
+    videos = [];
+  }
+  const scrollItemClass = config.selectors.scrollItem.substring(1);
+
+  // INTRO SECTION
+  playlistHTML += `
+        <div class="${scrollItemClass} intro-section text-section" id="intro-section">
+            <div class="intro-content">
+                <div class="intro-column">
+                    <div class="info-block">
+                        <h2 class="intro-line">STUDIO DARE</h2>
+                        <h2 class="intro-line">SELECTED WORK</h2>
+                        <h2 id="current-date-display" class="date-display intro-line"></h2>
+                        <div class="intro-line intro-arrow-container">
+                            <h3>SCROLL TO VIEW</h3>
+                            <svg class="icon intro-arrow-icon" id="intro-scroll-arrow" aria-hidden="true">
+                                <use xlink:href="#icon-arrow-down"></use>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+  // --- Render each video item ---
+  videos.forEach((video) => {
+    const src = video.iframeSrc;
+    const thumbnailHTML = video.thumbnailUrl
+      ? `<img src="${video.thumbnailUrl
+      }" class="video-thumbnail" id="thumbnail-${video.id}" alt="${video.title || "Video thumbnail"
+      }">`
+      : "";
+
+    const playIconRef = `<svg class="icon icon-play"><use xlink:href="#icon-play"></use></svg>`;
+    const pauseIconRef = `<svg class="icon icon-pause"><use xlink:href="#icon-pause"></use></svg>`;
+    const volumeOffIconRef = `<svg class="icon icon-volume-off"><use xlink:href="#icon-volume-off"></use></svg>`;
+    const volumeOnIconRef = `<svg class="icon icon-volume-on"><use xlink:href="#icon-volume-on"></use></svg>`;
+
+    const progressBarHTML = `
+            <div class="progress-bar-container" id="progress-container-${video.id}">
+                <div class="progress-bar-fill" id="progress-fill-${video.id}"></div>
+            </div>
+            <div class="video-time-display" id="current-time-display-${video.id}">0:00</div>
+        `;
+
+    playlistHTML += `
+            <div class="${scrollItemClass} video-item" data-video-id="${video.id
+      }">
+                    <div class="video-aspect-wrapper" id="video-wrapper-${video.id
+      }">
+                        ${thumbnailHTML}
+                        <iframe src="${src}" id="iframe-${video.id
+      }" ...></iframe>
+                        <div class="video-controls">
+                            <button class="controls-button play-pause-button" id="playPauseButton-${video.id
+      }" aria-label="Play">
+                                <span class="button-icon-wrapper icon-play-wrapper">${playIconRef}</span>
+                                <span class="button-icon-wrapper icon-pause-wrapper is-hidden">${pauseIconRef}</span>
+                            </button>
+                            ${progressBarHTML}
+                            <button class="controls-button sound-button" id="soundButton-${video.id
+      }" aria-label="Unmute">
+                                <span class="button-icon-wrapper icon-volume-off-wrapper">${volumeOffIconRef}</span>
+                                <span class="button-icon-wrapper icon-volume-on-wrapper is-hidden">${volumeOnIconRef}</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="video-info-overlay" id="video-info-${video.id}">
+                        <h3 class="video-info-title">${video.title || "Untitled"
+      }</h3>
+                        <p class="video-info-year">${video.year || ""}</p>
+                    </div>
+            </div>
+        `;
+  });
+
+  // OUTRO SECTION
+  playlistHTML += `
+        <div class="${scrollItemClass} outro-section text-section" id="outro-section">
+            <div class="outro-content">
+                <h2 class="outro-line">AT STUDIO DARE<br>WE MAKE FUN AND THOUGHTFUL THINGS<br>AND WE LIKE HAIKUS</h2>
+                <h3 class="outro-line">Our expertise spans design, animation, live-action direction, photography, and creative direction for film, television, commercials, branding, and media content. We believe thoughtful design and storytelling can make the world a better place—and we bring our best every time we get the chance to prove it.</h3>
+                <h3 class="outro-line"><a href="mailto:studio@hellodare.com" class="email-link" target="_blank" rel="noopener noreferrer">studio@hellodare.com</a></h3>
+            </div>
+        </div>
+    `;
+
+  const trackElement = document.querySelector(config.selectors.track);
+  if (!trackElement) {
+    console.error(`renderVideos: '${config.selectors.track}' not found.`);
+    return;
+  }
+  trackElement.innerHTML = playlistHTML;
+
+  const introSectionElement = document.getElementById(
+    config.selectors.introSectionId.substring(1)
+  );
+  if (introSectionElement) {
+    // setInitialVideoContentState(introSectionElement, false);
+  }
+
+  videos.forEach((video) => {
+    const videoId = video.id;
+    const videoItemElement = trackElement.querySelector(
+      `.video-item[data-video-id="${videoId}"]`
+    );
+    if (!videoItemElement) {
+      console.error(`Failed to find video item ${videoId}`);
+      return;
+    }
+    videoItemElement.style.position = "relative";
+    const wrapperElement = videoItemElement.querySelector(
+      ".video-aspect-wrapper"
+    );
+    if (wrapperElement && video.nativeWidth > 0 && video.nativeHeight > 0) {
+      wrapperElement.style.aspectRatio = `${video.nativeWidth}/${video.nativeHeight}`;
+    }
+    setInitialVideoContentState(videoItemElement, true, video);
+  });
+
+  const infoSectionElement = document.getElementById(
+    config.selectors.infoSectionId.substring(1)
+  ); // Get the info section element by ID
+  if (infoSectionElement) {
+    setInitialVideoContentState(infoSectionElement, false);
+  }
+}
+
+function getDynamicWidth() {
+  const containerElement = document.querySelector(
+    config.selectors.middleColumn
+  );
+  return containerElement ? containerElement.clientWidth : window.innerWidth;
+}
+
+export function positionSingleInfoOverlay(videoId) {
+  const item = document.querySelector(
+    `${config.selectors.scrollItem}.video-item[data-video-id="${videoId}"]`
+  );
+  if (!item) return;
+
+  const wrapper = item.querySelector(".video-aspect-wrapper");
+  const overlay = item.querySelector(".video-info-overlay");
+  if (!wrapper || !overlay || item.offsetHeight === 0) return;
+
+  // Ensure scrollItem is relatively positioned for absolute overlay
+  overlay.style.position = "absolute";
+
+  // --- Calculate top position below the video ---
+  const offsetBelow = config.layout.overlayOffsetBottom || 10; // adjust this value as needed
+  const overlayTop = wrapper.offsetTop + wrapper.offsetHeight / 2 + offsetBelow;
+  overlay.style.top = `${overlayTop}px`;
+
+  // --- Align overlay left edge with video left edge ---
+  const overlayLeft = wrapper.offsetLeft - wrapper.offsetWidth / 2;
+  overlay.style.left = `${overlayLeft}px`;
+
+  // Optional sizing tweaks
+  overlay.style.width = `${wrapper.offsetWidth}px`;
+  overlay.style.maxWidth = "100%"; // prevent overflow
+}
+
+function renderNavigationMenu(videoData) {
+  const navContainer = document.getElementById("main-navigation");
+  if (!navContainer) {
+    console.error("Navigation container #main-navigation not found.");
+    return;
+  }
+
+  let navHTML = '<ul class="nav-link-list">';
+
+  videoData.forEach((video, index) => {
+    const navIndex = index + 1;
+    navHTML += `<li><a href="#" class="nav-link" data-index="${navIndex}">${paddedNumber(
+      navIndex
+    )}<span class="nav-space"></span>${video.titleShortName || `Video ${navIndex}`
+      }</a></li>`;
+  });
+
+  const infoIndex = videoData.length + 1;
+
+  navHTML += "</ul>";
+
+  navContainer.innerHTML = navHTML;
+  attachNavigationListeners(navContainer, infoIndex);
+}
+
+function attachNavigationListeners(navContainer, lastItemIndex) {
+  const linkList = navContainer.querySelector(".nav-link-list");
+
+  // Listener for Links (using event delegation)
+  if (linkList) {
+    linkList.addEventListener("click", (event) => {
+      // --- ONLY target clicks on the actual .nav-link element ---
+      const targetLink = event.target.closest(".nav-link");
+      if (targetLink) {
+        // Ensure a nav-link was clicked or is an ancestor
+        event.preventDefault();
+
+        const targetIndex = parseInt(targetLink.dataset.index, 10);
+
+        if (!isNaN(targetIndex) && typeof goToIndex === "function") {
+          goToIndex(targetIndex);
+
+          if (checkForMobile()) {
+            const navMenu = document.getElementById(
+              config.selectors.navigationContainerId
+            );
+
+            if (typeof closeNavMenu === "function") {
+              closeNavMenu();
+              const activeItemElement = document.querySelector(
+                ".scroll-item.active-scroll-item"
+              );
+              if (activeItemElement) {
+                blurActiveElement(activeItemElement);
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+export function handleAllVideoAndOverlayResizes() {
+  updateVideoObjectSizes(currentVideos); // Update internal video object sizes
+  if (currentVideos && currentVideos.length > 0) {
+    currentVideos.forEach((video) => {
+      positionSingleInfoOverlay(video.id);
+    });
+  }
+}
+
+
+// ==========================================
+// File: src/js/core/scroll.js
+// ==========================================
+
+// ./js/core/scroll.js
+
+// --- Imports ---
+// Assuming utils, videoController, inputManager are in correct relative paths
+import { throttle, detectTouchDevice } from "../utils/utils.js";
+import {
+  setVideos,
+  controlVideoPlayback,
+  adjustGlobalVolume,
+  toggleGlobalVolume,
+} from "./videoController.js";
+import { handleAllVideoAndOverlayResizes } from "./playlistManager.js";
+import * as InputManager from "../modules/inputManager.js";
+import { config } from "../config.js";
+
+// --- Module State ---
+let currentIndex = 0;
+let scrollItems = [];
+let videoTrack = null;
+let isAnimating = false;
+let infoButtonElement = null;
+let introArrowTween = null;
+
+// --- Module-scoped menu elements ---
+let menuToggleButton = null;
+let navMenu = null;
+
+// --- Config Variables ---
+let animationDuration = config.animation.desktopDuration;
+
+// ==================================================
+// HELPER / STATE UPDATE FUNCTIONS
+// ==================================================
+function updateActiveClass() {
+  if (!scrollItems || scrollItems.length === 0) return;
+  scrollItems.forEach((item, i) => {
+    item?.classList.toggle(
+      config.selectors.activeScrollItemClass,
+      i === currentIndex
+    );
+  });
+
+  const navLinks = document.querySelectorAll("#main-navigation .nav-link"); // Select all nav links
+  if (navLinks.length > 0) {
+    navLinks.forEach((link) => {
+      const linkIndex = parseInt(link.dataset.index, 10);
+      link.classList.remove("active");
+      if (!isNaN(linkIndex) && linkIndex === currentIndex) {
+        link.classList.add("active");
+      }
+    });
+  }
+
+  updateInfoButtonState();
+}
+
+function updateInfoButtonState() {
+  if (!infoButtonElement || !scrollItems || scrollItems.length === 0) {
+    return;
+  }
+
+  const infoSectionIndex = scrollItems.length - 1;
+  const isOnInfoPage = currentIndex === infoSectionIndex;
+
+  infoButtonElement.innerText = "Info";
+
+  // --- ADD/REMOVE MOBILE HIDE CLASS ---
+  infoButtonElement.classList.toggle("is-hidden-on-mobile", isOnInfoPage);
+}
+
+// ==================================================
+// CORE SCROLL & ANIMATION LOGIC
+// ==================================================
+
+export function goToIndex(index, immediate = false) {
+  if (!videoTrack || !scrollItems || scrollItems.length === 0) {
+    return;
+  }
+  if (index < 0 || index >= scrollItems.length) {
+    return;
+  }
+  const previousIndex = currentIndex;
+  const outroIndex = scrollItems.length - 1;
+
+  if (index === previousIndex && !immediate) {
+    return;
+  }
+
+  isAnimating = !immediate;
+  currentIndex = index;
+  updateActiveClass();
+
+  // The intro animation now plays every time, as requested.
+  if (index === 0) {
+    setTimeout(() => animateIntroIn(scrollItems[0]), 50);
+  } else if (index === outroIndex) {
+    setTimeout(() => animateOutroIn(scrollItems[outroIndex]), 50);
+  }
+
+  // Handle OUT animations (when scrolling AWAY from a slide)
+  if (previousIndex === 0 && index !== 0) {
+    resetIntroAnimation(scrollItems[0]);
+  } else if (previousIndex === outroIndex && index !== outroIndex) {
+    resetOutroAnimation(scrollItems[outroIndex]);
+  }
+
+  controlVideoPlayback(currentIndex, previousIndex, null).catch((err) => {
+    console.error("[goToIndex] Error controlling video playback:", err);
+  });
+
+  const targetYPercent = -currentIndex * 100;
+
+  if (immediate) {
+    gsap.set(videoTrack, { yPercent: targetYPercent });
+    isAnimating = false;
+  } else {
+    gsap.to(videoTrack, {
+      yPercent: targetYPercent,
+      duration: animationDuration,
+      ease: config.animation.ease,
+      overwrite: "auto",
+      onComplete: () => {
+        isAnimating = false;
+      },
+    });
+  }
+}
+
+export function getCurrentIndex() {
+  return currentIndex;
+}
+
+// ==================================================
+// INPUT HANDLING SETUP (Moved listener logic here)
+// ==================================================
+
+/** Attaches button listeners managed by scroll module */
+function attachButtonListeners() {
+  // --- Info Button Listener ---
+  infoButtonElement = document.getElementById(config.selectors.infoButtonId);
+
+  if (infoButtonElement) {
+    infoButtonElement.style.cursor = "pointer";
+    infoButtonElement.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (!scrollItems || scrollItems.length === 0) return;
+      const infoSectionIndex = scrollItems.length - 1;
+      const currentIdx = getCurrentIndex();
+      goToIndex(infoSectionIndex); 
+      closeNavMenu();
+    });
+  } 
+
+  // --- Title Listener ---
+  const titleElementForListener = document.getElementById(
+    config.selectors.titleElementId
+  );
+
+  if (titleElementForListener) {
+    titleElementForListener.style.cursor = "pointer";
+    titleElementForListener.addEventListener("click", (event) => {
+      event.preventDefault();
+      goToIndex(0); 
+      closeNavMenu();
+    });
+  }
+
+  // --- Menu Toggle Button Listener ---
+  if (menuToggleButton && navMenu) {
+    menuToggleButton.addEventListener("click", () => {
+      const menuIsCurrentlyVisible = navMenu.classList.contains("is-visible");
+      if (!menuIsCurrentlyVisible) {
+        goToIndex(0);
+        openNavMenu();
+      } else {
+        closeNavMenu();
+      }
+    });
+  } 
+}
+
+function openNavMenu() {
+  if (!menuToggleButton || !navMenu) {
+    return;
+  }
+
+  updateMenuToggleUI(true);
+
+  const activeItemElement = document.querySelector(
+    ".scroll-item.active-scroll-item"
+  );
+  if (activeItemElement) {
+    blurActiveElement(activeItemElement);
+  }
+
+  const navLinks = navMenu.querySelectorAll(".nav-link");
+  if (navLinks.length > 0) {
+    navLinks.forEach((link) => (link.style.transition = "none"));
+    gsap.set(navLinks, { opacity: 0, y: -5 });
+    gsap.to(navLinks, {
+      opacity: config.navigation.navOpacity,
+      y: 0,
+      duration: 0.8,
+      ease: "power1.out",
+      stagger: 0.03,
+      delay: 0.1,
+      overwrite: true,
+      onComplete: () => {
+        navLinks.forEach((link) => link.style.removeProperty("opacity"));
+        navLinks.forEach((link) => link.style.removeProperty("transform"));
+        navLinks.forEach((link) => link.style.removeProperty("transition"));
+      },
+    });
+  }
+}
+
+export function closeNavMenu() {
+  if (!navMenu || !menuToggleButton) {
+    return;
+  }
+  if (!navMenu.classList.contains("is-visible")) {
+    return;
+  }
+
+  updateMenuToggleUI(false);
+
+  // Un-blur the current slide when the menu is closed.
+  const activeItemElement = document.querySelector(
+    ".scroll-item.active-scroll-item"
+  );
+  if (activeItemElement) {
+    blurActiveElement(activeItemElement);
+  }
+}
+
+export function blurActiveElement(activeItemElement) {
+  // --- This function now ignores the Intro and Outro sections ---
+  const isTextSection =
+    activeItemElement.id === config.selectors.introSectionId.substring(1) ||
+    activeItemElement.id === config.selectors.outroSectionId.substring(1);
+
+  if (isTextSection) {
+    return; // Exit early
+  }
+
+  const blurTargets = [];
+  const activeVideoContent = activeItemElement.querySelector(
+    ".video-aspect-wrapper"
+  );
+  const activeVideoInfoOverlay = activeItemElement.querySelector(
+    ".video-info-overlay"
+  );
+  if (activeVideoContent) blurTargets.push(activeVideoContent);
+  if (activeVideoInfoOverlay) blurTargets.push(activeVideoInfoOverlay);
+
+  if (blurTargets.length > 0) {
+    if (InputManager.NavMenuOpen() && InputManager.checkForMobile()) {
+      // Apply blur and opacity when the menu is open
+      gsap.to(blurTargets, {
+        filter: config.animation.blurNavOpen,
+        opacity: config.animation.opacityNavOpen,
+        duration: 0.3,
+        ease: "power1.out",
+        overwrite: true,
+      });
+    } else {
+      // Remove blur
+      gsap.to(blurTargets, {
+        filter: config.animation.blurReset,
+        opacity: 1,
+        duration: animationDuration,
+        ease: "power1.out",
+        overwrite: true,
+      });
+    }
+  }
+}
+
+export function updateTitleStyleBasedOnViewport() {
+  const title = document.getElementById("main-page-title");
+  const navMenu = document.getElementById(
+    config.selectors.navigationContainerId
+  );
+  const minHeight = config.breakpoints.minHeight; // Minimum height for viewport check
+
+  if (!title || !navMenu) return;
+
+  const isShortViewport = window.innerHeight < minHeight;
+
+  if (isShortViewport) {
+    title.classList.add("title-cornered");
+  } else {
+    title.classList.remove("title-cornered");
+  }
+}
+
+export function updateMenuToggleUI(menuIsCurrentlyVisible) {
+  if (!menuToggleButton || !navMenu) {
+    // Safety check
+    console.warn(
+      "SCROLL: Cannot update menu UI; one or more global menu elements not found."
+    );
+    return;
+  }
+
+  if (menuIsCurrentlyVisible) {
+    navMenu.classList.remove("is-hidden");
+    navMenu.classList.add("is-visible");
+    navMenu.style.overflowY = "hidden";
+  } else {
+    navMenu.classList.remove("is-visible");
+    navMenu.classList.add("is-hidden");
+    navMenu.style.overflowY = "hidden";
+  }
+
+  menuToggleButton.setAttribute("aria-expanded", menuIsCurrentlyVisible);
+  menuToggleButton.setAttribute(
+    "aria-label",
+    menuIsCurrentlyVisible ? "Close Navigation Menu" : "Open Navigation Menu"
+  );
+}
+
+// ==================================================
+// INTRO ANIMATION FUNCTIONS
+// ==================================================
+
+// --- NEW: Function to animate the intro arrow ---
+function startArrowBounce() {
+  const arrow = document.getElementById("intro-scroll-arrow");
+  if (!arrow) return;
+
+  // Kill any existing animation to prevent conflicts
+  if (introArrowTween) {
+    introArrowTween.kill();
+  }
+
+  // Create the repeating bounce animation
+  introArrowTween = gsap.to(arrow, {
+    y: 5, 
+    duration: 2,
+    ease: "power1.inOut", 
+    repeat: -1, 
+    yoyo: true, 
+  });
+}
+
+function stopArrowBounce() {
+  if (introArrowTween) {
+    gsap.to(introArrowTween, {
+      timeScale: 3, // Speed up the animation to finish quickly
+      onComplete: () => {
+        introArrowTween.kill();
+        introArrowTween = null;
+        const arrow = document.getElementById("intro-scroll-arrow");
+        if (arrow) gsap.set(arrow, { y: 0 });
+      },
+    });
+  }
+}
+
+function animateIntroIn(introElement) {
+  if (!introElement) return;
+  const introLines = introElement.querySelectorAll(".intro-line");
+  if (introLines.length === 0) return;
+
+  gsap.fromTo(
+    introLines,
+    {
+      // FROM state
+      opacity: 0,
+      y: 25,
+      filter: "blur(15px)",
+    },
+    {
+      // TO state
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      duration: 3,
+      ease: "power2.out",
+      stagger: 0.6,
+      overwrite: "auto",
+    }
+  );
+}
+
+function resetIntroAnimation(introElement) {
+  if (!introElement) return;
+  const introLines = introElement.querySelectorAll(".intro-line");
+  if (introLines.length === 0) return;
+
+  gsap.to(introLines, {
+    opacity: 0,
+    y: -20, 
+    filter: "blur(8px)",
+    duration: 0.5, 
+    ease: "power2.in", 
+    stagger: 0.07,
+    overwrite: "auto",
+  });
+}
+
+function animateOutroIn(outroElement) {
+  if (!outroElement) return;
+  const outroLines = outroElement.querySelectorAll(".outro-line");
+  if (outroLines.length === 0) return;
+
+  gsap.fromTo(
+    outroLines,
+    { opacity: 0, y: 25, filter: "blur(15px)" },
+    {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      duration: 3,
+      ease: "power2.out",
+      stagger: 0.6,
+      overwrite: "auto",
+    }
+  );
+}
+
+function resetOutroAnimation(outroElement) {
+  if (!outroElement) return;
+  const outroLines = outroElement.querySelectorAll(".outro-line");
+  if (outroLines.length === 0) return;
+
+  gsap.to(outroLines, {
+    opacity: 0,
+    y: -20,
+    filter: "blur(8px)",
+    duration: 0.5,
+    ease: "power2.in",
+    stagger: 0.07,
+    overwrite: "auto",
+  });
+}
+
+// ==================================================
+// INITIALIZATION FUNCTION (EXPORTED)
+// ==================================================
+export function initializeGsapScroll(videos) {
+  setVideos(videos);
+
+  videoTrack = document.querySelector(config.selectors.track);
+  if (!videoTrack) {
+    return;
+  }
+  scrollItems = gsap.utils
+    .toArray(videoTrack.children)
+    .filter((el) =>
+      el.classList.contains(config.selectors.scrollItem.substring(1))
+    ); 
+  infoButtonElement = document.querySelector(config.selectors.infoButtonId);
+
+  // --- Initialize module-scoped menu elements
+  menuToggleButton = document.getElementById(
+    config.selectors.menuToggleButtonId
+  );
+  navMenu = document.getElementById(config.selectors.navigationContainerId);
+
+  if (scrollItems.length === 0) {
+    console.error(
+      `Scroll Init Failed: No '${config.selectors.scrollItem}' children found.`
+    );
+    return;
+  }
+
+  // Determine Config (Hardcoded values)
+  const isTouchDevice = detectTouchDevice();
+  animationDuration = isTouchDevice
+    ? config.animation.mobileDuration
+    : config.animation.desktopDuration;
+  const throttleInterval = isTouchDevice
+    ? config.input.mobileThrottle
+    : config.input.desktopThrottle;
+  // Define Input -> Scroll Logic
+  const processScrollInput = (delta) => {
+    let newIndex = currentIndex;
+    if (delta > 0 && currentIndex < scrollItems.length - 1) {
+      newIndex++;
+    } else if (delta < 0 && currentIndex > 0) {
+      newIndex--;
+    } else {
+      return;
+    }
+    if (newIndex !== currentIndex) {
+      goToIndex(newIndex);
+    }
+  };
+  const throttledScrollProcessor = throttle(
+    processScrollInput,
+    throttleInterval
+  );
+
+  const resizeCallback = () => {
+    goToIndex(currentIndex, true);
+
+    if (menuToggleButton && navMenu) {
+      updateMenuToggleUI(false);
+    } 
+
+    updateTitleStyleBasedOnViewport();
+  };
+  const getActiveVideoFn = () =>
+    currentIndex < videos.length ? videos[currentIndex] : null;
+  const togglePlayPauseFn = (video, button) => {
+    if (video && typeof video.togglePlayPause === "function") {
+      video
+        .togglePlayPause(button)
+        .catch((e) => console.error("Error in toggle callback:", e));
+    }
+  };
+
+  InputManager.initializeInput(
+    throttledScrollProcessor,
+    resizeCallback,
+    handleAllVideoAndOverlayResizes,
+    adjustGlobalVolume,
+    getActiveVideoFn,
+    togglePlayPauseFn,
+    config.input.resizeDebounce,
+    config.input.touchSensitivityY,
+    config.input.touchSensitivityX
+  );
+
+  // Reset State & Set Initial Position
+  currentIndex = 0;
+  isAnimating = false;
+  goToIndex(0, true);
+
+  updateInfoButtonState();
+  attachButtonListeners();
+
+  if (menuToggleButton && navMenu) {
+    updateMenuToggleUI(false);
+  } else {
+    console.error(
+      `%c[SCROLL] Menu Toggle Initial State FAILED: One or more menu elements not found!`,
+      "color: red; font-weight: bold;"
+    );
+  }
+
+  updateTitleStyleBasedOnViewport();
+}
+
+// --- Re-exports ---
+export { toggleGlobalVolume };
+
+
+// ==========================================
+// File: src/js/core/videoController.js
+// ==========================================
+
+// ./js/core/videoController.js - Manages video playback and volume
+
+import { config } from "../config.js";
+import { positionSingleInfoOverlay } from "./playlistManager.js";
+import * as InputManager from "../modules/inputManager.js";
+import { logMissingElements } from "../utils/utils.js";
+// --- Module State ---
+let controlledVideos = []; // Stores the Video class instances
+let globalVolumeLevel = 0.0;
+const DEFAULT_UNMUTE_LEVEL = config.video.defaultUnmuteLevel;
+
+// ==================================================
+// EXPORTED FUNCTIONS
+// ==================================================
+
+/** Stores the array of video objects. */
+export function setVideos(videosArray) {
+  controlledVideos = videosArray || [];
+  globalVolumeLevel = 0.0;
+  _resetTextSectionAnimation(config.selectors.introSectionId);
+  _resetTextSectionAnimation(config.selectors.infoSectionId);
+}
+
+export async function controlVideoPlayback(
+  currentIdx,
+  previousIdx,
+  onScrollCompleteCallback = null
+) {
+  if (!controlledVideos) controlledVideos = [];
+  const videoCount = controlledVideos.length;
+  const introSectionIndex = 0;
+  const infoSectionIndex = videoCount + 1;
+
+  const scrollItems = document.querySelectorAll(config.selectors.scrollItem);
+
+  if (!scrollItems || scrollItems.length === 0) {
+    return;
+  }
+
+  if (currentIdx === infoSectionIndex) {
+    if (typeof onScrollCompleteCallback === "function") {
+      onScrollCompleteCallback();
+    } else {
+      _animateTextSection(config.selectors.infoSectionId);
+    }
+  } else if (previousIdx === infoSectionIndex && currentIdx !== previousIdx) {
+    _resetTextSectionAnimation(config.selectors.infoSectionId);
+  }
+  // --- Handle Intro Section ---
+  if (currentIdx === introSectionIndex) {
+    _animateTextSection(config.selectors.introSectionId);
+  } else if (previousIdx === introSectionIndex && currentIdx !== previousIdx) {
+    _resetTextSectionAnimation(config.selectors.introSectionId);
+  }
+
+  // --- Loop through ALL scroll items to handle fade/reset ---
+  for (let index = 0; index < scrollItems.length; index++) {
+    const scrollItemElement = scrollItems[index];
+    if (!scrollItemElement) continue;
+
+    const isVideoIndex = index > 0 && index <= videoCount;
+    const video = isVideoIndex ? controlledVideos[index - 1] : null;
+
+    // --- Find the primary content element within this scrollItem ---
+    const contentElement = _getContentElement(scrollItemElement, isVideoIndex);
+    const animationParameters = _getAnimationParameters(isVideoIndex);
+
+    // --- Action for the CURRENT item being scrolled TO ---
+    if (index === currentIdx) {
+      if (contentElement && animationParameters) {
+        _activateItemAnimation(
+          contentElement,
+          isVideoIndex,
+          animationParameters,
+          video
+        );
+      }
+
+      if (isVideoIndex && video) {
+        _activateVideoPlayback(video);
+      } 
+    } else {
+      if (contentElement) {
+        _deactivateItemAnimation(
+          contentElement,
+          isVideoIndex,
+          animationParameters
+        );
+      }
+
+      // --- Pause Inactive Videos ---
+      if (isVideoIndex && video) {
+        _deactivateVideoPlayback(video);
+      }
+    }
+  }
+}
+
+// ==================================================
+// ANIMATION HELPERS
+// ==================================================
+
+/**
+ * Animates the .info-block elements within a given section into view.
+ * @param {string} sectionSelector - The CSS selector for the parent section (e.g., '#intro-section').
+ */
+function _animateTextSection(sectionSelector) {
+  const blocks = gsap.utils.toArray(`${sectionSelector} .info-block`);
+
+  if (blocks.length > 0) {
+    gsap.to(blocks, {
+      opacity: 1,
+      y: 0,
+      filter: config.animation.blurReset,
+      duration: 1,
+      ease: "power1.out",
+      stagger: {
+        each: 0.5,
+        from: "start",
+      },
+      overwrite: true,
+      delay: 0.1,
+    });
+  }
+}
+
+/**
+ * Resets the animation for .info-block elements within a given section.
+ * @param {string} sectionSelector - The CSS selector for the parent section (e.g., '#intro-section').
+ */
+function _resetTextSectionAnimation(sectionSelector) {
+  const blocks = gsap.utils.toArray(`${sectionSelector} .info-block`);
+  if (blocks.length > 0) {
+    gsap.to(blocks, {
+      opacity: 0,
+      y: 20,
+      duration: 2,
+      ease: "power1.in",
+      overwrite: true,
+    });
+  }
+}
+
+/** Helper function to apply volume */
+async function applyGlobalVolume() {
+  for (const video of controlledVideos) {
+    try {
+      const player = await video.initializePlayer();
+      await player.setVolume(globalVolumeLevel);
+      video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI based on global volume
+    } catch (error) {
+      video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI even if API fails
+    }
+  }
+}
+
+/** Adjusts global volume */
+export async function adjustGlobalVolume(delta) {
+  let newVolume = globalVolumeLevel + delta;
+  newVolume = Math.max(0, Math.min(1, newVolume));
+  if (newVolume.toFixed(2) === globalVolumeLevel.toFixed(2)) return;
+  globalVolumeLevel = newVolume;
+  await applyGlobalVolume();
+}
+
+/** Toggles global volume */
+export async function toggleGlobalVolume() {
+  const newVolume = globalVolumeLevel > 0 ? 0.0 : DEFAULT_UNMUTE_LEVEL;
+  globalVolumeLevel = newVolume;
+  await applyGlobalVolume();
+}
+
+/** Get the element to animate based on item type. */
+
+export function _getContentElement(scrollItemElement, isVideoIndex) {
+  const contentElement = {};
+
+  if (isVideoIndex) {
+    const contentVideo = scrollItemElement.querySelector(
+      ".video-aspect-wrapper"
+    );
+    const contentOverlay = scrollItemElement.querySelector(
+      ".video-info-overlay"
+    );
+
+    if (contentVideo) contentElement.video = contentVideo;
+    if (contentOverlay) contentElement.overlay = contentOverlay;
+  } else if (
+    scrollItemElement &&
+    scrollItemElement.id === config.selectors.introSectionId
+  ) {
+    const introContent = scrollItemElement.querySelector(".info-content");
+    if (introContent) contentElement.info = introContent;
+  } else if (
+    scrollItemElement &&
+    scrollItemElement.id === config.selectors.infoSectionId
+  ) {
+    const infoContent = scrollItemElement.querySelector(".info-content");
+    if (infoContent) contentElement.info = infoContent;
+  }
+
+  return contentElement;
+}
+
+/** Determine animation parameters based on mobile and nav state. */
+export function _getAnimationParameters(isVideoIndex) {
+  const initialYOffset = 20;
+  let setScale = 1;
+  let setBlur = config.animation.blurMax;
+  let resetBlur = config.animation.blurReset;
+  let setOpacity = 0;
+  let resetOpacity = 1;
+
+  if (
+    typeof InputManager.checkForMobile === "function" &&
+    typeof InputManager.NavMenuOpen === "function"
+  ) {
+    if (InputManager.checkForMobile() && InputManager.NavMenuOpen()) {
+      setBlur = resetBlur = config.animation.blurNavOpen;
+      setOpacity = resetOpacity = 0.5; // no opacity change
+    } else {
+      setBlur = config.animation.blurMax;
+      resetBlur = config.animation.blurReset;
+      setOpacity = resetOpacity = 1; // no opacity change
+    }
+  }
+
+  return {
+    setBlur,
+    resetBlur,
+    setOpacity,
+    resetOpacity,
+    initialYOffset,
+    setScale,
+  };
+}
+
+/** Animate content IN when item becomes current. */
+
+/**
+ * Applies initial GSAP set properties to a scroll item's content elements.
+ * Used for setting the starting visual state (e.g., off-screen, blurred) for all items.
+ * @param {HTMLElement} scrollItemElement The parent .scroll-item element.
+ * @param {boolean} isVideoIndex True if the item is a video, false if it's the info section.
+ * @param {object} [video=null] The Video instance, if isVideoIndex is true.
+ */
+export function setInitialVideoContentState(
+  scrollItemElement,
+  isVideoIndex,
+  video = null
+) {
+  const contentElement = _getContentElement(scrollItemElement, isVideoIndex);
+  const animationParameters = _getAnimationParameters(isVideoIndex);
+
+  if (!contentElement || !animationParameters) {
+    console.warn(
+      `[VideoController] setInitialVideoContentState: Missing content or animation params for ${
+        scrollItemElement.id || scrollItemElement.className
+      }.`
+    );
+    return;
+  }
+
+  const { setBlur, setOpacity, initialYOffset, setScale } = animationParameters;
+  const entries = Object.entries(contentElement).filter(([_, el]) => !!el);
+
+  if (entries.length === 0) return;
+
+  gsap.set(
+    entries.map(([_, el]) => el),
+    {
+      y: initialYOffset,
+      scale: setScale,
+      filter: setBlur,
+      opacity: setOpacity,
+      xPercent: isVideoIndex ? -50 : 0, // Only apply -50% for videos
+      yPercent: isVideoIndex ? -50 : 0, // Only apply -50% for videos
+    }
+  );
+
+  // Also handle initial positioning for the info overlay specific to videos
+  if (
+    isVideoIndex &&
+    video &&
+    typeof positionSingleInfoOverlay === "function"
+  ) {
+    positionSingleInfoOverlay(video.id); // This ensures the overlay is positioned even if content is hidden
+  }
+}
+
+function _activateItemAnimation(
+  contentElement,
+  isVideoIndex,
+  animationParameters,
+  video
+) {
+  logMissingElements(contentElement, "_activateItemAnimation");
+  if (!contentElement) return;
+
+  const {
+    setBlur,
+    resetBlur,
+    setOpacity,
+    resetOpacity,
+    initialYOffset,
+    setScale,
+  } = animationParameters;
+
+  // Convert { key: element } to array of [key, element] pairs
+  const entries = Object.entries(contentElement).filter(([_, el]) => !!el);
+
+  if (entries.length === 0) return;
+
+  // Step 1: Set initial styles per element
+  entries.forEach(([key, el]) => {
+    gsap.set(el, {
+      // x: 0,
+      y: initialYOffset,
+      scale: setScale,
+      filter: setBlur,
+      opacity: setOpacity,
+      xPercent: key === "video" && isVideoIndex ? -50 : 0,
+      yPercent: key === "video" && isVideoIndex ? -50 : 0,
+      transformOrigin: "center center",
+    });
+  });
+
+  // Step 2: Animate in all elements
+  gsap.to(
+    entries.map(([_, el]) => el),
+    {
+      opacity: resetOpacity,
+      scale: 1,
+      filter: resetBlur,
+      y: 0,
+      duration: 0.6,
+      delay: 0.1,
+      ease: "power1.out",
+      overwrite: true,
+      stagger: entries.length > 1 ? 0.1 : 0,
+      onComplete: () => {
+        if (
+          isVideoIndex &&
+          video &&
+          typeof positionSingleInfoOverlay === "function"
+        ) {
+          positionSingleInfoOverlay(video.id);
+        }
+      },
+    }
+  );
+}
+
+/** Reset/Animate content OUT when item is scrolled away. */
+function _deactivateItemAnimation(
+  contentElement,
+  isVideoIndex,
+  animationParameters
+) {
+  logMissingElements(contentElement, "_deactivateItemAnimation");
+  if (!contentElement) return;
+  const {
+    setBlur,
+    resetBlur,
+    setOpacity,
+    resetOpacity,
+    initialYOffset,
+    setScale,
+  } = animationParameters;
+
+  // --- Reset OUT Animation ---
+  const entries = Object.entries(contentElement).filter(([_, el]) => !!el);
+  if (entries.length === 0) return;
+
+  gsap.to(
+    entries.map(([_, el]) => el),
+    {
+      opacity: setOpacity,
+      filter: setBlur,
+      scale: setScale,
+      y: initialYOffset,
+      //  x: 0,
+      duration: 0.7,
+      ease: "power1.in",
+      overwrite: true,
+      transformOrigin: "center center",
+    }
+  );
+}
+
+/** Activate video playback and update icons. */
+async function _activateVideoPlayback(video) {
+  if (!video) return;
+  try {
+    const player = await video.initializePlayer();
+
+    if (video.hasPlayedOnce) {
+      // Check flag (from timeupdate end simulation)
+      video._updatePlayPauseButtonUI(true); // Force paused state if hasPlayedOnce
+      video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI based on global volume
+      await player.pause().catch((e) => {
+        /* ignore non-critical errors */
+      }); // Ensure paused
+      await player.setVolume(globalVolumeLevel); // Still set volume
+    } else {
+      await player.setVolume(globalVolumeLevel);
+      video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI based on global volume
+      await player.play();
+      video._updatePlayPauseButtonUI(false); // Force playing state
+    }
+  } catch (error) {
+    console.warn(
+      `[VideoController ${video?.id}] Error activating video: ${error.message}`
+    );
+    video._updatePlayPauseButtonUI(true); // Assume paused on error
+    video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI on error
+  }
+}
+
+/** Deactivate video playback and update icons. */
+function _deactivateVideoPlayback(video) {
+  if (!video || !video.player) return; // Only pause if player instance exists
+  try {
+    video.player.pause().catch((e) => {
+      /* ignore non-critical errors */
+    }); // Non-awaited pause
+    // Update Icons for Paused State
+    video._updateSoundButtonUI(globalVolumeLevel === 0); // Update UI based on global volume
+    video._updatePlayPauseButtonUI(true); // Video is being deactivated, so set to paused state
+  } catch (e) {
+    console.warn(
+      `[VideoController ${video.id}] Error during deactivation: ${e.message}`
+    );
+  }
+}
+
+
+// ==========================================
+// File: src/js/data/playlistData.js
+// ==========================================
+
+export const playlist = [
+  {
+    vimeoid: "367537828",
+    title: `Inside Bill's Brain / Main Title Sequence`,
+    titleShortName: "Inside Bill's Brain / MT",
+    client: "Netflix",
+    year: "2019",
+    thumbnailFilename: "367537828_Inside_Bills_Brain_MT.jpg",
+    thumbnailWidth: 2048,
+    thumbnailHeight: 1080,
+    alt: 'Inside Bill\'s Brain / Main Title Sequence',
+  },
+  {
+    vimeoid: "535413159",
+    title: `13th / GFX Reel`,
+    titleShortName: "13th / GFX",
+    client: "Netflix",
+    year: "2018",
+    thumbnailFilename: "535413159_13th_GFX.jpg",
+    thumbnailWidth: 1920,
+    thumbnailHeight: 1080,
+    thumbnailWidth: 1920,
+    thumbnailHeight: 1080,
+    alt: '13th / GFX Reel',
+  },
+  {
+    vimeoid: "535355395",
+    title: `Icarus / Main on End`,
+    titleShortName: "Icarus MOE",
+    client: "Netflix",
+    year: "2018",
+    thumbnailFilename: "535355395_Icarus_MOE.jpg",
+    thumbnailWidth: 1920,
+    thumbnailHeight: 1080,
+    thumbnailWidth: 1920,
+    thumbnailHeight: 1080,
+    alt: 'Icarus / Main on End',
+  },
+  {
+    vimeoid: "535136384",
+    title: `Amanda Knox / Main Title`,
+    titleShortName: "Amanda Knox / MT",
+    client: "Netflix",
+    year: "2016",
+    thumbnailFilename: "535136384_Amanda_Knox_MT.jpg",
+    thumbnailWidth: 1920,
+    thumbnailHeight: 1080,
+    thumbnailWidth: 1920,
+    thumbnailHeight: 1080,
+    alt: 'Amanda Knox / Main Title',
+  },
+  {
+    vimeoid: "423363148",
+    title: `Trial by Media / Main Title`,
+    titleShortName: "Trial by Media / MT",
+    client: "Netflix",
+    year: "2020",
+    thumbnailFilename: "423363148_Trial_by_Media_MT.jpg",
+    thumbnailWidth: 2048,
+    thumbnailHeight: 972,
+    thumbnailWidth: 2048,
+    thumbnailHeight: 972,
+    alt: 'Trial by Media / Main Title',
+  },
+  {
+    vimeoid: "834195660",
+    title: `White Men Can't Jump / Main on End`,
+    titleShortName: "White Men Can't Jump / MOE",
+    client: "Hulu",
+    year: "2023",
+    thumbnailFilename: "834195660_WMCJ_MOE.jpg",
+    thumbnailWidth: 1920,
+    thumbnailHeight: 1080,
+    thumbnailWidth: 1920,
+    thumbnailHeight: 1080,
+    alt: `White Men Can't Jump / Main on End`,
+  },
+  {
+    vimeoid: "1059558209",
+    title: `WhereTo: Canada Opening Shot`,
+    titleShortName: "WhereTo: Canada / Opening",
+    client: "Expedia",
+    year: "2024",
+    thumbnailFilename: "1059558209_WhereTo_Canada.jpg",
+    thumbnailWidth: 1280,
+    thumbnailHeight: 720,
+    alt: 'WhereTo: Canada Opening Shot',
+  },
+  {
+    vimeoid: "432305926",
+    title: `Inside Bill's Brain / GFX Reel`,
+    titleShortName: "Inside Bill's Brain / GFX",
+    client: "Netflix",
+    year: "2018",
+    thumbnailFilename: "432305926_Inside_Bills_Brain_GFX.jpg",
+    thumbnailWidth: 2048,
+    thumbnailHeight: 1080,
+    thumbnailWidth: 2048,
+    thumbnailHeight: 1080,
+    alt: 'Inside Bill\'s Brain / GFX Reel',
+  },
+  {
+    vimeoid: "1059557536",
+    title: `Willow / Book Opening - Episdoe 1`,
+    titleShortName: "Willow / Opening",
+    client: "Disney+",
+    year: "2023",
+    thumbnailFilename: "1059557536_Willow_Opening.jpg",
+    thumbnailWidth: 1920,
+    thumbnailHeight: 1080,
+    thumbnailWidth: 1920,
+    thumbnailHeight: 1080,
+    alt: 'Willow / Book Opening - Episode 1',
+  },
+  {
+    vimeoid: "535137022",
+    title: `Amanda Knox / GFX Reel`,
+    titleShortName: "Amanda Knox / GFX",
+    client: "Netflix",
+    year: "2016",
+    thumbnailFilename: "535137022_Amanda_Knox_GFX.jpg",
+    thumbnailWidth: 1920,
+    thumbnailHeight: 1080,
+    thumbnailWidth: 1920,
+    thumbnailHeight: 1080,
+    alt: 'Amanda Knox / GFX Reel',
+  },
+  {
+    vimeoid: "707339712",
+    title: `More Than Robots / GFX Reel`,
+    titleShortName: "More Than Robots / GFX",
+    client: "Disney+",
+    year: "2022",
+    thumbnailFilename: "707339712_More_Than_Robots_GFX.jpg",
+    thumbnailWidth: 3840,
+    thumbnailHeight: 1920,
+    thumbnailWidth: 3840,
+    thumbnailHeight: 1920,
+    alt: 'More Than Robots / GFX Reel',
+  },
+];
+
+export const playlistStandby = [
+  {
+    vimeoid: "535135353502668216",
+    title: `Icarus / Main Title`,
+    titleShortName: "Icarus MT",
+    client: "Netfix",
+    year: "2017",
+    thumbnailFilename: "535350266_Icarus_MT.jpg",
+    thumbnailWidth: 1920,
+    thumbnailHeight: 1080,
+    thumbnailHeight: 1080,
+    alt: 'Icarus / Main Title',
+  },
+  {
+    vimeoid: "535138216",
+    title: `Dave Chappelle: Deep in the Heart of Texas / Main Title`,
+    titleShortName: "Dave Chappelle MT",
+    client: "Disney+",
+    year: "2017",
+    thumbnailFilename: "535138216_Dave_Chappelle_MT.jpg",
+    thumbnailWidth: 1920,
+    thumbnailHeight: 1080,
+    thumbnailHeight: 1080,
+    alt: 'Dave Chappelle: Deep in the Heart of Texas / Main Title',
+  },
+  {
+    vimeoid: "423373315",
+    title: `Trial by Media / GFX Reel`,
+    titleShortName: "Trial by Media GFX",
+    client: "Netflix",
+    year: "2020",
+    thumbnailFilename: "423373315_Trial_by_Media_GFX.jpg",
+    thumbnailWidth: 2048,
+    thumbnailHeight: 1024,
+    thumbnailHeight: 1024,
+    alt: 'Trial by Media / GFX Reel',
+  },
+];
+
+
+// ==========================================
+// File: src/js/main.js
+// ==========================================
+
+// ./js/main.js
+
+import { renderScrollTrack } from "./core/playlistManager.js";
+import { getFormattedDate } from "./utils/utils.js";
+
+document.addEventListener("DOMContentLoaded", async () => {
+  document.body.classList.add("no-transition");
+  registerGSAP();
+  await loadAndInjectSVGSprite();
+
+  try {
+    await renderScrollTrack();
+
+    // --- GSAP INTRO ANIMATION ---
+    if (typeof gsap !== "undefined") {
+      const introTl = gsap.timeline({
+        defaults: { duration: 1.5, ease: "power2.out" },
+      });
+
+      const leftCol = ".left-column";
+      const rightCol = ".right-column";
+      const middleCol = ".middle-column";
+      const colContent = ".column-content";
+
+      gsap.set([leftCol, rightCol, middleCol], { y: 20 });
+
+      introTl.to([leftCol, rightCol], { y: 0 }, 0).to(middleCol, { y: 0 }, 0.2);
+
+      gsap.to(colContent, {
+        opacity: 1,
+        duration: 1.5,
+        ease: "power2.out",
+        delay: 0.4,
+      });
+    } else {
+      document
+        .querySelectorAll(".left-column, .right-column, .middle-column")
+        .forEach((el) => {
+          el.style.opacity = "1";
+          el.style.transform = "translateY(0px)";
+        });
+    }
+  } catch (error) {
+    console.error("ERROR during renderPlaylist or attaching listeners:", error);
+  }
+
+  // --- DARK MODE TOGGLE ---
+  initializeDarkModeToggle();
+
+  // --- DISPLAY CURRENT DATE ---
+  displayCurrentDate();
+
+  setTimeout(() => {
+    document.body.classList.remove("no-transition");
+  }, 50);
+});
+
+function registerGSAP() {
+  if (
+    typeof gsap !== "undefined" &&
+    typeof ScrollTrigger !== "undefined" &&
+    typeof CSSPlugin !== "undefined"
+  ) {
+    gsap.registerPlugin(ScrollTrigger, CSSPlugin);
+  } else {
+    return;
+  }
+}
+
+async function loadAndInjectSVGSprite() {
+  try {
+    const response = await fetch(`${import.meta.env.BASE_URL}images/icons.svg`);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    const svgText = await response.text();
+
+    // Create a temporary div to parse the SVG text
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = svgText;
+    const svgElement = tempDiv.querySelector("svg");
+
+    if (svgElement) {
+      svgElement.style.display = "none";
+      svgElement.setAttribute("aria-hidden", "true"); // Hide from screen readers
+      document.body.insertAdjacentElement("afterbegin", svgElement); // Inject at start of body
+    } 
+  } catch (error) {
+    console.error("Error loading or injecting SVG sprite:", error);
+  }
+}
+
+function initializeDarkModeToggle() {
+  const toggleButton = document.getElementById("darkModeToggle");
+
+  if (!toggleButton) {
+    return;
+  }
+
+  // Set initial state based on localStorage
+  const prefersDark = localStorage.getItem("darkMode") === "true";
+  if (prefersDark) {
+    document.body.classList.add("dark-mode");
+  }
+
+  toggleButton.addEventListener("click", () => {
+    const isDark = document.body.classList.toggle("dark-mode");
+    localStorage.setItem("darkMode", isDark);
+  });
+}
+
+function displayCurrentDate() {
+  const dateElement = document.getElementById("current-date-display");
+  if (!dateElement) {
+    return;
+  }
+
+  const formattedDate = getFormattedDate("MM DD YYYY");
+
+  dateElement.textContent = formattedDate;
+}
+
+
+// ==========================================
+// File: src/js/modules/Video.js
+// ==========================================
+
+// ./js/modules/Video.js - Defines the Video class
+// NOTE: Assumes Vimeo.Player is global
+
+import { config } from "../config.js";
+import { formatTime, getAspectRatio } from "../utils/utils.js";
+import { toggleGlobalVolume } from "../core/scroll.js";
+
+export class Video {
+  constructor(videoData) {
+    this.id = videoData.vimeoid;
+    this.title = videoData.title;
+    this.titleShortName = videoData.titleShortName || videoData.title || "";
+    this.year = videoData.year;
+    this.client = videoData.client;
+
+    this.thumbnailFilename = videoData.thumbnailFilename || null;
+    if (this.thumbnailFilename) {
+      this.thumbnailUrl = `${config.video.localThumbnailBasePath}${this.thumbnailFilename}`;
+    } else {
+      this.thumbnailUrl = "";
+      console.warn(`[Video ${this.id}] No thumbnail filename provided.`);
+    }
+    this.iframeSrc = `https://player.vimeo.com/video/${this.id}?${config.video.vimeoParams}&quality=${config.video.vimeoQuality}`;
+    this.thumbnailWidth = videoData.thumbnailWidth || 0;
+    this.thumbnailHeight = videoData.thumbnailHeight || 0;
+
+    this.player = null;
+    // --- Initialize native dimensions from thumbnail data ---
+    this.nativeWidth = this.thumbnailWidth > 0 ? this.thumbnailWidth : 16;
+    this.nativeHeight = this.thumbnailHeight > 0 ? this.thumbnailHeight : 9;
+    this.aspectRatio = getAspectRatio(this.nativeWidth, this.nativeHeight);
+
+    // --- State for Play Once & Time Update Workaround ---
+    this.hasPlayedOnce = false; // Flag indicating the video reached its simulated end via timeupdate
+    this.duration = 0; 
+    this.timeupdateThreshold = config.video.timeupdateEndThreshold; 
+    this.isEnding = false; // Flag to prevent multiple end simulations from timeupdate
+
+    // ---Progress Bar Element References ---
+    this.progressBarContainer = null;
+    this.progressBarFill = null;
+    this.currentTimeDisplayElement = null;
+    // --------------------------------------
+
+    this.playerInitializationPromise = null;
+    this.thumbnailElement = null;
+
+    this.videoWrapperElement = null;
+    this.playPauseButtonElement = null;
+    this.soundButtonElement = null;
+  }
+
+  /**
+   * Creates the Vimeo Player instance, finds UI elements, attaches listeners.
+   * Returns a promise that resolves with the ready player instance.
+   * Safe to call multiple times (returns existing promise/player).
+   * @returns {Promise<Player>} A promise resolving with the Vimeo Player instance.
+   */
+  initializePlayer() {
+    if (this.playerInitializationPromise)
+      return this.playerInitializationPromise;
+    if (this.player) return Promise.resolve(this.player);
+
+    this.playerInitializationPromise = new Promise((resolve, reject) => {
+      const iframe = document.getElementById(`iframe-${this.id}`);
+      if (!iframe) {
+        console.error(`[Player Init ${this.id}] Iframe not found.`);
+        this.playerInitializationPromise = null;
+        return reject(new Error(`Iframe ${this.id} not found`));
+      }
+
+      try {
+        const playerInstance = new Vimeo.Player(iframe);
+
+        playerInstance
+          .ready()
+          .then(async () => {
+            this.player = playerInstance; // Assign player
+            this.isEnding = false; // Reset state
+
+            // Get Duration
+            try {
+              this.duration = (await this.player.getDuration()) || 0;
+            } catch (e) {
+              this.duration = 0;
+            }
+
+            // Setup UI elements & Reset them
+            this._findPlayerUIElements(); // Find DOM elements
+            this._resetPlayerUI(); // Set initial UI state
+
+            // Attach all event listeners
+            this._attachPlayerListeners();
+
+            resolve(this.player); // Resolve the main promise
+          })
+          .catch((error) => {
+            console.error(`[Player Init ${this.id}] Ready rejected:`, error);
+            this.player = null;
+            this.playerInitializationPromise = null;
+            reject(error);
+          });
+      } catch (error) {
+        console.error(`[Player Init ${this.id}] Constructor failed:`, error);
+        this.player = null;
+        this.playerInitializationPromise = null;
+        reject(error);
+      }
+    });
+    return this.playerInitializationPromise;
+  }
+
+  _findPlayerUIElements() {
+    const videoItemElement = document.querySelector(
+      `${config.selectors.scrollItem}.video-item[data-video-id="${this.id}"]`
+    );
+    if (!videoItemElement) {
+      console.warn(
+        `[Player UI ${this.id}] Video item element not found for ID: ${this.id}.`
+      );
+      return;
+    }
+
+    this.videoWrapperElement = videoItemElement.querySelector(
+      ".video-aspect-wrapper"
+    );
+    this.playPauseButtonElement = videoItemElement.querySelector(
+      `#playPauseButton-${this.id}`
+    );
+    this.soundButtonElement = videoItemElement.querySelector(
+      `#soundButton-${this.id}`
+    );
+    this.thumbnailElement = videoItemElement.querySelector(
+      `#thumbnail-${this.id}`
+    ); // Assign thumbnail here
+    this.progressBarContainer = videoItemElement.querySelector(
+      `#progress-container-${this.id}`
+    );
+    this.progressBarFill = videoItemElement.querySelector(
+      `#progress-fill-${this.id}`
+    );
+    this.currentTimeDisplayElement = videoItemElement.querySelector(
+      `#current-time-display-${this.id}`
+    );
+  }
+
+  _resetPlayerUI() {
+    if (this.progressBarFill) this.progressBarFill.style.width = "0%";
+    if (this.currentTimeDisplayElement)
+      this.currentTimeDisplayElement.textContent = "0:00";
+  }
+
+  _attachPlayerListeners() {
+    if (!this.player) return;
+
+    if (!this.player) {
+      console.warn(
+        `[Video ${this.id}] _attachPlayerListeners: Player not initialized, cannot attach listeners.`
+      );
+      return;
+    }
+
+    // ... clear other listeners (play, pause, error) ...
+    this.player.off("play");
+    this.player.on("play", this._handlePlay);
+    this.player.off("pause");
+    this.player.on("pause", this._handlePause);
+    this.player.off("error");
+    this.player.on("error", this._handleError);
+
+    // Attach timeupdate listeners ONCE
+    this.player.off("timeupdate"); // Clear all first
+    this.player.on("timeupdate", this._handleProgressUpdate);
+    this.player.on("timeupdate", this._handleSimulatedEnd);
+
+    // --- Attach click listeners for UI buttons ---
+    if (
+      this.playPauseButtonElement &&
+      !this.playPauseButtonElement._listenerAttachedClick
+    ) {
+      this.playPauseButtonElement.addEventListener("click", () => {
+        this.togglePlayPause();
+      });
+      this.playPauseButtonElement._listenerAttachedClick = true;
+    }
+
+    if (
+      this.soundButtonElement &&
+      !this.soundButtonElement._listenerAttachedClick
+    ) {
+      this.soundButtonElement.addEventListener("click", () => {
+        this.toggleSound();
+      });
+      this.soundButtonElement._listenerAttachedClick = true;
+    }
+
+    // Attach Seek Listener to Progress Bar Container
+    if (
+      this.progressBarContainer &&
+      !this.progressBarContainer._seekListenerAttached
+    ) {
+      // Bind _handleSeekClick to ensure 'this' refers to the Video instance inside the handler
+      this.progressBarContainer.addEventListener(
+        "click",
+        this._handleSeekClick
+      );
+      this.progressBarContainer._seekListenerAttached = true;
+    }
+  }
+
+  // --- "Private" Event Handler Methods ---
+  _handlePlay = () => {
+    if (this.thumbnailElement)
+      this.thumbnailElement.classList.add("thumbnail-hidden");
+    this.isEnding = false; // Reset ending flag
+  };
+
+  _handlePause = () => {
+    // Show thumbnail only if video reached its simulated end
+    if (this.thumbnailElement && this.hasPlayedOnce) {
+      this.thumbnailElement.classList.remove("thumbnail-hidden");
+    } else if (this.thumbnailElement) {
+      this.thumbnailElement.classList.add("thumbnail-hidden"); // Keep hidden otherwise
+    }
+  };
+
+  _handleError = (error) => {
+    console.error(
+      `[Player ${this.id}] Error Event:`,
+      error.name,
+      error.message
+    );
+  };
+
+  _handleProgressUpdate = (data) => {
+    if (!data) return;
+
+    if (this.progressBarFill && this.duration > 0) {
+      const progressPercent = (data.percent * 100).toFixed(2);
+      this.progressBarFill.style.width = `${progressPercent}%`;
+    }
+
+    if (this.currentTimeDisplayElement) {
+      if (typeof formatTime === "function") {
+        this.currentTimeDisplayElement.textContent = formatTime(data.seconds);
+      } else {
+        console.error(
+          `[TimeUpdate ${this.id}] formatTime function is not available!`
+        );
+      }
+    }
+  };
+
+  _handleSimulatedEnd = (data) => {
+    if (!data || !this.duration) return; // Add duration check
+    const currentTime = data.seconds;
+    // Define endTimeTarget locally for clarity
+    const endTimeTarget = this.duration - this.timeupdateThreshold;
+
+    if (currentTime >= endTimeTarget && !this.isEnding) {
+      this.isEnding = true;
+      this.hasPlayedOnce = true;
+
+      if (this.progressBarFill) {
+        this.progressBarFill.style.width = "100%";
+      }
+      if (this.currentTimeDisplayElement && typeof formatTime === "function") {
+        this.currentTimeDisplayElement.textContent = formatTime(this.duration);
+      }
+
+      // Find button and icon wrappers
+      const btn = this.playPauseButtonElement;
+      const playWrapper = btn?.querySelector(".icon-play-wrapper");
+      const pauseWrapper = btn?.querySelector(".icon-pause-wrapper");
+
+      if (this.player) {
+        this.player
+          .pause()
+          .catch((e) => console.warn(`Pause error on timeupdate: ${e.name}`));
+      }
+
+      // Toggle Icons
+      if (btn && playWrapper && pauseWrapper) {
+        playWrapper.classList.remove("is-hidden");
+        pauseWrapper.classList.add("is-hidden");
+        btn.setAttribute("aria-label", "Play");
+      } else {
+        console.warn(
+          `[Player ${this.id}] Could not find button/icons on simulated end.`
+        );
+      }
+    } else if (
+      this.isEnding &&
+      this.duration > 0 &&
+      currentTime < endTimeTarget - 0.05
+    ) {
+      this.isEnding = false; // Reset if time moves away
+    }
+  };
+
+  _handleSeekClick = (event) => {
+    if (!this.duration || !this.player || !this.progressBarContainer) return;
+    const rect = this.progressBarContainer.getBoundingClientRect();
+    const offsetX = event.clientX - rect.left;
+    const barWidth = this.progressBarContainer.offsetWidth;
+    if (barWidth > 0) {
+      const seekFraction = Math.max(0, Math.min(offsetX / barWidth, 1)); // Clamp fraction 0-1
+      const seekTime = this.duration * seekFraction;
+      this.isEnding = false; // Reset ending flag on seek
+      this.hasPlayedOnce = false; // Reset play flag on seek
+      this.player
+        .setCurrentTime(seekTime)
+        .then(() => {
+          // Manually update UI immediately after successful seek
+          if (this.progressBarFill)
+            this.progressBarFill.style.width = `${(seekFraction * 100).toFixed(
+              2
+            )}%`;
+          if (this.currentTimeDisplayElement)
+            this.currentTimeDisplayElement.textContent = formatTime(seekTime);
+          // If paused, seeking might not trigger 'play', ensure thumb is hidden
+          if (this.thumbnailElement)
+            this.thumbnailElement.classList.add("thumbnail-hidden");
+        })
+        .catch((error) =>
+          console.warn(`[Player ${this.id}] Seek failed: ${error.name}`)
+        );
+    }
+  };
+
+  _updatePlayPauseButtonUI = (isPaused) => {
+    if (!this.playPauseButtonElement) return;
+
+    const playWrapper = this.playPauseButtonElement.querySelector(".icon-play-wrapper");
+    const pauseWrapper = this.playPauseButtonElement.querySelector(".icon-pause-wrapper");
+
+    playWrapper.classList.toggle("is-hidden", !isPaused);
+    pauseWrapper.classList.toggle("is-hidden", isPaused);
+    this.playPauseButtonElement.setAttribute("aria-label", isPaused ? "Play" : "Pause");
+  };
+
+  _updateSoundButtonUI = (isMuted) => {
+    if (!this.soundButtonElement) return;
+
+    const volumeOnWrapper = this.soundButtonElement.querySelector(".icon-volume-on-wrapper");
+    const volumeOffWrapper = this.soundButtonElement.querySelector(".icon-volume-off-wrapper");
+
+    volumeOffWrapper.classList.toggle("is-hidden", !isMuted);
+    volumeOnWrapper.classList.toggle("is-hidden", isMuted);
+    this.soundButtonElement.setAttribute("aria-label", isMuted ? "Unmute" : "Mute");
+};
+
+  updateVideoSizes(containerWidth) {
+    if (this.aspectRatio > 0 && containerWidth > 0) {
+      this.videoWidth = containerWidth;
+      this.videoHeight = containerWidth / this.aspectRatio;
+    } else {
+      this.videoWidth = 0;
+      this.videoHeight = 0;
+    }
+  }
+
+  /**
+   * Toggles play/pause state for this video IF it's the active scroll item.
+   * Resets end-simulation flags and seeks to start if re-playing after simulated end.
+   */
+  async togglePlayPause() {
+    let player;
+    try {
+      player = await this.initializePlayer();
+    } catch (error) {
+      console.error(
+        `[Toggle Play ${this.id}] Player init failed: ${error.message}`
+      );
+      return;
+    }
+
+    // Check active state
+    const scrollItemElement = document
+      .getElementById(`iframe-${this.id}`)
+      ?.closest(config.selectors.scrollItem);
+    const isActive = scrollItemElement?.classList.contains(
+      config.selectors.activeScrollItemClass
+    );
+    if (!isActive) {
+      console.warn(`[Toggle Play ${this.id}] Ignoring click: Not active item.`);
+      return;
+    }
+
+    // Find icon wrappers using this.id
+    const playPauseButton = this.playPauseButtonElement; // Get button for aria-label
+    const playWrapper = playPauseButton?.querySelector(".icon-play-wrapper");
+    const pauseWrapper = playPauseButton?.querySelector(".icon-pause-wrapper");
+
+    if (!playPauseButton || !playWrapper || !pauseWrapper) {
+      console.error(
+        `[Toggle Play ${this.id}] Button or Icon wrappers not found! Query: #playPauseButton-${this.id}`
+      );
+      return;
+    }
+
+    try {
+      const paused = await player.getPaused();
+      const wasAtSimulatedEnd = this.isEnding || this.hasPlayedOnce;
+
+      if (paused) {
+        this.hasPlayedOnce = false;
+        this.isEnding = false; 
+        if (wasAtSimulatedEnd && this.duration > 0) {
+          try {
+            await player.setCurrentTime(0);
+            if (this.progressBarFill) this.progressBarFill.style.width = "0%";
+          } catch (e) {
+            /* Warn */
+          }
+        }
+        await player.play();
+        // Show Pause icon, hide Play icon
+        this._updatePlayPauseButtonUI(false); 
+      } else {
+        await player.pause();
+        // Show Play icon, hide Pause icon
+        this._updatePlayPauseButtonUI(true); 
+      }
+    } catch (error) {
+      console.error(`[Toggle Play ${this.id}] API error:`, error.name);
+      this._updatePlayPauseButtonUI(true); // Assume paused state on error
+    }
+  }
+
+  /**
+     * Calls the globally provided function to toggle volume for all videos.
+     * Ensures this video's player is ready first.
+
+     */
+  async toggleSound() {
+    try {
+      await this.initializePlayer();
+
+      toggleGlobalVolume();
+    } catch (error) {
+      console.warn(
+        `[Toggle Sound ${this.id}] Player not ready: ${error.message}`
+      );
+    }
+  }
+}
+
+
+// ==========================================
+// File: src/js/modules/inputManager.js
+// ==========================================
+
+// ./js/modules/inputManager.js
+
+// Assuming utils.js is in ../utils/ relative to this modules/ folder
+import { throttle } from "../utils/utils.js";
+import { config } from "../config.js";
+import { updateTitleStyleBasedOnViewport } from "../core/scroll.js"; // Assuming this function is defined in scroll.js
+
+// --- Module State ---
+let scrollInputProcessor = null; // Function to call when scroll input occurs (throttled)
+let adjustVolumeCallback = null; // Function to call for volume keys
+let togglePlayPauseCallback = null; // Function to call for spacebar (needs active video)
+let getActiveVideoCallback = null; // Function to get the current video object
+
+// --- 2. Use config for DEFAULTS ---
+let resizeDebounceTime = config.input.resizeDebounce;
+let touchMinY = config.input.touchSensitivityY;
+let touchMaxX = config.input.touchSensitivityX;
+
+// --- Event Handler Functions ---
+async function handleKeyDown(event) {
+  const targetTagName = event.target.tagName;
+  if (
+    targetTagName === "INPUT" ||
+    targetTagName === "TEXTAREA" ||
+    event.target.isContentEditable
+  )
+    return;
+
+  switch (event.key) {
+    case " ":
+    case "Spacebar":
+      event.preventDefault();
+      if (getActiveVideoCallback && togglePlayPauseCallback) {
+        const activeVideo = getActiveVideoCallback();
+        if (activeVideo) {
+          togglePlayPauseCallback(activeVideo); // Call the wrapper
+        } else {
+        }
+      } else {
+        console.warn("[InputMgr] Spacebar ignored: Callbacks not initialized.");
+      }
+      break;
+    case "ArrowLeft":
+    case "ArrowUp":
+      event.preventDefault();
+      if (scrollInputProcessor) scrollInputProcessor(-1); // Negative delta
+      break;
+    case "ArrowRight":
+    case "ArrowDown":
+      event.preventDefault();
+      if (scrollInputProcessor) scrollInputProcessor(1); // Positive delta
+      break;
+    case "AudioVolumeUp":
+    case "+":
+      event.preventDefault();
+      if (adjustVolumeCallback) await adjustVolumeCallback(0.1);
+      break;
+    case "AudioVolumeDown":
+    case "-":
+      event.preventDefault();
+      if (adjustVolumeCallback) await adjustVolumeCallback(-0.1);
+      break;
+  }
+}
+
+function handleWheel(event) {
+  event.preventDefault();
+  if (scrollInputProcessor) scrollInputProcessor(event.deltaY);
+}
+
+function createTouchHandlers() {
+  // Uses hardcoded minY/maxX
+  let touchStartY = null,
+    touchStartX = null;
+  // const minSwipeDistanceY = 30, maxSwipeDistanceX = 100; // Use constants defined above
+
+  function onTouchStart(event) {
+    if (event.touches.length === 1) {
+      touchStartY = event.touches[0].clientY;
+      touchStartX = event.touches[0].clientX;
+    } else {
+      touchStartY = null;
+      touchStartX = null;
+    }
+  }
+  function onTouchMove(event) {
+    if (touchStartY !== null) {
+      const tX = event.touches[0].clientX;
+      if (Math.abs(touchStartX - tX) < touchMaxX) {
+        event.preventDefault();
+      }
+    }
+  } // Use touchMaxX
+  function onTouchEnd(event) {
+    if (touchStartY === null) return;
+    const tY = event.changedTouches[0].clientY;
+    const tX = event.changedTouches[0].clientX;
+    const dY = touchStartY - tY;
+    const dX = Math.abs(touchStartX - tX);
+    if (Math.abs(dY) > touchMinY && dX < touchMaxX) {
+      // Use touchMinY and touchMaxX
+      if (scrollInputProcessor) scrollInputProcessor(dY);
+    }
+    touchStartY = null;
+    touchStartX = null;
+  }
+  return { onTouchStart, onTouchMove, onTouchEnd };
+}
+
+function createResizeHandler(scrollPositionResizeCb, globalResizeHandler) {
+  let resizeTimeoutId;
+  return function onResize() {
+    // Clear any existing timeout to debounce the resize event
+    clearTimeout(resizeTimeoutId);
+    resizeTimeoutId = setTimeout(() => {
+      // Call the specific scroll position update (from scroll.js)
+      scrollPositionResizeCb();
+      // Call the comprehensive resize handler (from playlistManager.js)
+      globalResizeHandler(); // **NEW CALL**
+      updateTitleStyleBasedOnViewport();
+    }, config.input.resizeDebounce); // Use the debounce time from config
+  };
+}
+
+/** Attaches all necessary global event listeners. togglePlayPauseCallback*/
+function attachEventListeners(touchHandlers, resizeHandler) {
+  // Remove previous listeners
+  window.removeEventListener("keydown", handleKeyDown);
+  window.removeEventListener("wheel", handleWheel);
+  window.removeEventListener("touchstart", touchHandlers.onTouchStart);
+  window.removeEventListener("touchmove", touchHandlers.onTouchMove);
+  window.removeEventListener("touchend", touchHandlers.onTouchEnd);
+  window.removeEventListener("resize", resizeHandler);
+
+  // Add new listeners
+  window.addEventListener("keydown", handleKeyDown);
+  window.addEventListener("wheel", handleWheel, { passive: false });
+  window.addEventListener("touchstart", touchHandlers.onTouchStart, {
+    passive: true,
+  });
+  window.addEventListener("touchmove", touchHandlers.onTouchMove, {
+    passive: false,
+  });
+  window.addEventListener("touchend", touchHandlers.onTouchEnd, {
+    passive: true,
+  });
+  window.addEventListener("resize", resizeHandler);
+}
+
+/** Initializes the input manager. */
+export function initializeInput(
+  scrollProcessor,
+  scrollPositionResizeCb, // Renamed from resizeCb
+  globalResizeHandler, // NEW PARAMETER
+  adjustVolumeFn,
+  getActiveVideoFn,
+  togglePlayPauseFn,
+  resizeDebounce = config.input.resizeDebounce,
+  touchY = config.input.touchSensitivityY,
+  touchX = config.input.touchSensitivityX
+) {
+  scrollInputProcessor = scrollProcessor;
+  adjustVolumeCallback = adjustVolumeFn;
+  getActiveVideoCallback = getActiveVideoFn;
+  togglePlayPauseCallback = (video) => {
+    // This is the WRAPPER called by handleKeyDown
+    if (video && typeof togglePlayPauseFn === "function") {
+      try {
+        togglePlayPauseFn(video); // Call original fn without the button
+      } catch (e) {
+        console.error("Error calling togglePlayPauseFn from wrapper:", e);
+      }
+    } else {
+      console.warn(
+        `[InputMgr] Cannot toggle: video or togglePlayPauseFn missing. Video: ${!!video}, Fn: ${typeof togglePlayPauseFn}`
+      );
+    }
+  };
+
+  // Store values (either defaults from config or passed-in overrides)
+  resizeDebounceTime = resizeDebounce;
+  touchMinY = touchY;
+  touchMaxX = touchX;
+
+  const touchHandlers = createTouchHandlers();
+  // Pass both resize callbacks to createResizeHandler
+  const resizeHandler = createResizeHandler(
+    scrollPositionResizeCb,
+    globalResizeHandler
+  ); // **UPDATED**
+  attachEventListeners(touchHandlers, resizeHandler);
+}
+
+export function checkForMobile() {
+  return window.innerWidth <= config.breakpoints.mobileMaxWidth;
+}
+
+export function NavMenuOpen() {
+  const navMenuElement = document.getElementById(
+    config.selectors.navigationContainerId
+  );
+  const isVisible = navMenuElement
+    ? navMenuElement.classList.contains("is-visible")
+    : false;
+    return isVisible;
+}
+
+
+// ==========================================
+// File: src/js/utils/utils.js
+// ==========================================
+
+// utils.js - General utility functions
+
+/**
+ * Throttles a function to ensure it's called at most once within a specified limit.
+ */
+export function throttle(func, limit) {
+  let inThrottle;
+  return function () {
+    const args = arguments;
+    const context = this;
+    if (!inThrottle) {
+      func.apply(context, args);
+      inThrottle = true;
+      setTimeout(() => {
+        inThrottle = false;
+      }, limit);
+    }
+  };
+}
+
+/**
+ * Detects if the current device supports touch events.
+ */
+export function detectTouchDevice() {
+  let hasTouch = false;
+  if ("maxTouchPoints" in navigator) hasTouch = navigator.maxTouchPoints > 0;
+  else if ("ontouchstart" in window) hasTouch = true;
+  else if ("msMaxTouchPoints" in navigator)
+    hasTouch = navigator.msMaxTouchPoints > 0;
+  return hasTouch;
+}
+
+export function formatTime(totalSeconds) {
+  if (isNaN(totalSeconds) || totalSeconds < 0) {
+    return "0:00";
+  }
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = Math.floor(totalSeconds % 60);
+  // Pad seconds with a leading zero if needed
+  const paddedSeconds = seconds < 10 ? `0${seconds}` : seconds;
+  return `${minutes}:${paddedSeconds}`;
+}
+
+export function paddedNumber(number) {
+  if (isNaN(number)) {
+    return number;
+  }
+  return number < 10 ? `0${number}` : number;
+}
+
+/**
+ * Calculates the aspect ratio (width / height).
+ * Returns 16/9 as a fallback if width or height are invalid.
+ * @param {number} videoWidth - The width of the video.
+ * @param {number} videoHeight - The height of the video.
+ * @returns {number} The aspect ratio.
+ */
+export function getAspectRatio(videoWidth, videoHeight) {
+  // Check for positive numbers to avoid division by zero or NaN
+  if (videoWidth > 0 && videoHeight > 0) {
+    return videoWidth / videoHeight;
+  } else {
+    return 16 / 9; // Default fallback aspect ratio
+  }
+}
+
+export function logMissingElements(contentElement, context = "") {
+  if (!contentElement || typeof contentElement !== "object") {
+    console.warn(
+      `[${context}] contentElement is missing or invalid:`,
+      contentElement
+    );
+    return;
+  }
+
+  Object.entries(contentElement).forEach(([key, el]) => {
+    if (!el) {
+      console.warn(`[${context}] Missing element for key: '${key}'`);
+    } else if (!(el instanceof Element)) {
+      console.warn(`[${context}] Value for '${key}' is not a DOM element:`, el);
+    }
+  });
+}
+
+/**
+ * Gets the current date and returns it as a formatted string.
+ * @param {string} format - The desired format ('MM DD YYYY' is the default).
+ * @returns {string} The formatted date string.
+ */
+export function getFormattedDate(format = "MM DD YYYY") {
+  const today = new Date();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  const year = today.getFullYear();
+
+  // In the future, you could add more formats here if needed
+  if (format === "MM DD YYYY") {
+    return `${month} ${day} ${year}`;
+  }
+
+  // Default fallback
+  return `${month}/${day}/${year}`;
+}
+
+
+// ==========================================
+// File: tests/app.test.js
+// ==========================================
+
+
+import { describe, it, expect, beforeEach } from 'vitest';
+import fs from 'fs';
+import path from 'path';
+
+const html = fs.readFileSync(path.resolve(__dirname, '../src/index.html'), 'utf-8');
+
+describe('Hello Dare Website', () => {
+
+  beforeEach(() => {
+    document.documentElement.innerHTML = html;
+    // Since we are mocking the DOM, scripts won't run automatically in the same way.
+    // We might need to manually trigger things if we were testing complex interactions without E2E.
+    // For now, we test structure.
+  });
+
+  it('should have the correct title', () => {
+    expect(document.title).toBe('Hello Dare');
+  });
+
+  it('should contain the main title "Studio Dare"', () => {
+    const title = document.getElementById('main-page-title');
+    expect(title).toBeTruthy();
+    expect(title.textContent).toBe('Studio Dare');
+  });
+
+  it('should have a dark mode toggle button', () => {
+    const toggle = document.getElementById('darkModeToggle');
+    expect(toggle).toBeTruthy();
+  });
+
+  it('should have navigation menu hidden initially', () => {
+    const nav = document.getElementById('main-navigation');
+    expect(nav).toBeTruthy();
+    expect(nav.classList.contains('is-hidden')).toBe(true);
+  });
+
+  it('should have a work button', () => {
+    const workBtn = document.getElementById('menu-toggle-btn');
+    expect(workBtn).toBeTruthy();
+    expect(workBtn.textContent.trim()).toBe('Work');
+  });
+
+});
+
+
+// ==========================================
+// File: vite.config.js
+// ==========================================
+
+import { resolve } from 'path'
+import { defineConfig } from 'vite'
+import { glob } from 'glob'
+
+const htmlFiles = glob.sync(['src/**/*.html', '!src/vite-env.d.ts'])
+
+const input = htmlFiles.reduce((acc, file) => {
+  const name = file.replace('src/', '').replace('.html', '')
+  acc[name] = resolve(__dirname, file)
+  return acc
+}, {})
+
+export default defineConfig({
+  root: 'src',
+  test: {
+    environment: 'jsdom',
+    include: ['../tests/**/*.test.js'],
+  },
+  base: '/hellodare/',
+  publicDir: '../public',
+
+  build: {
+    outDir: '../dist',
+    rollupOptions: {
+      input: input,
+    },
+    emptyOutDir: true,
+  },
+})
+

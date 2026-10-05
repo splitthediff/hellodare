@@ -1,29 +1,29 @@
-import { resolve } from 'path'
-import { defineConfig } from 'vite'
-import { glob } from 'glob'
+import { resolve } from "path";
+import { defineConfig } from "vite";
+import { glob } from "glob";
 
-const htmlFiles = glob.sync(['src/**/*.html', '!src/vite-env.d.ts'])
+const htmlFiles = glob.sync(["src/**/*.html", "!src/vite-env.d.ts"]);
 
 const input = htmlFiles.reduce((acc, file) => {
-  const name = file.replace('src/', '').replace('.html', '')
-  acc[name] = resolve(__dirname, file)
-  return acc
-}, {})
+  const name = file.replace("src/", "").replace(".html", "");
+  acc[name] = resolve(__dirname, file);
+  return acc;
+}, {});
 
 export default defineConfig({
-  root: 'src',
+  root: "src",
   test: {
-    environment: 'jsdom',
-    include: ['../tests/**/*.test.js'],
+    environment: "jsdom",
+    include: ["../tests/**/*.test.js"],
   },
-  base: '/hellodare/',
-  publicDir: '../public',
+  base: "/",
+  publicDir: "../public",
 
   build: {
-    outDir: '../dist',
+    outDir: "../dist",
     rollupOptions: {
       input: input,
     },
     emptyOutDir: true,
   },
-})
+});
