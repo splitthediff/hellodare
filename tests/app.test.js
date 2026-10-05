@@ -15,7 +15,7 @@ describe('Hello Dare Website', () => {
   });
 
   it('should have the correct title', () => {
-    expect(document.title).toBe('Hello Dare');
+    expect(document.title).toBe('HelloDare.com / Studio Dare');
   });
 
   it('should contain the main title "Studio Dare"', () => {

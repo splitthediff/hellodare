@@ -1,0 +1,33 @@
+GIT SYNC CHEAT SHEET
+====================
+
+Follow these steps to keep your Laptop and Desktop in sync.
+
+PART 1: STARTING WORK (OPENING FILES)
+-------------------------------------
+Before you start typing any code, always pull the latest changes:
+
+    git pull
+
+*Expected Output:* "Fast-forward" or "Already up to date."
+
+PART 2: FINISHING WORK (CLOSING FILES)
+--------------------------------------
+When you are done for the day or switching computers, run these 3 commands:
+
+1.  Stage all your changes:
+    git add .
+
+2.  Commit your changes (save them):
+    git commit -m "Describe your changes here"
+
+3.  Push to GitHub (send them to the cloud):
+    git push
+
+*Expected Output:* "To https://github.com/...  ... -> develop"
+
+--------------------------------------
+QUICK TIP:
+If you forget to 'git pull' before starting and get an error later, 
+you can usually fix it by running 'git pull' and handling the merge, 
+but it is much easier to always PULL FIRST!
