@@ -15,13 +15,13 @@ describe('Hello Dare Website', () => {
   });
 
   it('should have the correct title', () => {
-    expect(document.title).toBe('HelloDare.com / Studio Dare');
+    expect(document.title).toBe('HelloDare.com / Leanne Dare');
   });
 
-  it('should contain the main title "Studio Dare"', () => {
+  it('should contain the main title "Leanne Dare"', () => {
     const title = document.getElementById('main-page-title');
     expect(title).toBeTruthy();
-    expect(title.textContent).toBe('Studio Dare');
+    expect(title.textContent).toBe('Leanne Dare');
   });
 
   it('should have a dark mode toggle button', () => {

@@ -64,7 +64,7 @@ function renderTrackContent(videos) {
             <div class="intro-content">
                 <div class="intro-column">
                     <div class="info-block">
-                        <h2 class="intro-line">STUDIO DARE</h2>
+                        <h2 class="intro-line">LEANNE DARE</h2>
                         <h2 class="intro-line">SELECTED WORK</h2>
                         <h2 id="current-date-display" class="date-display intro-line"></h2>
                         <div class="intro-line intro-arrow-container">
@@ -83,9 +83,11 @@ function renderTrackContent(videos) {
   videos.forEach((video) => {
     const src = video.iframeSrc;
     const thumbnailHTML = video.thumbnailUrl
-      ? `<img src="${video.thumbnailUrl
-      }" class="video-thumbnail" id="thumbnail-${video.id}" alt="${video.title || "Video thumbnail"
-      }">`
+      ? `<img src="${
+          video.thumbnailUrl
+        }" class="video-thumbnail" id="thumbnail-${video.id}" alt="${
+          video.title || "Video thumbnail"
+        }">`
       : "";
 
     const playIconRef = `<svg class="icon icon-play"><use xlink:href="#icon-play"></use></svg>`;
@@ -101,30 +103,36 @@ function renderTrackContent(videos) {
         `;
 
     playlistHTML += `
-            <div class="${scrollItemClass} video-item" data-video-id="${video.id
-      }">
-                    <div class="video-aspect-wrapper" id="video-wrapper-${video.id
-      }">
+            <div class="${scrollItemClass} video-item" data-video-id="${
+              video.id
+            }">
+                    <div class="video-aspect-wrapper" id="video-wrapper-${
+                      video.id
+                    }">
                         ${thumbnailHTML}
-                        <iframe src="${src}" id="iframe-${video.id
-      }" ...></iframe>
+                        <iframe src="${src}" id="iframe-${
+                          video.id
+                        }" ...></iframe>
                         <div class="video-controls">
-                            <button class="controls-button play-pause-button" id="playPauseButton-${video.id
-      }" aria-label="Play">
+                            <button class="controls-button play-pause-button" id="playPauseButton-${
+                              video.id
+                            }" aria-label="Play">
                                 <span class="button-icon-wrapper icon-play-wrapper">${playIconRef}</span>
                                 <span class="button-icon-wrapper icon-pause-wrapper is-hidden">${pauseIconRef}</span>
                             </button>
                             ${progressBarHTML}
-                            <button class="controls-button sound-button" id="soundButton-${video.id
-      }" aria-label="Unmute">
+                            <button class="controls-button sound-button" id="soundButton-${
+                              video.id
+                            }" aria-label="Unmute">
                                 <span class="button-icon-wrapper icon-volume-off-wrapper">${volumeOffIconRef}</span>
                                 <span class="button-icon-wrapper icon-volume-on-wrapper is-hidden">${volumeOnIconRef}</span>
                             </button>
                         </div>
                     </div>
                     <div class="video-info-overlay" id="video-info-${video.id}">
-                        <h3 class="video-info-title">${video.title || "Untitled"
-      }</h3>
+                        <h3 class="video-info-title">${
+                          video.title || "Untitled"
+                        }</h3>
                         <p class="video-info-year">${video.year || ""}</p>
                     </div>
             </div>
@@ -135,9 +143,9 @@ function renderTrackContent(videos) {
   playlistHTML += `
         <div class="${scrollItemClass} outro-section text-section" id="outro-section">
             <div class="outro-content">
-                <h2 class="outro-line">AT STUDIO DARE<br>WE MAKE FUN AND THOUGHTFUL THINGS<br>AND WE LIKE HAIKUS</h2>
-                <h3 class="outro-line">Our expertise spans design, animation, live-action direction, photography, and creative direction for film, television, commercials, branding, and media content. We believe thoughtful design and storytelling can make the world a better place—and we bring our best every time we get the chance to prove it.</h3>
-                <h3 class="outro-line"><a href="mailto:studio@hellodare.com" class="email-link" target="_blank" rel="noopener noreferrer">studio@hellodare.com</a></h3>
+                <h3 class="outro-line">INFO</h3>
+                <h3 class="outro-line">Leanne is a designer and creative director with a background in film and television. She work across motion, visual development, and design, collaborating with filmmakers, studios, and brands to develop visual worlds, tell stories, and make complex ideas easier to understand.</h3>
+                <h3 class="outro-line"><a href="mailto:hello@hellodare.com" class="email-link" target="_blank" rel="noopener noreferrer">hello@hellodare.com</a></h3>
             </div>
         </div>
     `;
@@ -150,7 +158,7 @@ function renderTrackContent(videos) {
   trackElement.innerHTML = playlistHTML;
 
   const introSectionElement = document.getElementById(
-    config.selectors.introSectionId.substring(1)
+    config.selectors.introSectionId.substring(1),
   );
   if (introSectionElement) {
     // setInitialVideoContentState(introSectionElement, false);
@@ -159,7 +167,7 @@ function renderTrackContent(videos) {
   videos.forEach((video) => {
     const videoId = video.id;
     const videoItemElement = trackElement.querySelector(
-      `.video-item[data-video-id="${videoId}"]`
+      `.video-item[data-video-id="${videoId}"]`,
     );
     if (!videoItemElement) {
       console.error(`Failed to find video item ${videoId}`);
@@ -167,7 +175,7 @@ function renderTrackContent(videos) {
     }
     videoItemElement.style.position = "relative";
     const wrapperElement = videoItemElement.querySelector(
-      ".video-aspect-wrapper"
+      ".video-aspect-wrapper",
     );
     if (wrapperElement && video.nativeWidth > 0 && video.nativeHeight > 0) {
       wrapperElement.style.aspectRatio = `${video.nativeWidth}/${video.nativeHeight}`;
@@ -176,7 +184,7 @@ function renderTrackContent(videos) {
   });
 
   const infoSectionElement = document.getElementById(
-    config.selectors.infoSectionId.substring(1)
+    config.selectors.infoSectionId.substring(1),
   ); // Get the info section element by ID
   if (infoSectionElement) {
     setInitialVideoContentState(infoSectionElement, false);
@@ -185,14 +193,14 @@ function renderTrackContent(videos) {
 
 function getDynamicWidth() {
   const containerElement = document.querySelector(
-    config.selectors.middleColumn
+    config.selectors.middleColumn,
   );
   return containerElement ? containerElement.clientWidth : window.innerWidth;
 }
 
 export function positionSingleInfoOverlay(videoId) {
   const item = document.querySelector(
-    `${config.selectors.scrollItem}.video-item[data-video-id="${videoId}"]`
+    `${config.selectors.scrollItem}.video-item[data-video-id="${videoId}"]`,
   );
   if (!item) return;
 
@@ -229,9 +237,10 @@ function renderNavigationMenu(videoData) {
   videoData.forEach((video, index) => {
     const navIndex = index + 1;
     navHTML += `<li><a href="#" class="nav-link" data-index="${navIndex}">${paddedNumber(
-      navIndex
-    )}<span class="nav-space"></span>${video.titleShortName || `Video ${navIndex}`
-      }</a></li>`;
+      navIndex,
+    )}<span class="nav-space"></span>${
+      video.titleShortName || `Video ${navIndex}`
+    }</a></li>`;
   });
 
   const infoIndex = videoData.length + 1;
@@ -261,13 +270,13 @@ function attachNavigationListeners(navContainer, lastItemIndex) {
 
           if (checkForMobile()) {
             const navMenu = document.getElementById(
-              config.selectors.navigationContainerId
+              config.selectors.navigationContainerId,
             );
 
             if (typeof closeNavMenu === "function") {
               closeNavMenu();
               const activeItemElement = document.querySelector(
-                ".scroll-item.active-scroll-item"
+                ".scroll-item.active-scroll-item",
               );
               if (activeItemElement) {
                 blurActiveElement(activeItemElement);
