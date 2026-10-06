@@ -144,7 +144,7 @@ function renderTrackContent(videos) {
         <div class="${scrollItemClass} outro-section text-section" id="outro-section">
             <div class="outro-content">
                 <h3 class="outro-line">INFO</h3>
-                <h3 class="outro-line">Leanne is a designer and creative director with a background in film and television. She work across motion, visual development, and design, collaborating with filmmakers, studios, and brands to develop visual worlds, tell stories, and make complex ideas easier to understand.</h3>
+                <h3 class="outro-line">Leanne is a designer and creative director with a background in film and television. She works across motion, visual development, and design, collaborating with filmmakers, studios, and brands to develop visual worlds, tell stories, and make complex ideas easier to understand.</h3>
                 <h3 class="outro-line"><a href="mailto:hello@hellodare.com" class="email-link" target="_blank" rel="noopener noreferrer">hello@hellodare.com</a></h3>
             </div>
         </div>
